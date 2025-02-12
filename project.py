@@ -2,14 +2,38 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
-# trytry
-# 00000
 
-# udoucdagfa
 data = pd.read_csv("daily_acivity.csv", header=0)
 print(data.head())
 
 #PartI 
+
+# STEP 1: count unique users and total distance for each user and graph it
+def calc_unique_graph_total_distance():
+    df = pd.DataFrame(data)
+    df["Id"] = df["Id"].astype(str)
+    total_users = df["Id"].nunique()
+
+    print("number of total users:",total_users)
+    # creating dictionary with key as user and sum of totalDistances as values
+    user_distance = df.groupby("Id")["TotalDistance"].sum().to_dict()
+
+
+    user_ids = list(user_distance.keys())
+    print(user_ids)
+    distances = list(user_distance.values())
+
+    plt.figure(figsize=(9, 15))
+    plt.bar(user_ids, distances, color='skyblue', edgecolor='black')
+
+    plt.xticks(rotation= 90) 
+    plt.xlabel("User ID")
+    plt.ylabel("Total Distance")
+    plt.title("Total Distance Covered by Each User")
+    plt.subplots_adjust(bottom=0.25)
+    plt.show()
+
+calc_unique_graph_total_distance()
 
 # STEP 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
@@ -30,18 +54,20 @@ def visualise_calories_burned(user_id, dates):
 visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 26).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 27).strftime('%m/%d/%Y')])
 
 ##3rd step: DateTime make a barplot Frequency and day##
+def frequency_day_barplot():
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
 
-data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
-data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
+    workout_counts = data["DayOfWeek"].value_counts().reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+    workout_frequency = workout_counts / workout_counts.sum()
 
-workout_counts = data["DayOfWeek"].value_counts().reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-workout_frequency = workout_counts / workout_counts.sum()
+    plt.figure(figsize=(8, 5))
+    plt.bar(workout_frequency.index, workout_frequency.values, color='skyblue', edgecolor='black')
+    plt.xlabel("Day of the Week")
+    plt.ylabel("Frequency of Workouts")
+    plt.title('Workout Frequency per Weekday')
+    for i, freq in enumerate(workout_frequency.values):
+        plt.text(i, freq, f'{freq:.2%}', ha='center', va='bottom', fontsize=10)
+    plt.show()
 
-plt.figure(figsize=(8, 5))
-plt.bar(workout_frequency.index, workout_frequency.values, color='skyblue', edgecolor='black')
-plt.xlabel("Day of the Week")
-plt.ylabel("Frequency of Workouts")
-plt.title('Workout Frequency per Weekday')
-for i, freq in enumerate(workout_frequency.values):
-    plt.text(i, freq, f'{freq:.2%}', ha='center', va='bottom', fontsize=10)
-plt.show()
+frequency_day_barplot()
