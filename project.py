@@ -14,14 +14,14 @@ import matplotlib.pyplot as plt
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
 data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
 
-day_counts = data["DayOfWeek"].value_counts()
-day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-day_counts = day_counts.reindex(day_order)
+workout_counts = data["DayOfWeek"].value_counts().reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+workout_frequency = workout_counts / workout_counts.sum()
 
 plt.figure(figsize=(8, 5))
-plt.bar(day_counts.index, day_counts.values)
+plt.bar(workout_frequency.index, workout_frequency.values, color='skyblue', edgecolor='black')
 plt.xlabel("Day of the Week")
 plt.ylabel("Frequency of Workouts")
-plt.title("Workouts per Day of the Week")
-plt.xticks(rotation=45)
+plt.title('Workout Frequency per Weekday')
+for i, freq in enumerate(workout_frequency.values):
+    plt.text(i, freq, f'{freq:.2%}', ha='center', va='bottom', fontsize=10)
 plt.show()
