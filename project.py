@@ -1,13 +1,34 @@
 # IMPORTS
 import pandas as pd
+import matplotlib.pyplot as plt
+import datetime
 # trytry
 # 00000
 
 # udoucdagfa
-data = pd.read_csv("daily_acivity.csv", index_col=0)
+data = pd.read_csv("daily_acivity.csv", header=0)
 print(data.head())
 
 #PartI 
+
+# STEP 2: displays a line graph that shows the calories burnt on each day
+def visualise_calories_burned(user_id, dates):
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    data["ActivityDate"] = data["ActivityDate"].dt.strftime('%m/%d/%Y')
+
+    calories_burned_user = data.loc[(data["ActivityDate"].isin(dates)) & (data["Id"] == user_id)]
+
+    fig = plt.figure(figsize=(9, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(calories_burned_user["ActivityDate"], calories_burned_user["Calories"])
+    ax.set_xticklabels(calories_burned_user["ActivityDate"], fontsize="small", rotation=45)
+    ax.set_title(f"Calories burned per day for user {user_id}")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Calories burned")
+    plt.show()
+
+visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 26).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 27).strftime('%m/%d/%Y')])
+
 ##3rd step: DateTime make a barplot Frequency and day##
 import matplotlib.pyplot as plt
 
