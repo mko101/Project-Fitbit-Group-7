@@ -30,7 +30,6 @@ def visualise_calories_burned(user_id, dates):
 visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 26).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 27).strftime('%m/%d/%Y')])
 
 ##3rd step: DateTime make a barplot Frequency and day##
-import matplotlib.pyplot as plt
 
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
 data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
