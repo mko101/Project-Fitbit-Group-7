@@ -13,17 +13,13 @@ data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
 
 # Step 1: count unique users and total distance for each user and graph it
 def calc_unique_graph_total_distance():
-    df = pd.DataFrame(data)
-    df["Id"] = df["Id"].astype(str)
-    total_users = df["Id"].nunique()
+    total_users = data["Id"].nunique()
     print("Number of total users:", total_users)
 
     # creating dictionary with key as user and sum of totalDistances as values
-    user_distance = df.groupby("Id")["TotalDistance"].sum().to_dict()
+    user_distance = data.groupby("Id")["TotalDistance"].sum().to_dict()
 
-
-    user_ids = list(user_distance.keys())
-    # print(user_ids)
+    user_ids = list(map(str, user_distance.keys()))
     distances = list(user_distance.values())
 
     plt.figure(figsize=(9, 15))
