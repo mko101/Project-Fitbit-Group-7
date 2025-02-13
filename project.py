@@ -7,8 +7,7 @@ import statsmodels.api as sm
 data = pd.read_csv("daily_acivity.csv", header=0)
 
 # converting the data to the type datetime
-data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
-data["ActivityDate"] = data["ActivityDate"].dt.strftime('%m/%d/%Y')
+data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
 
 # Part I 
 
@@ -59,7 +58,6 @@ visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('
 
 # Step 3: DateTime make a barplot Frequency and day
 def frequency_day_barplot():
-    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
     data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
 
     workout_counts = data["DayOfWeek"].value_counts().reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
