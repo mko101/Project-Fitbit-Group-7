@@ -1,7 +1,6 @@
 # IMPORTS
 import pandas as pd
 import matplotlib.pyplot as plt
-import datetime
 import statsmodels.api as sm
 
 data = pd.read_csv("daily_acivity.csv", header=0)
