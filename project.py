@@ -10,7 +10,7 @@ data = pd.read_csv("daily_acivity.csv", header=0)
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
 data["ActivityDate"] = data["ActivityDate"].dt.strftime('%m/%d/%Y')
 
-#Part I 
+# Part I 
 
 # Step 1: count unique users and total distance for each user and graph it
 def calc_unique_graph_total_distance():
@@ -41,8 +41,10 @@ calc_unique_graph_total_distance()
 
 # Step 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
+    # selects the rows from the dataframe that have the right user_id and dates
     calories_burned_user = data.loc[(data["ActivityDate"].isin(dates)) & (data["Id"] == user_id)]
 
+    # plots the calories burned for the user and dates passed to the function
     fig = plt.figure(figsize=(9, 8))
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(calories_burned_user["ActivityDate"], calories_burned_user["Calories"])
