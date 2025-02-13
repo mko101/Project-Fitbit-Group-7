@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
+import statsmodels.api as sm
 
 data = pd.read_csv("daily_acivity.csv", header=0)
 print(data.head())
@@ -71,3 +72,31 @@ def frequency_day_barplot():
     plt.show()
 
 frequency_day_barplot()
+
+# Step 4: Linear Regression Model and Visualization
+def linear_regression_visualization(user_id):
+    user_data = data[data["Id"] == user_id]
+    X = user_data[["TotalSteps", "Id"]]  # decision variables
+    y = user_data["Calories"]   # depedent variable
+    
+    # convert 'Id' to dummy
+    X["Id"] = X["Id"].astype("category")
+    X = pd.get_dummies(X, columns=["Id"], drop_first=True)
+    X = sm.add_constant(X)
+    
+    # linear regression model
+    model = sm.OLS(y, X).fit()
+    
+    print(model.summary())
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(user_data["TotalSteps"], user_data["Calories"], color='skyblue', label='Data points')
+    plt.plot(user_data["TotalSteps"], model.predict(X), color='red', label='Regression line')
+    plt.xlabel("Total Steps")
+    plt.ylabel("Calories Burned")
+    plt.title(f"Linear Relationship between Total Steps and Calories Burned for User {user_id}")
+    plt.legend()
+    plt.show()
+
+# Example usage
+linear_regression_visualization(1503960366)
