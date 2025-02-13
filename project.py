@@ -36,6 +36,7 @@ calc_unique_graph_total_distance()
 
 # Step 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
+    # convert the type of dates to datetime
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
     # selects the rows from the dataframe that have the right user_id and dates
