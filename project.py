@@ -40,6 +40,8 @@ calc_unique_graph_total_distance()
 
 # Step 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
     # selects the rows from the dataframe that have the right user_id and dates
     calories_burned_user = data.loc[(data["ActivityDate"].isin(dates)) & (data["Id"] == user_id)]
 
@@ -48,13 +50,13 @@ def visualise_calories_burned(user_id, dates):
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(calories_burned_user["ActivityDate"], calories_burned_user["Calories"])
     ax.set_xticks(calories_burned_user["ActivityDate"])
-    ax.set_xticklabels(calories_burned_user["ActivityDate"], fontsize="small", rotation=45)
+    ax.set_xticklabels(calories_burned_user["ActivityDate"].dt.strftime('%m/%d/%Y'), fontsize="small", rotation=45)
     ax.set_title(f"Calories Burned per Day for User {user_id}")
     ax.set_xlabel("Date")
     ax.set_ylabel("Calories Burned")
     plt.show()
 
-visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 26).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 27).strftime('%m/%d/%Y')])
+visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016"])
 
 # Step 3: DateTime make a barplot Frequency and day
 def frequency_day_barplot():
