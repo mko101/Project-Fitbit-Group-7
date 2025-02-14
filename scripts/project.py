@@ -52,7 +52,7 @@ def visualise_calories_burned(user_id, dates):
     ax.set_ylabel("Calories Burned")
     plt.show()
 
-visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016"])
+visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016", "3/30/2016", "3/31/2016", "4/1/2016", "4/2/2016", "4/3/2016"])
 
 # Step 3: DateTime make a barplot Frequency and day
 def frequency_day_barplot():
