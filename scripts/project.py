@@ -1,10 +1,9 @@
 # IMPORTS
 import pandas as pd
 import matplotlib.pyplot as plt
-import datetime
 import statsmodels.api as sm
 
-data = pd.read_csv("daily_acivity.csv", header=0)
+data = pd.read_csv("../data/daily_acivity.csv", header=0)
 
 # converting the data to the type datetime
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
@@ -13,17 +12,13 @@ data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
 
 # Step 1: count unique users and total distance for each user and graph it
 def calc_unique_graph_total_distance():
-    df = pd.DataFrame(data)
-    df["Id"] = df["Id"].astype(str)
-    total_users = df["Id"].nunique()
+    total_users = data["Id"].nunique()
     print("Number of total users:", total_users)
 
     # creating dictionary with key as user and sum of totalDistances as values
-    user_distance = df.groupby("Id")["TotalDistance"].sum().to_dict()
+    user_distance = data.groupby("Id")["TotalDistance"].sum().to_dict()
 
-
-    user_ids = list(user_distance.keys())
-    # print(user_ids)
+    user_ids = list(map(str, user_distance.keys()))
     distances = list(user_distance.values())
 
     plt.figure(figsize=(9, 15))
@@ -40,6 +35,9 @@ calc_unique_graph_total_distance()
 
 # Step 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
+    # convert the type of dates to datetime
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
     # selects the rows from the dataframe that have the right user_id and dates
     calories_burned_user = data.loc[(data["ActivityDate"].isin(dates)) & (data["Id"] == user_id)]
 
@@ -48,13 +46,13 @@ def visualise_calories_burned(user_id, dates):
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(calories_burned_user["ActivityDate"], calories_burned_user["Calories"])
     ax.set_xticks(calories_burned_user["ActivityDate"])
-    ax.set_xticklabels(calories_burned_user["ActivityDate"], fontsize="small", rotation=45)
+    ax.set_xticklabels(calories_burned_user["ActivityDate"].dt.strftime('%m/%d/%Y'), fontsize="small", rotation=45)
     ax.set_title(f"Calories Burned per Day for User {user_id}")
     ax.set_xlabel("Date")
     ax.set_ylabel("Calories Burned")
     plt.show()
 
-visualise_calories_burned(1503960366, [datetime.datetime(2016, 3, 25).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 26).strftime('%m/%d/%Y'), datetime.datetime(2016, 3, 27).strftime('%m/%d/%Y')])
+visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016"])
 
 # Step 3: DateTime make a barplot Frequency and day
 def frequency_day_barplot():
