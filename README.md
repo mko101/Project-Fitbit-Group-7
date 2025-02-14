@@ -12,3 +12,6 @@ visualise_calories_burned(user_id, dates) -
 frequency_day_barplot() - 
 
 linear_regression_visualization(user_id) - 
+
+
+REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories
