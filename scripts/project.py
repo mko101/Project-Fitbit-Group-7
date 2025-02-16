@@ -108,3 +108,17 @@ def make_correlation_heatmap():
     plt.title("Correlation between variables")
     plt.tick_params(axis='both', which='major', labelsize=6)
     plt.show()
+
+make_correlation_heatmap()
+
+def describe_columns(user_id):
+
+    df = data.loc[data["Id"] == user_id] if user_id else data
+
+    for column in df:
+        if column not in ["Id", "ActivityDate", "DayOfWeek"]:
+            print(df[column].describe())
+            print()
+
+describe_columns(None)
+describe_columns(4020332650)
