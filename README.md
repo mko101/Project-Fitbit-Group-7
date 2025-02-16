@@ -7,7 +7,7 @@ Data file is csv and it contains information about ID of the user and Activity d
 Functions: 
 calc_unique_graph_total_distance() - prints the number of unique users and graphs the total distance over all active dates per user
 
-visualise_calories_burned(user_id, dates) - 
+visualise_calories_burned(user_id, dates) - displays a line graph that shows the calories burnt on each day based on a user_id and a list of dates
 
 frequency_day_barplot() - 
 
