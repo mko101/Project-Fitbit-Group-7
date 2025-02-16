@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import seaborn as sns
 
 data = pd.read_csv("../data/daily_acivity.csv", header=0)
 
@@ -100,3 +101,10 @@ def linear_regression_visualization(user_id):
 
 # Example usage
 linear_regression_visualization(4020332650)
+
+def make_correlation_heatmap():
+    corr = data.corr(numeric_only=True)
+    sns.heatmap(corr, annot=True, annot_kws={'size': 6})
+    plt.title("Correlation between variables")
+    plt.tick_params(axis='both', which='major', labelsize=6)
+    plt.show()
