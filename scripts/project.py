@@ -98,5 +98,27 @@ def linear_regression_visualization(user_id):
     plt.legend()
     plt.show()
 
-# Example usage
 linear_regression_visualization(4020332650)
+
+# Step 5: Creativity visualization
+def calories_totalsteps_scatter():
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalSteps, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_steps = data["TotalSteps"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_steps, color='r', label='Median of Steps')
+
+    plt.xlabel("Steps")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalSteps")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalsteps_scatter()
+
+
