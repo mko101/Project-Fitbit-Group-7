@@ -122,3 +122,25 @@ def calories_totalsteps_scatter():
 calories_totalsteps_scatter()
 
 
+def calories_totalhours_scatter():
+    data['TotalMinutes']=data.VeryActiveMinutes + data.FairlyActiveMinutes + data.LightlyActiveMinutes + data.SedentaryMinutes
+    data['TotalHours']=round(data.TotalMinutes / 60)
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalHours, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_veryactiveminutes = data["TotalHours"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_veryactiveminutes, color='r', label='Median of TotalHours')
+
+    plt.xlabel("TotalHours")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalHours")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalhours_scatter()
