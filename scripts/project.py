@@ -53,7 +53,7 @@ def visualise_calories_burned(user_id, dates):
     ax.set_ylabel("Calories Burned")
     plt.show()
 
-visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016"])
+visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016", "3/30/2016", "3/31/2016", "4/1/2016", "4/2/2016", "4/3/2016"])
 
 # Step 3: DateTime make a barplot Frequency and day
 def frequency_day_barplot():
@@ -102,6 +102,51 @@ def linear_regression_visualization(user_id):
 # Example usage
 linear_regression_visualization(4020332650)
 
+# Step 5: Creativity visualization
+def calories_totalsteps_scatter():
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalSteps, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_steps = data["TotalSteps"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_steps, color='r', label='Median of Steps')
+
+    plt.xlabel("Steps")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalSteps")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalsteps_scatter()
+
+
+def calories_totalhours_scatter():
+    data['TotalMinutes']=data.VeryActiveMinutes + data.FairlyActiveMinutes + data.LightlyActiveMinutes + data.SedentaryMinutes
+    data['TotalHours']=round(data.TotalMinutes / 60)
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalHours, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_veryactiveminutes = data["TotalHours"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_veryactiveminutes, color='r', label='Median of TotalHours')
+
+    plt.xlabel("TotalHours")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalHours")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalhours_scatter()
+
 def make_correlation_heatmap():
     corr = data.corr(numeric_only=True)
     sns.heatmap(corr, annot=True, annot_kws={'size': 6})
@@ -122,3 +167,5 @@ def describe_columns(user_id):
 
 describe_columns(None)
 describe_columns(4020332650)
+
+linear_regression_visualization(4020332650)
