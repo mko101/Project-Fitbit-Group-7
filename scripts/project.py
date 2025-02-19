@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import seaborn as sns
 
-data = pd.read_csv("../data/daily_acivity.csv", header=0)
+data = pd.read_csv("../data/daily_activity.csv", header=0)
 
 # converting the data to the type datetime
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
@@ -169,3 +169,20 @@ describe_columns(None)
 describe_columns(4020332650)
 
 linear_regression_visualization(4020332650)
+
+def plot_activity_pie_chart():
+
+    minutes = [
+        data["VeryActiveMinutes"].sum(), 
+        data["FairlyActiveMinutes"].sum(),
+        data["LightlyActiveMinutes"].sum(),  # Corrected name
+        data["SedentaryMinutes"].sum()
+    ]
+    
+    labels = ['Very Active', 'Fairly Active', 'Lightly Active', 'Sedentary']
+    plt.figure(figsize=(8, 8))
+    plt.pie(minutes, labels=labels, autopct='%1.1f%%', explode=[0, 0, 0, 0.15], colors=['red', 'orange', 'yellow', 'gray'])
+    plt.title("Activity Breakdown by Minutes")
+    plt.show()
+
+plot_activity_pie_chart()

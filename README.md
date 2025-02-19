@@ -13,5 +13,7 @@ Functions:
 
 `linear_regression_visualization(user_id)` - follows a linear regression model to investigate and display the relationship between the amount of steps taken and the amount of calories burnt based on input user_id
 
+plot_activity_pie_chart() - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
+
 
 REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories
