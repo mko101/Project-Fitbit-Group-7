@@ -102,7 +102,7 @@ def linear_regression_visualization(user_id):
 linear_regression_visualization(4020332650)
 
 def plot_activity_pie_chart():
-    # Ensure column names are correct
+
     minutes = [
         data["VeryActiveMinutes"].sum(), 
         data["FairlyActiveMinutes"].sum(),
@@ -111,12 +111,9 @@ def plot_activity_pie_chart():
     ]
     
     labels = ['Very Active', 'Fairly Active', 'Lightly Active', 'Sedentary']
-
-    # Creating Pie Chart
     plt.figure(figsize=(8, 8))
     plt.pie(minutes, labels=labels, autopct='%1.1f%%', explode=[0, 0, 0, 0.15], colors=['red', 'orange', 'yellow', 'gray'])
     plt.title("Activity Breakdown by Minutes")
-    
     plt.show()
 
 plot_activity_pie_chart()
