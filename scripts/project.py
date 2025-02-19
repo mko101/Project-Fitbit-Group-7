@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-data = pd.read_csv("../data/daily_acivity.csv", header=0)
+data = pd.read_csv("../data/daily_activity.csv", header=0)
 
 # converting the data to the type datetime
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
