@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import seaborn as sns
 
 data = pd.read_csv("../data/daily_acivity.csv", header=0)
 
@@ -98,6 +99,7 @@ def linear_regression_visualization(user_id):
     plt.legend()
     plt.show()
 
+# Example usage
 linear_regression_visualization(4020332650)
 
 # Step 5: Creativity visualization
@@ -144,3 +146,26 @@ def calories_totalhours_scatter():
     plt.show()
     
 calories_totalhours_scatter()
+
+def make_correlation_heatmap():
+    corr = data.corr(numeric_only=True)
+    sns.heatmap(corr, annot=True, annot_kws={'size': 6})
+    plt.title("Correlation between variables")
+    plt.tick_params(axis='both', which='major', labelsize=6)
+    plt.show()
+
+make_correlation_heatmap()
+
+def describe_columns(user_id):
+
+    df = data.loc[data["Id"] == user_id] if user_id else data
+
+    for column in df:
+        if column not in ["Id", "ActivityDate", "DayOfWeek"]:
+            print(df[column].describe())
+            print()
+
+describe_columns(None)
+describe_columns(4020332650)
+
+linear_regression_visualization(4020332650)
