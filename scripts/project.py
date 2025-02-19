@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import seaborn as sns
 
 data = pd.read_csv("../data/daily_activity.csv", header=0)
 
@@ -99,6 +100,74 @@ def linear_regression_visualization(user_id):
     plt.show()
 
 # Example usage
+linear_regression_visualization(4020332650)
+
+# Step 5: Creativity visualization
+def calories_totalsteps_scatter():
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalSteps, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_steps = data["TotalSteps"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_steps, color='r', label='Median of Steps')
+
+    plt.xlabel("Steps")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalSteps")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalsteps_scatter()
+
+
+def calories_totalhours_scatter():
+    data['TotalMinutes']=data.VeryActiveMinutes + data.FairlyActiveMinutes + data.LightlyActiveMinutes + data.SedentaryMinutes
+    data['TotalHours']=round(data.TotalMinutes / 60)
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data.TotalHours, data.Calories, c=data.Calories)
+
+    # Compute median values
+    median_veryactiveminutes = data["TotalHours"].median()
+    median_calories = data["Calories"].median()
+
+    plt.axhline(median_calories, color='b', label='Median of Calories')
+    plt.axvline(median_veryactiveminutes, color='r', label='Median of TotalHours')
+
+    plt.xlabel("TotalHours")
+    plt.ylabel("Calories")
+    plt.title("Calories & TotalHours")
+
+    plt.legend()
+    plt.show()
+    
+calories_totalhours_scatter()
+
+def make_correlation_heatmap():
+    corr = data.corr(numeric_only=True)
+    sns.heatmap(corr, annot=True, annot_kws={'size': 6})
+    plt.title("Correlation between variables")
+    plt.tick_params(axis='both', which='major', labelsize=6)
+    plt.show()
+
+make_correlation_heatmap()
+
+def describe_columns(user_id):
+
+    df = data.loc[data["Id"] == user_id] if user_id else data
+
+    for column in df:
+        if column not in ["Id", "ActivityDate", "DayOfWeek"]:
+            print(df[column].describe())
+            print()
+
+describe_columns(None)
+describe_columns(4020332650)
+
 linear_regression_visualization(4020332650)
 
 def plot_activity_pie_chart():
