@@ -9,11 +9,15 @@ Functions:
 
 `visualise_calories_burned(user_id, dates)` - displays a line graph that shows the calories burnt on each day based on a user_id and a list of dates
 
-`frequency_day_barplot()` - display a bar plot that shows the frequency at which all individuals work out on each day of the week
+`frequency_day_barplot()` - displays a bar plot that shows the frequency at which all individuals work out on each day of the week
 
 `linear_regression_visualization(user_id)` - follows a linear regression model to investigate and display the relationship between the amount of steps taken and the amount of calories burnt based on input user_id
 
-plot_activity_pie_chart() - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
+`plot_activity_pie_chart()` - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
+
+`make_correlation_heatmap()` - visualizes the correlation between all numerical columns of the dataset in a heatmap
+
+`describe_columns(user_id)` - describes the count, mean, standard deviation, minimum, 25% quantile, 50% quantile, 75% quantile and maximum of each column based on a user_id. Pass None as an argument to get the description of all users.
 
 
 REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories
