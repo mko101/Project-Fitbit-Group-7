@@ -105,6 +105,7 @@ def visualize_weather_activity():
     
     cur.execute("""
         SELECT ActivityDate, 
+            AVG(Calories) AS Calories,
             AVG(TotalSteps) AS TotalSteps,
             AVG(VeryActiveMinutes) AS VeryActiveMinutes, 
             AVG(FairlyActiveMinutes) AS FairlyActiveMinutes, 
@@ -113,50 +114,116 @@ def visualize_weather_activity():
         FROM daily_activity
         GROUP BY ActivityDate;
     """)
-    df_activity = pd.DataFrame(cur.fetchall(), columns=["ActivityDate", "TotalSteps", "VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes", "SedentaryMinutes"])
+    df_activity = pd.DataFrame(cur.fetchall(), columns=["ActivityDate", "Calories", "TotalSteps", "VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes", "SedentaryMinutes"])
     df_activity["ActivityDate"] = pd.to_datetime(df_activity["ActivityDate"])
     df_merged = df_activity.merge(df_filtered_weather, left_on="ActivityDate", right_on="datetime")
 
+    # # Scatter plot: Temperature vs. VeryActiveMinutes
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
+    # # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
+    # # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
+    # plt.xlabel("Temperature (°C)")
+    # plt.ylabel("Average very active minutes")
+    # plt.title("Relationship between temperature and very active minutes")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Scatter plot: Precipation vs. VeryActiveMinutes
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
+    # # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
+    # # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
+    # plt.xlabel("Precipation (mm)")
+    # plt.ylabel("Average very active minutes")
+    # plt.title("Relationship between precipation and very active minutes")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Scatter plot: Temperature vs. TotalSteps
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["temp"], df_merged["TotalSteps"])
+    # plt.xlabel("Temperature (°C)")
+    # plt.ylabel("TotalSteps")
+    # plt.title("Relationship between temperature and daily total steps")
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Scatter plot: Precipation vs. TotalSteps
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["precip"], df_merged["TotalSteps"])
+    # plt.xlabel("Precipation (mm)")
+    # plt.ylabel("TotalSteps")
+    # plt.title("Relationship between precipation and daily total steps")
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Scatter plot: Temperature vs. Calories
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["temp"], df_merged["Calories"])
+    # plt.xlabel("Temperature (°C)")
+    # plt.ylabel("Calories")
+    # plt.title("Relationship between temperature and calories burnt")
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Scatter plot: Precipation vs. Calories
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(df_merged["precip"], df_merged["Calories"])
+    # plt.xlabel("Precipation (mm)")
+    # plt.ylabel("Calories")
+    # plt.title("Relationship between precipation and calories burnt")
+    # plt.grid(True)
+    # plt.show()
+    
+    # display six scattor plots as subplots
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+
     # Scatter plot: Temperature vs. VeryActiveMinutes
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
-    # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
-    # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
-    plt.xlabel("Temperature (°C)")
-    plt.ylabel("Average very active minutes")
-    plt.title("Relationship between temperature and very active minutes")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
-    # Scatter plot: Precipation vs. VeryActiveMinutes
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
-    # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
-    # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
-    plt.xlabel("Precipation (mm)")
-    plt.ylabel("Average very active minutes")
-    plt.title("Relationship between precipation and very active minutes")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
+    axes[0, 0].scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6)
+    axes[0, 0].set_xlabel("Temperature (°C)")
+    axes[0, 0].set_ylabel("Avg Very Active Minutes")
+    axes[0, 0].set_title("Temperature vs. Very Active Minutes")
+    axes[0, 0].grid(True)
+
+    # Scatter plot: Precipitation vs. VeryActiveMinutes
+    axes[1, 0].scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6)
+    axes[1, 0].set_xlabel("Precipitation (mm)")
+    axes[1, 0].set_ylabel("Avg Very Active Minutes")
+    axes[1, 0].set_title("Precipitation vs. Very Active Minutes")
+    axes[1, 0].grid(True)
+
     # Scatter plot: Temperature vs. TotalSteps
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df_merged["temp"], df_merged["TotalSteps"])
-    plt.xlabel("Temperature (°C)")
-    plt.ylabel("TotalSteps")
-    plt.title("Relationship between temperature and daily total steps")
-    plt.grid(True)
-    plt.show()
+    axes[0, 1].scatter(df_merged["temp"], df_merged["TotalSteps"], color='green', alpha=0.6)
+    axes[0, 1].set_xlabel("Temperature (°C)")
+    axes[0, 1].set_ylabel("Total Steps")
+    axes[0, 1].set_title("Temperature vs. Total Steps")
+    axes[0, 1].grid(True)
+
+    # Scatter plot: Precipitation vs. TotalSteps
+    axes[1, 1].scatter(df_merged["precip"], df_merged["TotalSteps"], color='purple', alpha=0.6)
+    axes[1, 1].set_xlabel("Precipitation (mm)")
+    axes[1, 1].set_ylabel("Total Steps")
+    axes[1, 1].set_title("Precipitation vs. Total Steps")
+    axes[1, 1].grid(True)
+
+    # Scatter plot: Temperature vs. Calories
+    axes[0, 2].scatter(df_merged["temp"], df_merged["Calories"], color='orange', alpha=0.6)
+    axes[0, 2].set_xlabel("Temperature (°C)")
+    axes[0, 2].set_ylabel("Calories Burned")
+    axes[0, 2].set_title("Temperature vs. Calories Burned")
+    axes[0, 2].grid(True)
+
+    # Scatter plot: Precipitation vs. Calories
+    axes[1, 2].scatter(df_merged["precip"], df_merged["Calories"], color='brown', alpha=0.6)
+    axes[1, 2].set_xlabel("Precipitation (mm)")
+    axes[1, 2].set_ylabel("Calories Burned")
+    axes[1, 2].set_title("Precipitation vs. Calories Burned")
+    axes[1, 2].grid(True)
     
-    # Scatter plot: Precipation vs. TotalSteps
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df_merged["precip"], df_merged["TotalSteps"])
-    plt.xlabel("Precipation (mm)")
-    plt.ylabel("TotalSteps")
-    plt.title("Relationship between precipation and daily total steps")
-    plt.grid(True)
+    plt.tight_layout()
     plt.show()
     
 visualize_weather_activity()
