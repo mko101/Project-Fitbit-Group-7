@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy.stats import shapiro
 
-db_path = "../data/fitbit_database.db"  # Update if needed
+db_path = "../data/fitbit_database.db"  
 con = sqlite3.connect(db_path)
 cur = con.cursor()
 
