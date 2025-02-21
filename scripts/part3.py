@@ -1,4 +1,4 @@
-#step 4 Analyse the relationship between sedentary activity and sleep duration
+#step 5 Analyse the relationship between sedentary activity and sleep duration
 # IMPORTS
 import sqlite3
 import pandas as pd
@@ -79,7 +79,7 @@ plt.show()
 print(model.summary())
 
 
-#step5 Compute 4-hours block Average of Steps,Sleep,Calories
+#step 6  Compute 4-hours block Average of Steps,Sleep,Calories
 import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
