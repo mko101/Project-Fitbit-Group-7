@@ -29,10 +29,10 @@ def plot_heart_rate_intensity(user_id):
     
     # Case 2: user_id missing in either one of the tables
     if user_id in heart_rate_ids and user_id not in intensity_ids:
-        print(f"❗️  Hourly intensity missing for User {user_id}.")
+        print(f"❗️ Hourly intensity missing for User {user_id}.")
     
     if user_id not in heart_rate_ids and user_id in intensity_ids:
-        print(f"❗️  Heart rate missing for User {user_id}")
+        print(f"❗️ Heart rate missing for User {user_id}")
          
     # query_heart_rate = f"SELECT Time, Value FROM heart_rate WHERE Id = ?"
     cur.execute(f"SELECT Time, Value FROM heart_rate WHERE Id = ?", (user_id,))
@@ -69,9 +69,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 # test
-# plot_heart_rate_intensity(7007744171)
-# plot_heart_rate_intensity(1503960366)
-# plot_heart_rate_intensity(9999999999)
+plot_heart_rate_intensity(7007744171)
+plot_heart_rate_intensity(1503960366)
+plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
@@ -80,9 +80,10 @@ def visualize_weather_activity():
     cur.execute("SELECT DISTINCT ActivityDate FROM daily_activity")
     unique_dates = [row[0] for row in cur.fetchall()]
     unique_dates = pd.to_datetime(unique_dates, format='%m/%d/%Y')
-    start_date = unique_dates.min().strftime('%Y-%m-%d')
-    end_date = unique_dates.max().strftime('%Y-%m-%d')
-    print(start_date, end_date)
+    
+    # start_date = unique_dates.min().strftime('%Y-%m-%d')
+    # end_date = unique_dates.max().strftime('%Y-%m-%d')
+    # print(start_date, end_date)
     
     # Fetch weather data for these dates (units: celcius, kilometer) using API
     # limited daily record
