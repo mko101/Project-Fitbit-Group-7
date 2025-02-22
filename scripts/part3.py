@@ -77,9 +77,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 
-# plot_heart_rate_intensity(7007744171)
-# plot_heart_rate_intensity(1503960366)
-# plot_heart_rate_intensity(9999999999)
+plot_heart_rate_intensity(7007744171)
+plot_heart_rate_intensity(1503960366)
+plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
