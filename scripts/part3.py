@@ -12,7 +12,6 @@ cur = con.cursor()
 # Part 7: Compare heart rate and hourly intensity for given user_id
 # Plot heart rate and hourly intensity for given user_id
 # Indicate when given user_id is missing in either heart_rate or hourly_intensity
-# Does not plot figures when given user_id is missing in both heart_rate and hourly_intensity
 def plot_heart_rate_intensity(user_id):
     # Find all unique heart_rate_ids with query
     cur.execute("SELECT DISTINCT Id FROM heart_rate")
@@ -24,42 +23,48 @@ def plot_heart_rate_intensity(user_id):
     
     # Case 1: user_id missing in both tables
     if user_id not in heart_rate_ids and user_id not in intensity_ids:
-        print(f"❌ Heart rate and hourly intensity missing for User {user_id}.")
+        print(f"❌ User {user_id}: Not Found")
         return
     
     # Case 2: user_id missing in either one of the tables
     if user_id in heart_rate_ids and user_id not in intensity_ids:
-        print(f"❗️ Hourly intensity missing for User {user_id}.")
-    
+        print(f"❗️ User {user_id}: Hourly Intensity Missing")
+        return
     if user_id not in heart_rate_ids and user_id in intensity_ids:
-        print(f"❗️ Heart rate missing for User {user_id}")
-         
-    # query_heart_rate = f"SELECT Time, Value FROM heart_rate WHERE Id = ?"
+        print(f"❗️ User {user_id}: Heart Rate Missing")
+        return
+    
+    # Fetch heart rate data
     cur.execute(f"SELECT Time, Value FROM heart_rate WHERE Id = ?", (user_id,))
     heart_rate_rows = cur.fetchall()
-    df_heart_rate = pd.DataFrame(heart_rate_rows, columns = [x[0] for x in cur.description])
-
-    # query_hourly_intensity = f"SELECT ActivityHour, TotalIntensity FROM hourly_intensity WHERE Id = ?"
+    heart_rate_df = pd.DataFrame(heart_rate_rows, columns=["Time", "Value"])
+    heart_rate_df["Time"] = pd.to_datetime(heart_rate_df["Time"], format="%m/%d/%Y %I:%M:%S %p")
+    
+    # Fetch intensity data
     cur.execute(f"SELECT ActivityHour, TotalIntensity FROM hourly_intensity WHERE Id = ?", (user_id,))
-    hourly_intensity_rows = cur.fetchall()
-    df_hourly_intensity = pd.DataFrame(hourly_intensity_rows, columns = [x[0] for x in cur.description])
+    intensity_rows = cur.fetchall()
+    intensity_df = pd.DataFrame(intensity_rows, columns=["ActivityHour", "TotalIntensity"])
+    intensity_df["ActivityHour"] = pd.to_datetime(intensity_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
 
-    # Convert date/time columns to datetime format
-    df_heart_rate["Time"] = pd.to_datetime(df_heart_rate["Time"], format="%m/%d/%Y %I:%M:%S %p")
-    df_hourly_intensity["ActivityHour"] = pd.to_datetime(df_hourly_intensity["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    # Find the overlapping time range
+    min_time = max(heart_rate_df["Time"].min(), intensity_df["ActivityHour"].min())
+    max_time = min(heart_rate_df["Time"].max(), intensity_df["ActivityHour"].max())
 
-    # Create the plot
-    fig, ax1 = plt.subplots(figsize=(16, 5))
+    # Filter data to include only the overlapping time range
+    heart_rate_filtered = heart_rate_df[(heart_rate_df["Time"] >= min_time) & (heart_rate_df["Time"] <= max_time)]
+    intensity_filtered = intensity_df[(intensity_df["ActivityHour"] >= min_time) & (intensity_df["ActivityHour"] <= max_time)]
+
+    fig, ax1 = plt.subplots(figsize=(20, 5))
 
     # Plot Heart Rate (Red)
-    ax1.plot(df_heart_rate["Time"], df_heart_rate["Value"], color='red', label="Heart Rate")
+    ax1.plot(heart_rate_filtered["Time"], heart_rate_filtered["Value"], color='red', label="Heart Rate")
     ax1.set_xlabel("Time")
     ax1.set_ylabel("Heart Rate (bpm)", color='red')
     ax1.tick_params(axis='y', labelcolor='red')
 
     # Create a second y-axis for exercise intensity (blue)
     ax2 = ax1.twinx()
-    ax2.plot(df_hourly_intensity["ActivityHour"], df_hourly_intensity["TotalIntensity"], color='blue', label="Exercise Intensity")
+    ax2.plot(intensity_filtered["ActivityHour"], intensity_filtered["TotalIntensity"], color='blue', label="Exercise Intensity")
     ax2.set_ylabel("Total Exercise Intensity", color='blue')
     ax2.tick_params(axis='y', labelcolor='blue')
 
@@ -68,7 +73,7 @@ def plot_heart_rate_intensity(user_id):
     fig.tight_layout()
     plt.show()
 
-# test
+
 plot_heart_rate_intensity(7007744171)
 plot_heart_rate_intensity(1503960366)
 plot_heart_rate_intensity(9999999999)
@@ -106,24 +111,24 @@ def visualize_weather_activity():
     
     cur.execute("""
         SELECT ActivityDate, 
-            AVG(Calories) AS Calories,
             AVG(TotalSteps) AS TotalSteps,
             AVG(VeryActiveMinutes) AS VeryActiveMinutes, 
             AVG(FairlyActiveMinutes) AS FairlyActiveMinutes, 
             AVG(LightlyActiveMinutes) AS LightlyActiveMinutes, 
-            AVG(SedentaryMinutes) AS SedentaryMinutes
+            AVG(SedentaryMinutes) AS SedentaryMinutes,
+            AVG(Calories) AS Calories
         FROM daily_activity
         GROUP BY ActivityDate;
     """)
-    df_activity = pd.DataFrame(cur.fetchall(), columns=["ActivityDate", "Calories", "TotalSteps", "VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes", "SedentaryMinutes"])
+    df_activity = pd.DataFrame(cur.fetchall(), columns=["ActivityDate", "TotalSteps", "VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes", "SedentaryMinutes", "Calories"])
     df_activity["ActivityDate"] = pd.to_datetime(df_activity["ActivityDate"])
     df_merged = df_activity.merge(df_filtered_weather, left_on="ActivityDate", right_on="datetime")
 
-    # # Scatter plot: Temperature vs. VeryActiveMinutes
+    # Scatter plot: Temperature vs. Active Minutes
     # plt.figure(figsize=(10, 6))
     # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
-    # # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
-    # # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
+    # plt.scatter(df_merged["temp"], df_merged["FairlyActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
+    # plt.scatter(df_merged["temp"], df_merged["LightlyActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
     # plt.xlabel("Temperature (°C)")
     # plt.ylabel("Average very active minutes")
     # plt.title("Relationship between temperature and very active minutes")
@@ -131,56 +136,8 @@ def visualize_weather_activity():
     # plt.grid(True)
     # plt.show()
     
-    # # Scatter plot: Precipation vs. VeryActiveMinutes
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
-    # # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
-    # # plt.scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
-    # plt.xlabel("Precipation (mm)")
-    # plt.ylabel("Average very active minutes")
-    # plt.title("Relationship between precipation and very active minutes")
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
-    
-    # # Scatter plot: Temperature vs. TotalSteps
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["temp"], df_merged["TotalSteps"])
-    # plt.xlabel("Temperature (°C)")
-    # plt.ylabel("TotalSteps")
-    # plt.title("Relationship between temperature and daily total steps")
-    # plt.grid(True)
-    # plt.show()
-    
-    # # Scatter plot: Precipation vs. TotalSteps
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["precip"], df_merged["TotalSteps"])
-    # plt.xlabel("Precipation (mm)")
-    # plt.ylabel("TotalSteps")
-    # plt.title("Relationship between precipation and daily total steps")
-    # plt.grid(True)
-    # plt.show()
-    
-    # # Scatter plot: Temperature vs. Calories
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["temp"], df_merged["Calories"])
-    # plt.xlabel("Temperature (°C)")
-    # plt.ylabel("Calories")
-    # plt.title("Relationship between temperature and calories burnt")
-    # plt.grid(True)
-    # plt.show()
-    
-    # # Scatter plot: Precipation vs. Calories
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["precip"], df_merged["Calories"])
-    # plt.xlabel("Precipation (mm)")
-    # plt.ylabel("Calories")
-    # plt.title("Relationship between precipation and calories burnt")
-    # plt.grid(True)
-    # plt.show()
-    
     # display six scattor plots as subplots
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig, axes = plt.subplots(2, 3, figsize=(18, 9))
 
     # Scatter plot: Temperature vs. VeryActiveMinutes
     axes[0, 0].scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6)
@@ -188,6 +145,7 @@ def visualize_weather_activity():
     axes[0, 0].set_ylabel("Avg Very Active Minutes")
     axes[0, 0].set_title("Temperature vs. Very Active Minutes")
     axes[0, 0].grid(True)
+    
 
     # Scatter plot: Precipitation vs. VeryActiveMinutes
     axes[1, 0].scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6)
@@ -195,20 +153,34 @@ def visualize_weather_activity():
     axes[1, 0].set_ylabel("Avg Very Active Minutes")
     axes[1, 0].set_title("Precipitation vs. Very Active Minutes")
     axes[1, 0].grid(True)
-
-    # Scatter plot: Temperature vs. TotalSteps
-    axes[0, 1].scatter(df_merged["temp"], df_merged["TotalSteps"], color='green', alpha=0.6)
+    
+    # Scatter plot: Temperature vs. SedentaryMinutes
+    axes[0, 1].scatter(df_merged["temp"], df_merged["SedentaryMinutes"], color="green", alpha=0.6)
     axes[0, 1].set_xlabel("Temperature (°C)")
-    axes[0, 1].set_ylabel("Total Steps")
-    axes[0, 1].set_title("Temperature vs. Total Steps")
+    axes[0, 1].set_ylabel("Avg Sedentary Minutes")
+    axes[0, 1].set_title("Temperature vs. Sedentary Minutes")
     axes[0, 1].grid(True)
-
+    
     # Scatter plot: Precipitation vs. TotalSteps
-    axes[1, 1].scatter(df_merged["precip"], df_merged["TotalSteps"], color='purple', alpha=0.6)
+    axes[1, 1].scatter(df_merged["precip"], df_merged["SedentaryMinutes"], color='purple', alpha=0.6)
     axes[1, 1].set_xlabel("Precipitation (mm)")
-    axes[1, 1].set_ylabel("Total Steps")
-    axes[1, 1].set_title("Precipitation vs. Total Steps")
-    axes[1, 1].grid(True)
+    axes[1, 1].set_ylabel("Avg Sedentary Minutes")
+    axes[1, 1].set_title("Precipitation vs. Sedentary Minutes")
+    axes[1, 1].grid(True)   
+
+    # # Scatter plot: Temperature vs. TotalSteps
+    # axes[0, 1].scatter(df_merged["temp"], df_merged["TotalSteps"], color='green', alpha=0.6)
+    # axes[0, 1].set_xlabel("Temperature (°C)")
+    # axes[0, 1].set_ylabel("Total Steps")
+    # axes[0, 1].set_title("Temperature vs. Total Steps")
+    # axes[0, 1].grid(True)
+
+    # # Scatter plot: Precipitation vs. TotalSteps
+    # axes[1, 1].scatter(df_merged["precip"], df_merged["TotalSteps"], color='purple', alpha=0.6)
+    # axes[1, 1].set_xlabel("Precipitation (mm)")
+    # axes[1, 1].set_ylabel("Total Steps")
+    # axes[1, 1].set_title("Precipitation vs. Total Steps")
+    # axes[1, 1].grid(True)
 
     # Scatter plot: Temperature vs. Calories
     axes[0, 2].scatter(df_merged["temp"], df_merged["Calories"], color='orange', alpha=0.6)
@@ -227,6 +199,6 @@ def visualize_weather_activity():
     plt.tight_layout()
     plt.show()
     
-visualize_weather_activity()
+# visualize_weather_activity()
 
 
