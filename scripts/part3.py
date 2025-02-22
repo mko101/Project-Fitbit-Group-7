@@ -2,6 +2,9 @@
 import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import statsmodels.api as sm
 import requests
 import json
 
@@ -74,9 +77,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 
-plot_heart_rate_intensity(7007744171)
-plot_heart_rate_intensity(1503960366)
-plot_heart_rate_intensity(9999999999)
+# plot_heart_rate_intensity(7007744171)
+# plot_heart_rate_intensity(1503960366)
+# plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
@@ -123,82 +126,84 @@ def visualize_weather_activity():
     df_activity = pd.DataFrame(cur.fetchall(), columns=["ActivityDate", "TotalSteps", "VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes", "SedentaryMinutes", "Calories"])
     df_activity["ActivityDate"] = pd.to_datetime(df_activity["ActivityDate"])
     df_merged = df_activity.merge(df_filtered_weather, left_on="ActivityDate", right_on="datetime")
-
-    # Scatter plot: Temperature vs. Active Minutes
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6, label="Very Active")
-    # plt.scatter(df_merged["temp"], df_merged["FairlyActiveMinutes"], color='blue', alpha=0.6, label="Fairly Active")
-    # plt.scatter(df_merged["temp"], df_merged["LightlyActiveMinutes"], color='green', alpha=0.6, label="Lightly Active")
-    # plt.xlabel("Temperature (°C)")
-    # plt.ylabel("Average very active minutes")
-    # plt.title("Relationship between temperature and very active minutes")
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
     
-    # display six scattor plots as subplots
-    fig, axes = plt.subplots(2, 3, figsize=(18, 9))
-
-    # Scatter plot: Temperature vs. VeryActiveMinutes
-    axes[0, 0].scatter(df_merged["temp"], df_merged["VeryActiveMinutes"], color='red', alpha=0.6)
-    axes[0, 0].set_xlabel("Temperature (°C)")
-    axes[0, 0].set_ylabel("Avg Very Active Minutes")
-    axes[0, 0].set_title("Temperature vs. Very Active Minutes")
-    axes[0, 0].grid(True)
+    # Display effect of weather condition on activity
+    fig, axes = plt.subplots(2, 2, figsize=(15, 9))
     
+    # Pie chart: Proportion of weather conditions
+    weather_counts = df_merged["icon"].value_counts()
+    axes[0, 0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=140)
+    axes[0, 0].set_title("Proportion of Weather Conditions")
 
-    # Scatter plot: Precipitation vs. VeryActiveMinutes
-    axes[1, 0].scatter(df_merged["precip"], df_merged["VeryActiveMinutes"], color='blue', alpha=0.6)
-    axes[1, 0].set_xlabel("Precipitation (mm)")
-    axes[1, 0].set_ylabel("Avg Very Active Minutes")
-    axes[1, 0].set_title("Precipitation vs. Very Active Minutes")
-    axes[1, 0].grid(True)
-    
-    # Scatter plot: Temperature vs. SedentaryMinutes
-    axes[0, 1].scatter(df_merged["temp"], df_merged["SedentaryMinutes"], color="green", alpha=0.6)
-    axes[0, 1].set_xlabel("Temperature (°C)")
-    axes[0, 1].set_ylabel("Avg Sedentary Minutes")
-    axes[0, 1].set_title("Temperature vs. Sedentary Minutes")
+    # BOX PLOT: Activity distribution per weather condition
+    sns.boxplot(data=df_merged, x="icon", y="TotalSteps", ax=axes[0, 1])
+    axes[0, 1].set_title("Distribution of Total Steps Across Weather Conditions")
+    axes[0, 1].set_xlabel("Weather Condition")
+    axes[0, 1].set_ylabel("Total Steps")
+    axes[0, 1].set_xticks(range(len(df_merged["icon"].unique())))
+    axes[0, 1].set_xticklabels(df_merged["icon"].unique(), rotation=45)
     axes[0, 1].grid(True)
-    
-    # Scatter plot: Precipitation vs. TotalSteps
-    axes[1, 1].scatter(df_merged["precip"], df_merged["SedentaryMinutes"], color='purple', alpha=0.6)
-    axes[1, 1].set_xlabel("Precipitation (mm)")
-    axes[1, 1].set_ylabel("Avg Sedentary Minutes")
-    axes[1, 1].set_title("Precipitation vs. Sedentary Minutes")
-    axes[1, 1].grid(True)   
 
-    # # Scatter plot: Temperature vs. TotalSteps
-    # axes[0, 1].scatter(df_merged["temp"], df_merged["TotalSteps"], color='green', alpha=0.6)
-    # axes[0, 1].set_xlabel("Temperature (°C)")
-    # axes[0, 1].set_ylabel("Total Steps")
-    # axes[0, 1].set_title("Temperature vs. Total Steps")
-    # axes[0, 1].grid(True)
+    sns.boxplot(data=df_merged, x="icon", y="Calories", ax=axes[1, 0])
+    axes[1, 0].set_title("Distribution of Calories Across Weather Conditions")
+    axes[1, 0].set_xlabel("Weather Condition")
+    axes[1, 0].set_ylabel("Calories")
+    axes[1, 0].set_xticks(range(len(df_merged["icon"].unique())))
+    axes[1, 0].set_xticklabels(df_merged["icon"].unique(), rotation=45)
+    axes[1, 0].grid(True)
 
-    # # Scatter plot: Precipitation vs. TotalSteps
-    # axes[1, 1].scatter(df_merged["precip"], df_merged["TotalSteps"], color='purple', alpha=0.6)
-    # axes[1, 1].set_xlabel("Precipitation (mm)")
-    # axes[1, 1].set_ylabel("Total Steps")
-    # axes[1, 1].set_title("Precipitation vs. Total Steps")
-    # axes[1, 1].grid(True)
+    sns.boxplot(data=df_merged, x="icon", y="SedentaryMinutes", ax=axes[1, 1])
+    axes[1, 1].set_title("Distribution of Sedentary Minutes Across Weather Conditions")
+    axes[1, 1].set_xlabel("Weather Condition")
+    axes[1, 1].set_ylabel("Sedentary Minutes")
+    axes[1, 1].set_xticks(range(len(df_merged["icon"].unique())))
+    axes[1, 1].set_xticklabels(df_merged["icon"].unique(), rotation=45)
+    axes[1, 1].grid(True)
 
-    # Scatter plot: Temperature vs. Calories
-    axes[0, 2].scatter(df_merged["temp"], df_merged["Calories"], color='orange', alpha=0.6)
-    axes[0, 2].set_xlabel("Temperature (°C)")
-    axes[0, 2].set_ylabel("Calories Burned")
-    axes[0, 2].set_title("Temperature vs. Calories Burned")
-    axes[0, 2].grid(True)
-
-    # Scatter plot: Precipitation vs. Calories
-    axes[1, 2].scatter(df_merged["precip"], df_merged["Calories"], color='brown', alpha=0.6)
-    axes[1, 2].set_xlabel("Precipitation (mm)")
-    axes[1, 2].set_ylabel("Calories Burned")
-    axes[1, 2].set_title("Precipitation vs. Calories Burned")
-    axes[1, 2].grid(True)
-    
     plt.tight_layout()
     plt.show()
     
-# visualize_weather_activity()
+    # Display relation between weather factors and activity and apply linear regression model
+    scatter_plots = [
+        ("temp", "VeryActiveMinutes", "red", "Temperature (°C)", "Very Active Minutes"),
+        ("temp", "SedentaryMinutes", "green", "Temperature (°C)", "Sedentary Minutes"),
+        ("temp", "Calories", "orange", "Temperature (°C)", "Calories Burnt"),
+        ("precip", "VeryActiveMinutes", "blue", "Precipitation (mm)", "Very Active Minutes"),
+        ("precip", "SedentaryMinutes", "purple", "Precipitation (mm)", "Sedentary Minutes"),
+        ("precip", "Calories", "brown", "Precipitation (mm)", "Calories Burnt"),
+    ]
+    
+    fig, axes = plt.subplots(2, 3, figsize=(18, 9))
+
+    for idx, (x_col, y_col, color, x_label, y_label) in enumerate(scatter_plots):
+        ax = axes[idx // 3, idx % 3]
+        
+        ax.scatter(df_merged[x_col], df_merged[y_col], color=color, alpha=0.6, label = "Data points")
+
+        # Fit OLS regression model
+        X = sm.add_constant(df_merged[x_col])
+        y = df_merged[y_col]
+        model = sm.OLS(y, X).fit()
+        
+        # Print regression summary
+        print(f"<Regression Summary for {y_col} vs {x_col}>\n")
+        print(model.summary())
+        print("\n------------------------------------------------------------------------------\n")
+        
+        x_range = np.linspace(df_merged[x_col].min(), df_merged[x_col].max(), 100)
+        y_pred = model.predict(sm.add_constant(x_range))
+
+        ax.plot(x_range, y_pred, color="darkgrey", label="Regression line")
+        
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_title(f"{x_label} vs. {y_label}")
+        ax.legend()
+        ax.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+    
+visualize_weather_activity()
 
 
