@@ -20,4 +20,6 @@ For the second part the "fitbit_database.db" is used. SHOULD ADD SOME DESCRIBTIO
 Functions in part2:
 `create_new_dataframe()` - creates, displays, and returns a new DataFrame with two columns: "Id" (unique user IDs) and "Class" (user category: Heavy, Moderate, or Light). The classification is based on how frequently each user appears in the original CSV file "daily_activity.csv". The resulting DataFrame is sorted in descending order, from Heavy to Light users.
 
+`run_analysis(data_type)` - This function takes paramater "steps" or "calories" and verifies its data by retrieving daily and hourly records, merging them, and comparing total daily values with summed hourly values (in `get_verified_data(data_type)`). It identifies matches and mismatches, calculates statistics like match percentage and absolute differences (in `calculate_statistics(merged_df, label, total_column, value_column)`), and visualizes the results through pie, bar, and line charts (in `plot_graphs(merged_df, label)`).
+
 REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories

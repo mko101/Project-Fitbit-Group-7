@@ -37,46 +37,135 @@ def create_new_dataframe():
 
 # create_new_dataframe()
 
-# Part2 verifying data in database
-def verifying_TotalSteps_with_hourly_steps():
-    query = f"SELECT LEFT(ActivityHour,CHARINDEX(' ',ActivityHour) -1) FROM hourly_steps WHERE StepTotal = 1111"
+# Part2: Verifying data
+def get_verified_data(data_type):
+    if data_type == "steps":
+        query = "SELECT Id, ActivityDate, TotalSteps FROM daily_activity"
+        query_2 = "SELECT Id, ActivityHour, StepTotal FROM hourly_steps"
+        value_column = "StepTotal"
+        total_column = "TotalSteps"
+        label = "Steps"
+    elif data_type == "calories":
+        query = "SELECT Id, ActivityDate, Calories FROM daily_activity"
+        query_2 = "SELECT Id, ActivityHour, Calories FROM hourly_calories"
+        value_column = "Calories"
+        total_column = "Calories"
+        label = "Calories"
+    else:
+        raise ValueError("Invalid data_type. Please choose either 'steps' or 'calories'.")
+
+    # Fetch data from database
     cur.execute(query)
-    
     rows = cur.fetchall()
-    if rows:
-        print(rows)
-        
+    daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description]) 
+
+    cur.execute(query_2)
+    rows_2 = cur.fetchall()
+    hourly_data = pd.DataFrame(rows_2, columns=[desc[0] for desc in cur.description]) 
+
+    # Convert date format
+    hourly_data["ActivityHour"] = pd.to_datetime(hourly_data["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    hourly_data["ActivityDate"] = hourly_data["ActivityHour"].dt.date
+
+    # Aggregate hourly data
+    sum_daily_hourly_data = hourly_data.groupby(["Id", "ActivityDate"])[value_column].sum().reset_index()
+    daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
+
+    # Merge
+    merged_df = daily_activity.merge(sum_daily_hourly_data, on=["Id", "ActivityDate"], how="left")
+
+    # Rename columns after merge (for calories)
+    if data_type == "calories":
+        merged_df.rename(columns={"Calories_x": "TotalCalories", "Calories_y": "HourlyCalories"}, inplace=True)
+        total_column = "TotalCalories"
+        value_column = "HourlyCalories"
+
+    # Match check
+    merged_df["DataMatch"] = merged_df[total_column] == merged_df[value_column]
+    merged_df["Id"] = merged_df["Id"].astype(int)
+
+    return merged_df, label, total_column, value_column
 
 
+# Part 2: Compute Statistics
+def calculate_statistics(merged_df, label, total_column, value_column):
+    false_count = (~merged_df["DataMatch"]).sum()
+    true_count = merged_df["DataMatch"].sum()
+    total_count = merged_df["DataMatch"].count()
+    match_percentage = round(true_count / total_count * 100, 2) if total_count > 0 else 0
+    match_ratio = round(true_count / false_count, 2) if false_count != 0 else "All matched"
 
-# Run the function
-verifying_TotalSteps_with_hourly_steps()
+    # Calculate absolute and raw differences
+    merged_df["Difference"] = merged_df[total_column] - merged_df[value_column]
+    abs_diff_avg = round(merged_df["Difference"].abs().mean(), 2)  # Absolute difference average
 
-def verify_steps_match():
+    # Calculate averages for total and hourly datasets
+    total_avg = round(merged_df[total_column].mean(), 2)
+    hourly_avg = round(merged_df[value_column].mean(), 2)
+    
+    # Relative difference percentage
+    relative_diff_percentage = round((abs_diff_avg / total_avg) * 100, 2) if total_avg != 0 else 0
 
-    query = """
-    SELECT h.Id, 
-        SUBSTR(h.ActivityHour, 1, INSTR(h.ActivityHour, ' ') - 1) AS ActivityDate, 
-        SUM(h.StepTotal) AS TotalHourlySteps, 
-        d.TotalSteps AS TotalDailySteps, 
-        SUM(h.StepTotal) = d.TotalSteps AS is_equal
-    FROM hourly_steps h
-    JOIN daily_activity d 
-        ON h.Id = d.Id 
-        AND SUBSTR(h.ActivityHour, 1, INSTR(h.ActivityHour, ' ') - 1) = d.ActivityDate
-    GROUP BY h.Id, ActivityDate, d.TotalSteps;
+    # Print statistics
+    print(f"Count of unmatched {label}: {false_count}")
+    print(f"Count of matched {label}: {true_count}")
+    print(f"Total count: {total_count}")
+    print(f"Percentage of matching {label}: {match_percentage} %")
+    print(f"Ratio of matched to unmatched {label}: {match_ratio}")
+    print(f"Absolute difference average: {abs_diff_avg}")
+    print(f"Average {label} per day (Total Dataset): {total_avg}")
+    print(f"Average {label} per day (Hourly Sum): {hourly_avg}")
+    print(f"Relative Difference Percentage: {relative_diff_percentage} %")
 
-    """
 
-    cur.execute(query)
-    results = cur.fetchall()
- #   print("Query Results:", results)
-    con.close()
+# Part 3: Graphing
+def plot_graphs(merged_df, label):
+    false_count = (~merged_df["DataMatch"]).sum()
+    true_count = merged_df["DataMatch"].sum()
 
-    # Print results
-    for user_id, date, hourly_steps, daily_steps, is_equal in results:
-        status = "✅ Match" if is_equal else "❌ No Match"
-        print(f"User {user_id} on {date}: Hourly Steps = {hourly_steps}, Daily Steps = {daily_steps} → {status}")
+    # Pie chart: Matched vs Unmatched
+    plt.pie([true_count, false_count], labels=["Matched", "Unmatched"], autopct='%1.1f%%', colors=["green", "red"])
+    plt.title(f"Percentage of Matched vs Unmatched {label}")
+    plt.show()
 
-# Run the function
-# verify_steps_match()
+    # Matching Percentage Per User
+    user_match_percentage = merged_df.groupby("Id")["DataMatch"].mean() * 100
+    plt.figure(figsize=(16, 8))
+    plt.bar(user_match_percentage.index.astype(str), user_match_percentage.values, color='purple')
+    plt.xlabel('User ID')
+    plt.ylabel(f'Match Percentage (%)')
+    plt.title(f'Matching Percentage Per User ({label})')
+    plt.xticks(rotation=90)
+    plt.ylim(0, 105)
+    plt.subplots_adjust(bottom=0.25)
+    plt.show()
+
+    # Matching Percentage Per Day
+    day_match_percentage = merged_df.groupby("ActivityDate")["DataMatch"].mean() * 100
+    plt.figure(figsize=(14, 8))
+    plt.plot(day_match_percentage.index, day_match_percentage.values, marker='o', color='violet')
+    plt.xlabel('Date')
+    plt.ylabel(f'Match Percentage (%)')
+    plt.title(f'Daily Matching Percentage Over Time ({label})')
+    plt.xticks(pd.date_range(start=day_match_percentage.index.min(), end=day_match_percentage.index.max(), freq='D'), rotation=90)
+    plt.xticks(rotation=90)
+    plt.subplots_adjust(bottom=0.25)
+    plt.ylim(-5, 105)
+    plt.show()
+
+
+# Run everything
+def run_analysis(data_type):
+    valid_options = ["steps", "calories"]
+
+    if data_type not in valid_options:
+        print(f"Error: Invalid data type '{data_type}'. Please choose from {valid_options}.")
+        return 
+
+    merged_df, label, total_column, value_column = get_verified_data(data_type)
+    calculate_statistics(merged_df, label, total_column, value_column)
+    plot_graphs(merged_df, label)
+
+# Run for both steps and calories
+run_analysis("steps")
+run_analysis("calories")
