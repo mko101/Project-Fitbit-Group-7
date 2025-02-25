@@ -34,13 +34,13 @@ This database contains the following tabular data:
 ### weather_Chicago.csv
 It is given that all participants in the sample live in Chicago. Fitbit data collected concerns dates in March and April, 2016. This `.csv` file contains the weather information in Chicago from 2016-03-01 to 2016-04-30 downloaded from [visualcrossing](https://www.visualcrossing.com/weather-query-builder/). The weather information contains factors such as (min/max) temperature, (min/max) feelslike, humidity, precipation, snow, snowdepth, conditions, etc.
 
-# Scripts
+## Scripts
 
-## main
+### main
 
 ...
 
-## part1
+### part1
 Script `part1.py` contains functions that help explore the `daily_activity.csv` dataset with computations and visualizations.
 * `calc_unique_graph_total_distance()` - prints the number of unique users and graphs the total distance over all active dates per user.
 * `visualise_calories_burned(user_id, dates)` - displays a line graph that shows the calories burnt on each day based on a `user_id` and a list of dates.
