@@ -1,6 +1,20 @@
 # Data Engineering Project: Analysing Fitbit Data
 
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Data](#data)
+    1. [daily_activity](#daily_activitycsv)
+    2. [fitbit_database](#fitbit_databasedb)
+    3. [weather_Chicago](#weather_chicagocsv)
+3. [Scripts](#scripts)
+    1. [main](#main)
+    2. [part1](#part1)
+    3. [part3](#part3)
+
+
+## Introduction
 This project studies a dataset obtained from fitbits of 35 different respondence from amazon survey in 2016 that submited censored usage data. This library will provide tools to study various statistical analysis of the users.
+
 
 ## Data
 
