@@ -28,23 +28,14 @@ It is given that all participants in the sample live in Chicago. Fitbit data col
 
 ## part1
 Script `part1.py` contains functions that help explore the `daily_activity.csv` dataset with computations and visualizations.
-
 * `calc_unique_graph_total_distance()` - prints the number of unique users and graphs the total distance over all active dates per user.
-
 * `visualise_calories_burned(user_id, dates)` - displays a line graph that shows the calories burnt on each day based on a `user_id` and a list of dates.
-
 * `frequency_day_barplot()` - display a bar plot that shows the frequency (in percentage) at which all individuals work out on each day of the week.
-
 * `linear_regression_visualization(user_id)` - follows a linear regression model to investigate and display the relationship between the amount of steps taken and the amount of calories burnt based on input `user_id`.
-
 * `calories_totalsteps_scatter()` - display a scatter plot that graphs the relationship between total daily steps and the calories burnt, also comparing with the median of both.
-
 * `calories_totalhours_scatter()` - displays a scatter plot that graphs the relationship between total hours recorded and calories burnt, with the median of both.
-
 * `make_correlation_heatmap()` - ...
-
 * `describe_columns(user_id)` - ...
-
 * `plot_activity_pie_chart()` - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
 
 
