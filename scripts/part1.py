@@ -168,8 +168,6 @@ def describe_columns(user_id):
 describe_columns(None)
 describe_columns(4020332650)
 
-linear_regression_visualization(4020332650)
-
 def plot_activity_pie_chart():
 
     minutes = [
