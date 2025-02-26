@@ -149,9 +149,12 @@ calories_totalhours_scatter()
 
 def make_correlation_heatmap():
     corr = data.corr(numeric_only=True)
+    plt.figure(figsize=(11, 6))
     sns.heatmap(corr, annot=True, annot_kws={'size': 6})
     plt.title("Correlation between variables")
     plt.tick_params(axis='both', which='major', labelsize=6)
+    plt.subplots_adjust(left=0.2)
+    plt.subplots_adjust(bottom=0.2)
     plt.show()
 
 make_correlation_heatmap()
