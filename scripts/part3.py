@@ -59,7 +59,6 @@ def get_verified_data(data_type):
     else:
         raise ValueError("Invalid data_type. Please choose either 'steps' or 'calories'.")
 
-    # Fetch data from database
     cur.execute(query)
     rows = cur.fetchall()
     daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description]) 
@@ -76,7 +75,6 @@ def get_verified_data(data_type):
     sum_daily_hourly_data = hourly_data.groupby(["Id", "ActivityDate"])[value_column].sum().reset_index()
     daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
 
-    # Merge
     merged_df = daily_activity.merge(sum_daily_hourly_data, on=["Id", "ActivityDate"], how="left")
 
     # Rename columns after merge (for calories)
@@ -99,16 +97,10 @@ def calculate_statistics(merged_df, label, total_column, value_column):
     total_count = merged_df["DataMatch"].count()
     match_percentage = round(true_count / total_count * 100, 2) if total_count > 0 else 0
     match_ratio = round(true_count / false_count, 2) if false_count != 0 else "All matched"
-
-    # Calculate absolute and raw differences
     merged_df["Difference"] = merged_df[total_column] - merged_df[value_column]
     abs_diff_avg = round(merged_df["Difference"].abs().mean(), 2)  # Absolute difference average
-
-    # Calculate averages for total and hourly datasets
     total_avg = round(merged_df[total_column].mean(), 2)
     hourly_avg = round(merged_df[value_column].mean(), 2)
-    
-    # Relative difference percentage
     relative_diff_percentage = round((abs_diff_avg / total_avg) * 100, 2) if total_avg != 0 else 0
 
     # Print statistics
@@ -159,7 +151,9 @@ def plot_graphs(merged_df, label):
     plt.show()
 
 
-# Run everything
+# Run everything: run_analysis(data_type) verifies either "steps" or "calories" data.
+# - If "steps" is passed, it checks TotalSteps per day in daily_activity against hourly_steps.
+# - If "calories" is passed, it checks TotalCalories per day in daily_activity against hourly_calories.
 def run_analysis(data_type):
     valid_options = ["steps", "calories"]
 
@@ -172,7 +166,7 @@ def run_analysis(data_type):
     plot_graphs(merged_df, label)
 
 # Run for both steps and calories
-run_analysis("steps")
+# run_analysis("steps")
 run_analysis("calories")
 
 # Step 3: compute the sleep duration for each moment of sleep of an individual
@@ -197,7 +191,7 @@ def compute_sleep_duration(user_id):
     
     return sleep_durations
 
-print(compute_sleep_duration(1503960366))
+# print(compute_sleep_duration(1503960366))
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
 def compare_activity_and_sleep(user_id):
@@ -242,7 +236,7 @@ def compare_activity_and_sleep(user_id):
     plt.legend()
     plt.show()
 
-compare_activity_and_sleep(1503960366)
+# compare_activity_and_sleep(1503960366)
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
 def compare_sedentary_activity_and_sleep():
@@ -296,7 +290,7 @@ def compare_sedentary_activity_and_sleep():
     p_value = stats.shapiro(residuals.tolist()).pvalue
     print(f"Shapiro-Wilk Test: p-value = {p_value:.4f}")
 
-compare_sedentary_activity_and_sleep()
+# compare_sedentary_activity_and_sleep()
 
 # Step 6: compute 4-hours block Average Steps, Sleep, Calories
 def categorize_time(hour):
@@ -352,7 +346,7 @@ def compute_block_averages():
         plt.xticks(rotation=0)
         plt.show()
 
-compute_block_averages()
+# compute_block_averages()
 
 # Part 7: Compare heart rate and hourly intensity for given user_id
 # Plot heart rate and hourly intensity for given user_id
@@ -419,9 +413,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 
-plot_heart_rate_intensity(7007744171)
-plot_heart_rate_intensity(1503960366)
-plot_heart_rate_intensity(9999999999)
+# plot_heart_rate_intensity(7007744171)
+# plot_heart_rate_intensity(1503960366)
+# plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
@@ -546,4 +540,4 @@ def visualize_weather_activity():
     plt.tight_layout()
     plt.show()
     
-visualize_weather_activity()
+# visualize_weather_activity()
