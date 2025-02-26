@@ -7,7 +7,9 @@ import numpy as np
 import statsmodels.api as sm
 import requests
 import json
+import random
 from scipy import stats
+from scipy.stats import bernoulli
 
 # connect to database
 con = sqlite3.connect("../data/fitbit_database.db")
@@ -172,8 +174,8 @@ def run_analysis(data_type):
     plot_graphs(merged_df, label)
 
 # Run for both steps and calories
-run_analysis("steps")
-run_analysis("calories")
+# run_analysis("steps")
+# run_analysis("calories")
 
 # Step 3: compute the sleep duration for each moment of sleep of an individual
 def compute_sleep_duration(user_id):
@@ -197,7 +199,7 @@ def compute_sleep_duration(user_id):
     
     return sleep_durations
 
-print(compute_sleep_duration(1503960366))
+# print(compute_sleep_duration(1503960366))
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
 def compare_activity_and_sleep(user_id):
@@ -242,7 +244,7 @@ def compare_activity_and_sleep(user_id):
     plt.legend()
     plt.show()
 
-compare_activity_and_sleep(1503960366)
+# compare_activity_and_sleep(1503960366)
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
 def compare_sedentary_activity_and_sleep():
@@ -296,7 +298,7 @@ def compare_sedentary_activity_and_sleep():
     p_value = stats.shapiro(residuals.tolist()).pvalue
     print(f"Shapiro-Wilk Test: p-value = {p_value:.4f}")
 
-compare_sedentary_activity_and_sleep()
+# compare_sedentary_activity_and_sleep()
 
 # Step 6: compute 4-hours block Average Steps, Sleep, Calories
 def categorize_time(hour):
@@ -352,7 +354,7 @@ def compute_block_averages():
         plt.xticks(rotation=0)
         plt.show()
 
-compute_block_averages()
+# compute_block_averages()
 
 # Part 7: Compare heart rate and hourly intensity for given user_id
 # Plot heart rate and hourly intensity for given user_id
@@ -419,9 +421,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 
-plot_heart_rate_intensity(7007744171)
-plot_heart_rate_intensity(1503960366)
-plot_heart_rate_intensity(9999999999)
+# plot_heart_rate_intensity(7007744171)
+# plot_heart_rate_intensity(1503960366)
+# plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
@@ -546,4 +548,41 @@ def visualize_weather_activity():
     plt.tight_layout()
     plt.show()
     
-visualize_weather_activity()
+# visualize_weather_activity()
+
+
+# Step 9: look for missing values in the weight_log and resolve them
+def sample_random_age(random_number):
+    # sample = {"18-24": 0.1579, "25-34": 0.2593, "35-44": 0.1940, "45-54": 0.1608, "55-64": 0.1294, "65+": 0.0987}
+    age_groupes = {0.1579: list(range(18, 25)), 0.2593: list(range(25, 35)), 0.1940: list(range(35, 45)), 0.1608: list(range(45, 55)), 0.1294: list(range(55, 65)), 0.0987: list(range(65, 79))}
+
+    sum = 0
+
+    for probabilty, ages in age_groupes.items():
+        sum += probabilty
+
+        if random_number <= sum:
+            return random.choice(ages)
+
+
+def resolve_missing_values_weight_log():
+    weights = cur.execute("SELECT * FROM weight_log")
+    rows = weights.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    null_values = df["WeightKg"].isnull().sum()
+
+    if null_values > 0:
+        df["WeightKg"] = df.apply(lambda row: (row["WeightPounds"] / 2.20462262) if pd.isnull(row["WeightKg"]) else row["WeightKg"], axis=1)
+
+    null_values = df["Fat"].isnull().sum()
+
+    if null_values > 0:
+        # https://www.coolest-gadgets.com/fitbit-statistics/
+        # F: 44.66% and M: 55.34%
+        # 18-24: 0.1579, 25-34: 0.2593, 35-44: 0.1940, 45-54: 0.1608, 55-64: 0.1294, 65+: 0.0987
+        df["Fat"] = df.apply(lambda row: ((row["BMI"] * 1.2) + (0.23 * sample_random_age(random.random())) - (5.4 if bernoulli.rvs(0.4466) else 16.2)) if pd.isnull(row["Fat"]) else row["Fat"], axis=1)
+        
+    print(df.head(33))
+
+resolve_missing_values_weight_log()
