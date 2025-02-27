@@ -7,7 +7,9 @@ import numpy as np
 import statsmodels.api as sm
 import requests
 import json
+import random
 from scipy import stats
+from scipy.stats import bernoulli
 
 # connect to database
 con = sqlite3.connect("../data/fitbit_database.db")
@@ -167,7 +169,7 @@ def run_analysis(data_type):
 
 # Run for both steps and calories
 # run_analysis("steps")
-run_analysis("calories")
+# run_analysis("calories")
 
 # Step 3: compute the sleep duration for each moment of sleep of an individual
 def compute_sleep_duration(user_id):
@@ -587,19 +589,37 @@ def resolve_missing_values_weight_log():
         # 18-24: 0.1579, 25-34: 0.2593, 35-44: 0.1940, 45-54: 0.1608, 55-64: 0.1294, 65+: 0.0987
         df["Fat"] = df.apply(lambda row: ((row["BMI"] * 1.2) + (0.23 * sample_random_age(row["Id"])) - (5.4 if sample_random_gender(row["Id"]) == "F" else 16.2)) if pd.isnull(row["Fat"]) else row["Fat"], axis=1)
         
-    print(df.head(33))
+    # print(df.head(33))
+    return df
 
-resolve_missing_values_weight_log()
+# print(resolve_missing_values_weight_log())
 
 # Part10: check correlation between weight and calories
-    def check_correlation_weight_calories():
-        query = "SELECT Id, ActivityDate, Calories FROM daily_activity"
-        query_2 = "SELECT Id, ActivityHour, StepTotal FROM hourly_steps"
+def check_correlation_weight_calories():
+    query = "SELECT Id, ActivityDate, Calories FROM daily_activity"
 
-        cur.execute(query)
-        rows = cur.fetchall()
-        daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description]) 
+    cur.execute(query)
+    rows = cur.fetchall()
+    daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description])
+    weight_log = resolve_missing_values_weight_log().loc[:,["Id", "Date", "WeightKg"]]
+    
+    weight_log["Date"] = pd.to_datetime(weight_log["Date"], format="%m/%d/%Y %I:%M:%S %p")
+    weight_log["Date"] = weight_log["Date"].dt.date
+    daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
+    merged_df = pd.merge(daily_activity, weight_log, left_on=["Id", "ActivityDate"], right_on=["Id", "Date"], how="left")
 
-        cur.execute(query_2)
-        rows_2 = cur.fetchall()
-        hourly_data = pd.DataFrame(rows_2, columns=[desc[0] for desc in cur.description]) 
+    # Drop the 'Date' column after merge since it's redundant
+    merged_df = merged_df.drop(columns=["Date"])
+
+    # Now, for each user, forward fill the weight after it is first available
+    merged_df["WeightKg"] = merged_df.groupby("Id")["WeightKg"].ffill()
+
+    # Optionally, if you want to omit rows where the weight is still NaN (i.e., before the first weight upload):
+    merged_df = merged_df.dropna(subset=["WeightKg"])
+    merged_df["Id"] = merged_df["Id"].astype(int)
+    print(merged_df.head(50))
+
+
+    # merged_df["Id"] = merged_df["Id"].astype(int)
+
+check_correlation_weight_calories()
