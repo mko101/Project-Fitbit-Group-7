@@ -3,6 +3,8 @@ import sqlite3
 import pandas as pd
 import random
 from scipy.stats import bernoulli
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # connect to database
 con = sqlite3.connect("../data/fitbit_database.db")
@@ -54,3 +56,46 @@ def resolve_missing_values_weight_log():
     return df
 
 print(resolve_missing_values_weight_log())
+
+# Part2: check correlation between weight and calories
+def check_correlation_weight_calories():
+    query = "SELECT Id, ActivityDate, Calories FROM daily_activity"
+
+    cur.execute(query)
+    rows = cur.fetchall()
+    daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description])
+    weight_log = resolve_missing_values_weight_log().loc[:,["Id", "Date", "WeightKg"]]
+    
+    weight_log["Date"] = pd.to_datetime(weight_log["Date"], format="%m/%d/%Y %I:%M:%S %p")
+    weight_log["Date"] = weight_log["Date"].dt.date
+    daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
+    merged_df = pd.merge(daily_activity, weight_log, left_on=["Id", "ActivityDate"], right_on=["Id", "Date"], how="left")
+    merged_df = merged_df.drop(columns=["Date"])
+
+    # Forward fill the weight after it is first available
+    merged_df["WeightKg"] = merged_df.groupby("Id")["WeightKg"].ffill()
+
+    merged_df = merged_df.dropna(subset=["WeightKg"])
+    merged_df["Id"] = merged_df["Id"].astype(int)
+
+    #plot scatterplot and calculate correlation
+    plot_scatterplot_calculate_correlation(merged_df)
+    # print(f"Number of unique users: {daily_activity['Id'].nunique()}")
+    # print(f"Number of unique users: {weight_log['Id'].nunique()}")
+    # print(f"Number of unique users: {merged_df['Id'].nunique()}")
+
+
+def plot_scatterplot_calculate_correlation(merged_df):
+    #scatterplot
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x="Calories", y="WeightKg", data=merged_df)
+
+    plt.title("Relationship between Calories and Weight")
+    plt.xlabel("Calories")
+    plt.ylabel("Weight (kg)")
+    plt.show()
+
+    correlation = merged_df["Calories"].corr(merged_df["WeightKg"])
+    print(f"Correlation between Calories and WeightKg: {correlation}")
+
+check_correlation_weight_calories()
