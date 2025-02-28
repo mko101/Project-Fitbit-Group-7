@@ -607,19 +607,32 @@ def check_correlation_weight_calories():
     weight_log["Date"] = weight_log["Date"].dt.date
     daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
     merged_df = pd.merge(daily_activity, weight_log, left_on=["Id", "ActivityDate"], right_on=["Id", "Date"], how="left")
-
-    # Drop the 'Date' column after merge since it's redundant
     merged_df = merged_df.drop(columns=["Date"])
 
-    # Now, for each user, forward fill the weight after it is first available
+    # Forward fill the weight after it is first available
     merged_df["WeightKg"] = merged_df.groupby("Id")["WeightKg"].ffill()
 
-    # Optionally, if you want to omit rows where the weight is still NaN (i.e., before the first weight upload):
     merged_df = merged_df.dropna(subset=["WeightKg"])
     merged_df["Id"] = merged_df["Id"].astype(int)
-    print(merged_df.head(50))
+
+    #plot scatterplot and calculate correlation
+    plot_scatterplot_calculate_correlation(merged_df)
+    # print(f"Number of unique users: {daily_activity['Id'].nunique()}")
+    # print(f"Number of unique users: {weight_log['Id'].nunique()}")
+    # print(f"Number of unique users: {merged_df['Id'].nunique()}")
 
 
-    # merged_df["Id"] = merged_df["Id"].astype(int)
+def plot_scatterplot_calculate_correlation(merged_df):
+    #scatterplot
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x="Calories", y="WeightKg", data=merged_df)
+
+    plt.title("Relationship between Calories and Weight")
+    plt.xlabel("Calories")
+    plt.ylabel("Weight (kg)")
+    plt.show()
+
+    correlation = merged_df["Calories"].corr(merged_df["WeightKg"])
+    print(f"Correlation between Calories and WeightKg: {correlation}")
 
 check_correlation_weight_calories()
