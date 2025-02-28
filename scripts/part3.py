@@ -7,7 +7,9 @@ import numpy as np
 import statsmodels.api as sm
 import requests
 import json
+import random
 from scipy import stats
+from scipy.stats import bernoulli
 
 # connect to database
 con = sqlite3.connect("../data/fitbit_database.db")
@@ -59,7 +61,6 @@ def get_verified_data(data_type):
     else:
         raise ValueError("Invalid data_type. Please choose either 'steps' or 'calories'.")
 
-    # Fetch data from database
     cur.execute(query)
     rows = cur.fetchall()
     daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description]) 
@@ -76,7 +77,6 @@ def get_verified_data(data_type):
     sum_daily_hourly_data = hourly_data.groupby(["Id", "ActivityDate"])[value_column].sum().reset_index()
     daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
 
-    # Merge
     merged_df = daily_activity.merge(sum_daily_hourly_data, on=["Id", "ActivityDate"], how="left")
 
     # Rename columns after merge (for calories)
@@ -98,16 +98,10 @@ def calculate_statistics(merged_df, label, total_column, value_column):
     total_count = merged_df["DataMatch"].count()
     match_percentage = round(true_count / total_count * 100, 2) if total_count > 0 else 0
     match_ratio = round(true_count / false_count, 2) if false_count != 0 else "All matched"
-
-    # Calculate absolute and raw differences
     merged_df["Difference"] = merged_df[total_column] - merged_df[value_column]
     abs_diff_avg = round(merged_df["Difference"].abs().mean(), 2)  # Absolute difference average
-
-    # Calculate averages for total and hourly datasets
     total_avg = round(merged_df[total_column].mean(), 2)
     hourly_avg = round(merged_df[value_column].mean(), 2)
-    
-    # Relative difference percentage
     relative_diff_percentage = round((abs_diff_avg / total_avg) * 100, 2) if total_avg != 0 else 0
 
     # Print statistics
@@ -158,7 +152,9 @@ def plot_graphs(merged_df, label):
     plt.show()
 
 
-# Run everything
+# Run everything: run_analysis(data_type) verifies either "steps" or "calories" data.
+# - If "steps" is passed, it checks TotalSteps per day in daily_activity against hourly_steps.
+# - If "calories" is passed, it checks TotalCalories per day in daily_activity against hourly_calories.
 def run_analysis(data_type):
     valid_options = ["steps", "calories"]
 
@@ -171,8 +167,8 @@ def run_analysis(data_type):
     plot_graphs(merged_df, label)
 
 # Run for both steps and calories
-run_analysis("steps")
-run_analysis("calories")
+# run_analysis("steps")
+# run_analysis("calories")
 
 # Step 3: compute the sleep duration for each moment of sleep of an individual
 def compute_sleep_duration(user_id):
@@ -196,7 +192,7 @@ def compute_sleep_duration(user_id):
     
     return sleep_durations
 
-print(compute_sleep_duration(1503960366))
+# print(compute_sleep_duration(1503960366))
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
 def compare_activity_and_sleep(user_id):
@@ -241,7 +237,7 @@ def compare_activity_and_sleep(user_id):
     plt.legend()
     plt.show()
 
-compare_activity_and_sleep(1503960366)
+# compare_activity_and_sleep(1503960366)
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
 def compare_sedentary_activity_and_sleep():
@@ -295,7 +291,7 @@ def compare_sedentary_activity_and_sleep():
     p_value = stats.shapiro(residuals.tolist()).pvalue
     print(f"Shapiro-Wilk Test: p-value = {p_value:.4f}")
 
-compare_sedentary_activity_and_sleep()
+# compare_sedentary_activity_and_sleep()
 
 # Step 6: compute 4-hours block Average Steps, Sleep, Calories
 def categorize_time(hour):
@@ -351,7 +347,7 @@ def compute_block_averages():
         plt.xticks(rotation=0)
         plt.show()
 
-compute_block_averages()
+# compute_block_averages()
 
 # Part 7: Compare heart rate and hourly intensity for given user_id
 # Plot heart rate and hourly intensity for given user_id
@@ -418,9 +414,9 @@ def plot_heart_rate_intensity(user_id):
     plt.show()
 
 
-plot_heart_rate_intensity(7007744171)
-plot_heart_rate_intensity(1503960366)
-plot_heart_rate_intensity(9999999999)
+# plot_heart_rate_intensity(7007744171)
+# plot_heart_rate_intensity(1503960366)
+# plot_heart_rate_intensity(9999999999)
 
 
 # Part 8: Fetch weather information with API and visualize relation between weather factors and activity of individuals
@@ -545,4 +541,97 @@ def visualize_weather_activity():
     plt.tight_layout()
     plt.show()
     
-visualize_weather_activity()
+# visualize_weather_activity()
+
+# Step 9: look for missing values in the weight_log and resolve them
+gender_users = {}
+age_users = {}
+
+def sample_random_age(user):
+    # sample = {"18-24": 0.1579, "25-34": 0.2593, "35-44": 0.1940, "45-54": 0.1608, "55-64": 0.1294, "65+": 0.0987}
+    age_groupes = {0.1579: list(range(18, 25)), 0.2593: list(range(25, 35)), 0.1940: list(range(35, 45)), 0.1608: list(range(45, 55)), 0.1294: list(range(55, 65)), 0.0987: list(range(65, 79))}
+
+    if user not in age_users:
+        sum = 0
+        random_number = random.random()
+
+        for probabilty, ages in age_groupes.items():
+            sum += probabilty
+
+            if random_number <= sum:
+                age_users[user] = random.choice(ages)
+
+    return age_users[user]
+
+def sample_random_gender(user):
+    if user not in gender_users:
+        gender_users[user] = "F" if bernoulli.rvs(0.4466) else "M"
+    
+    return gender_users[user]
+
+
+def resolve_missing_values_weight_log():
+    weights = cur.execute("SELECT * FROM weight_log")
+    rows = weights.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    null_values = df["WeightKg"].isnull().sum()
+
+    if null_values > 0:
+        df["WeightKg"] = df.apply(lambda row: (row["WeightPounds"] / 2.20462262) if pd.isnull(row["WeightKg"]) else row["WeightKg"], axis=1)
+
+    null_values = df["Fat"].isnull().sum()
+
+    if null_values > 0:
+        # https://www.coolest-gadgets.com/fitbit-statistics/
+        # F: 44.66% and M: 55.34%
+        # 18-24: 0.1579, 25-34: 0.2593, 35-44: 0.1940, 45-54: 0.1608, 55-64: 0.1294, 65+: 0.0987
+        df["Fat"] = df.apply(lambda row: ((row["BMI"] * 1.2) + (0.23 * sample_random_age(row["Id"])) - (5.4 if sample_random_gender(row["Id"]) == "F" else 16.2)) if pd.isnull(row["Fat"]) else row["Fat"], axis=1)
+        
+    # print(df.head(33))
+    return df
+
+# print(resolve_missing_values_weight_log())
+
+# Part10: check correlation between weight and calories
+def check_correlation_weight_calories():
+    query = "SELECT Id, ActivityDate, Calories FROM daily_activity"
+
+    cur.execute(query)
+    rows = cur.fetchall()
+    daily_activity = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description])
+    weight_log = resolve_missing_values_weight_log().loc[:,["Id", "Date", "WeightKg"]]
+    
+    weight_log["Date"] = pd.to_datetime(weight_log["Date"], format="%m/%d/%Y %I:%M:%S %p")
+    weight_log["Date"] = weight_log["Date"].dt.date
+    daily_activity["ActivityDate"] = pd.to_datetime(daily_activity["ActivityDate"]).dt.date
+    merged_df = pd.merge(daily_activity, weight_log, left_on=["Id", "ActivityDate"], right_on=["Id", "Date"], how="left")
+    merged_df = merged_df.drop(columns=["Date"])
+
+    # Forward fill the weight after it is first available
+    merged_df["WeightKg"] = merged_df.groupby("Id")["WeightKg"].ffill()
+
+    merged_df = merged_df.dropna(subset=["WeightKg"])
+    merged_df["Id"] = merged_df["Id"].astype(int)
+
+    #plot scatterplot and calculate correlation
+    plot_scatterplot_calculate_correlation(merged_df)
+    # print(f"Number of unique users: {daily_activity['Id'].nunique()}")
+    # print(f"Number of unique users: {weight_log['Id'].nunique()}")
+    # print(f"Number of unique users: {merged_df['Id'].nunique()}")
+
+
+def plot_scatterplot_calculate_correlation(merged_df):
+    #scatterplot
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x="Calories", y="WeightKg", data=merged_df)
+
+    plt.title("Relationship between Calories and Weight")
+    plt.xlabel("Calories")
+    plt.ylabel("Weight (kg)")
+    plt.show()
+
+    correlation = merged_df["Calories"].corr(merged_df["WeightKg"])
+    print(f"Correlation between Calories and WeightKg: {correlation}")
+
+check_correlation_weight_calories()
