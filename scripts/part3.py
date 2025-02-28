@@ -40,7 +40,7 @@ def create_new_dataframe():
     print(new_data)
     return new_data
 
-# create_new_dataframe()
+create_new_dataframe()
 
 # Part2: Verifying data
 def get_verified_data(data_type):
@@ -90,7 +90,6 @@ def get_verified_data(data_type):
     merged_df["Id"] = merged_df["Id"].astype(int)
 
     return merged_df, label, total_column, value_column
-
 
 # Part 2: Compute Statistics
 def calculate_statistics(merged_df, label, total_column, value_column):
