@@ -10,6 +10,7 @@
     1. [main](#main)
     2. [part1](#part1)
     3. [part3](#part3)
+    4. [part4](#part4)
 
 
 ## Introduction
@@ -64,6 +65,9 @@ Script `part3.py` contains functions that help explore the `fitbit_database.db` 
 * `compare_activity_and_sleep(user_id)` - calculates the total active minutes as the sum of the very active, fairly active and light active minutes on a day and then preforms a regression based on the minutes the user is asleep on that day.
 * `compare_sedentary_activity_and_sleep()` – Retrieves and merges daily sedentary minutes and sleep duration, performs linear regression to analyze their relationship, generates visualizations (scatter plot with regression line, correlation heatmap, histogram of residuals), and evaluates normality of residuals using the Shapiro-Wilk test.
 * `compute_block_averages()` – Calculates average steps, calories burnt, and sleep minutes within each 4-hour time block (0-4, 4-8, etc.), and visualizes these averages through bar charts.
+* `plot_heart_rate_intensity(user_id)` - Retrieves and plots heart rate and hourly exercise intensity data for a given user, indicates if either heart rate or hourly intensity data is missing for the user, and only compares the period when both heart rate and intensity are recorded.
+* `visualize_weather_activity()` - Retrieves weather data in Chicago and daily activity records, merges them based on date, visualizes the distribution of activity levels across different weather conditions, and analyzes the relationship between weather factors and individual activity levels using regression models.
+
 
 ### Part 4: Interacting with the database continued
 * `resolve_missing_values_weight_log()` - 
