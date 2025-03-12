@@ -4,8 +4,6 @@ import pandas as pd
 import datetime
 import part1
 
-from datetime import timedelta
-
 st.set_page_config(
     page_title="Fitbit Dashboard",
     page_icon="../images/logo.png",
