@@ -11,7 +11,7 @@ import part4
 st.set_page_config(
     page_title="Fitbit Dashboard",
     page_icon="../images/logo.png",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
