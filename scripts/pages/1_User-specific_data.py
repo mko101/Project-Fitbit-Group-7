@@ -110,12 +110,7 @@ if st.session_state.user:
         with tab3:
             st.subheader("Sleep Duration Over Time")
             if "TotalSleepHours" in filtered_data.columns and not filtered_data["TotalSleepHours"].isna().all():
-                fig_sleep = px.bar(
-                    filtered_data, 
-                    x="ActivityDate", 
-                    y="TotalSleepHours", 
-                    title="Sleep Duration (Hours)"
-                )
+                fig_sleep = px.bar(filtered_data,  x="ActivityDate", y="TotalSleepHours", title="Sleep Duration (Hours)")
                 st.plotly_chart(fig_sleep)
             else:
                 st.warning("No sleep data available for the selected user and date range.")
