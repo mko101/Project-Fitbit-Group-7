@@ -218,7 +218,7 @@ def compare_activity_and_sleep(user_id):
     daily_activity.rename(columns={"ActivityDate": "Date"}, inplace=True)
 
     # sums the duration of sleep based on date
-    daily_sleep = compute_sleep_duration(1503960366)
+    daily_sleep = compute_sleep_duration(user_id)
     daily_sleep = daily_sleep.groupby('Date')['MinutesSlept'].sum().reset_index()
 
     # merges the total active minutes and the duration of sleep based on the date, leaving out any dates where no active minutes or sleep duration is available
