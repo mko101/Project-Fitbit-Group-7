@@ -176,7 +176,7 @@ def plot_activity_pie_chart():
     minutes = [
         data["VeryActiveMinutes"].sum(), 
         data["FairlyActiveMinutes"].sum(),
-        data["LightlyActiveMinutes"].sum(),  # Corrected name
+        data["LightlyActiveMinutes"].sum(), 
         data["SedentaryMinutes"].sum()
     ]
     
@@ -187,3 +187,19 @@ def plot_activity_pie_chart():
     plt.show()
 
 plot_activity_pie_chart()
+
+def plot_activity_pie_chart_only_active_minutes():
+
+    minutes = [
+        data["VeryActiveMinutes"].sum(), 
+        data["FairlyActiveMinutes"].sum(),
+        data["LightlyActiveMinutes"].sum(), 
+    ]
+    
+    labels = ['Very Active', 'Fairly Active', 'Lightly Active']
+    plt.figure(figsize=(8, 8))
+    plt.pie(minutes, labels=labels, autopct='%1.1f%%', explode=[0, 0, 0], colors=['red', 'orange', 'yellow'])
+    plt.title("Very, Fairly and Lightly Active Minutes Breakdown")
+    plt.show()
+
+plot_activity_pie_chart_only_active_minutes()
