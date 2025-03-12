@@ -55,7 +55,7 @@ def resolve_missing_values_weight_log():
     
     return df
 
-print(resolve_missing_values_weight_log())
+# print(resolve_missing_values_weight_log())
 
 # Part2: check correlation between weight and calories
 def check_correlation_weight_calories():
@@ -79,7 +79,7 @@ def check_correlation_weight_calories():
     merged_df["Id"] = merged_df["Id"].astype(int)
 
     #plot scatterplot and calculate correlation
-    plot_scatterplot_calculate_correlation(merged_df)
+    # plot_scatterplot_calculate_correlation(merged_df)
     # print(f"Number of unique users: {daily_activity['Id'].nunique()}")
     # print(f"Number of unique users: {weight_log['Id'].nunique()}")
     # print(f"Number of unique users: {merged_df['Id'].nunique()}")
@@ -98,4 +98,9 @@ def plot_scatterplot_calculate_correlation(merged_df):
     correlation = merged_df["Calories"].corr(merged_df["WeightKg"])
     print(f"Correlation between Calories and WeightKg: {correlation}")
 
-check_correlation_weight_calories()
+# check_correlation_weight_calories()
+
+
+
+    
+

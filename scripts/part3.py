@@ -172,27 +172,33 @@ def run_analysis(data_type):
 
 # Step 3: compute the sleep duration for each moment of sleep of an individual
 def compute_sleep_duration(user_id):
-    # gets data from the database and adds it to a dataframe
-    sleep_duration = cur.execute(f"SELECT Id, date, logId FROM minute_sleep WHERE Id={user_id}")
-    rows = sleep_duration.fetchall()
-    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    # Open a new database connection for each call
+    conn = sqlite3.connect("../data/fitbit_database.db")  
+    cur = conn.cursor()
 
-    # converts the date column to the type datetime
+    # Fetch sleep data
+    query = f"SELECT Id, date, logId FROM minute_sleep WHERE Id={user_id}"
+    sleep_duration = cur.execute(query)
+    rows = sleep_duration.fetchall()
+    df = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
+
+    # Close connection to avoid threading issues
+    conn.close()
+
+    # Ensure date column is datetime
     df["date"] = pd.to_datetime(df["date"])
 
-    # calculates the time asleep for each logId 
+    # Compute sleep duration
     sleep_durations = df.groupby('logId').agg(start_time=('date', 'min'), end_time=('date', 'max')).reset_index()
     sleep_durations['MinutesSlept'] = (sleep_durations['end_time'] - sleep_durations['start_time']).dt.total_seconds() / 60
-    
-    # takes the date to be the day the user woke up
     sleep_durations['Date'] = sleep_durations['end_time'].dt.date
 
-    # drops the unnecessary columns from the dataframe
+    # Drop unnecessary columns
     sleep_durations = sleep_durations.drop(["logId", "start_time", "end_time"], axis=1)
-    
+
     return sleep_durations
 
-# print(compute_sleep_duration(1503960366))
+print(compute_sleep_duration(1503960366))
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
 def compare_activity_and_sleep(user_id):
@@ -237,7 +243,7 @@ def compare_activity_and_sleep(user_id):
     plt.legend()
     plt.show()
 
-# compare_activity_and_sleep(1503960366)
+compare_activity_and_sleep(1503960366)
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
 def compare_sedentary_activity_and_sleep():
