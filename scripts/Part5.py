@@ -122,4 +122,107 @@ def hourly_average_heart_rate_dates(dates):
 
     return data_avg
 
-print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
+def hourly_average_calories(dates):
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+    query = "SELECT ActivityHour, Calories FROM hourly_calories"
+    cur.execute(query) 
+    rows = cur.fetchall()
+    data = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description]) 
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    data["ActivityHour"] = pd.to_datetime(data["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    filtered_data = data[data["ActivityHour"].dt.date.isin(dates.date)]
+
+    # Extract the hour part from ActivityHour, group and calculate average
+    filtered_data["Hour"] = filtered_data["ActivityHour"].dt.hour
+    hourly_avg = filtered_data.groupby("Hour")["Calories"].mean().reset_index()
+    con.close()
+
+    return hourly_avg
+
+def heart_rate_and_intensitibity(dates):
+    # Connect to the database
+    conn = sqlite3.connect("../data/fitbit_database.db")
+    cur = conn.cursor()
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    # Fetch heart rate data and compute hourly average
+    cur.execute("SELECT Time, Value FROM heart_rate")
+    heart_rate_rows = cur.fetchall()
+    heart_rate_df = pd.DataFrame(heart_rate_rows, columns=["Time", "HeartRate"])
+    heart_rate_df["Time"] = pd.to_datetime(heart_rate_df["Time"], format="%m/%d/%Y %I:%M:%S %p")
+    filtered_heart_rate_data = heart_rate_df[heart_rate_df["Time"].dt.date.isin(dates.date)]
+    filtered_heart_rate_data["Hour"] = filtered_heart_rate_data["Time"].dt.hour
+    avg_heart_rate = filtered_heart_rate_data.groupby("Hour")["HeartRate"].mean().reset_index()
+    
+    # Fetch intensity data and compute hourly average
+    cur.execute("SELECT ActivityHour, TotalIntensity FROM hourly_intensity")
+    intensity_rows = cur.fetchall()
+    intensity_df = pd.DataFrame(intensity_rows, columns=["ActivityHour", "TotalIntensity"])
+    intensity_df["ActivityHour"] = pd.to_datetime(intensity_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    filtered_intensitivity_data = intensity_df[intensity_df["ActivityHour"].dt.date.isin(dates.date)]
+    filtered_intensitivity_data["Hour"] = filtered_intensitivity_data["ActivityHour"].dt.hour
+    avg_intensity = filtered_intensitivity_data.groupby("Hour")["TotalIntensity"].mean().reset_index()
+    
+    # Merge on hourly timestamps
+    merged_df = pd.merge(avg_heart_rate, avg_intensity, on="Hour")
+    
+    conn.close()
+    return merged_df
+
+def heart_rate_and_intensitibity(dates):
+    # Connect to the database
+    conn = sqlite3.connect("../data/fitbit_database.db")
+    cur = conn.cursor()
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    # Fetch heart rate data and compute hourly average
+    cur.execute("SELECT Time, Value FROM heart_rate")
+    heart_rate_rows = cur.fetchall()
+    heart_rate_df = pd.DataFrame(heart_rate_rows, columns=["Time", "HeartRate"])
+    heart_rate_df["Time"] = pd.to_datetime(heart_rate_df["Time"], format="%m/%d/%Y %I:%M:%S %p")
+    filtered_heart_rate_data = heart_rate_df[heart_rate_df["Time"].dt.date.isin(dates.date)]
+    filtered_heart_rate_data["Hour"] = filtered_heart_rate_data["Time"].dt.hour
+    avg_heart_rate = filtered_heart_rate_data.groupby("Hour")["HeartRate"].mean().reset_index()
+    
+    # Fetch intensity data and compute hourly average
+    cur.execute("SELECT ActivityHour, TotalIntensity FROM hourly_intensity")
+    intensity_rows = cur.fetchall()
+    intensity_df = pd.DataFrame(intensity_rows, columns=["ActivityHour", "TotalIntensity"])
+    intensity_df["ActivityHour"] = pd.to_datetime(intensity_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    filtered_intensitivity_data = intensity_df[intensity_df["ActivityHour"].dt.date.isin(dates.date)]
+    filtered_intensitivity_data["Hour"] = filtered_intensitivity_data["ActivityHour"].dt.hour
+    avg_intensity = filtered_intensitivity_data.groupby("Hour")["TotalIntensity"].mean().reset_index()
+    
+    # Merge on hourly timestamps
+    merged_df = pd.merge(avg_heart_rate, avg_intensity, on="Hour")
+    
+    conn.close()
+    return merged_df
+
+def calories_and_active_minutes(dates):
+    conn = sqlite3.connect("../data/fitbit_database.db")
+    cur = conn.cursor()
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    query = "SELECT ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes, Calories FROM daily_activity"
+    cur.execute(query) 
+    data = cur.fetchall()
+    data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    filtered_data = data.loc[data["ActivityDate"].isin(dates)]
+    filtered_data["TotalActiveMinutes"] = (
+        filtered_data["VeryActiveMinutes"] + 
+        filtered_data["FairlyActiveMinutes"] + 
+        filtered_data["LightlyActiveMinutes"]
+    )
+    scatter_data = filtered_data[["TotalActiveMinutes", "Calories"]]
+
+    conn.close()
+    
+    return scatter_data
+
+
+
+
+# Maybe add correlation between calories and active minutes
+# add graphs not per hour but per day
+
+

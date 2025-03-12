@@ -52,7 +52,7 @@ Script `part1.py` contains functions that help explore the `daily_activity.csv` 
 * `plot_activity_pie_chart()` - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
 * `make_correlation_heatmap()` - visualizes the correlation between all numerical columns of the dataset in a heatmap
 * `describe_columns(user_id)` - describes the count, mean, standard deviation, minimum, 25% quantile, 50% quantile, 75% quantile and maximum of each column based on a user_id. Pass None as an argument to get the description of all users.
-`plot_activity_pie_chart_only_active_minutes` - visualizes the proportion of time spent in different active levels (Very Active, Fairly Active, Lightly Active) using a pie chart.
+* `plot_activity_pie_chart_only_active_minutes` - visualizes the proportion of time spent in different active levels (Very Active, Fairly Active, Lightly Active) using a pie chart.
 
 REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories
 

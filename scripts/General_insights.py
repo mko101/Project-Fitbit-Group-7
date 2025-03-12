@@ -116,7 +116,7 @@ def plot_activity_pie_chart(dates):
     
     return fig
 
-def hist_daily_average_steps(dates):
+def hist_hourly_average_steps(dates):
     hourly_data = part5.average_steps_per_hour(dates)
 
     # Identify top 3 most intensive hours
@@ -197,7 +197,98 @@ with col1:
     st.plotly_chart(plot_activity_pie_chart(dates), use_container_width=True)
 
 with col2:
-    st.plotly_chart(hist_daily_average_steps(dates), use_container_width=True)
+    st.plotly_chart(hist_hourly_average_steps(dates), use_container_width=True)
 
 with col3:
     st.plotly_chart(plot_heart_rate(dates), use_container_width=True)
+
+
+def hist_hourly_average_calories(dates):
+    hourly_data = part5.hourly_average_calories(dates)
+
+    # Identify top 3 most intensive hours
+    top_hours = hourly_data.nlargest(3, "Calories")["Hour"].tolist()
+
+    hourly_data["Color"] = hourly_data["Hour"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
+    hourly_data["HourFormatted"] = hourly_data["Hour"].astype(str) + ":00"
+
+    # Plot histogram using Plotly
+    fig = px.bar(
+        hourly_data, 
+        x="HourFormatted",
+        y="Calories",
+        title="Average Burned Calories Per Hour", 
+        color="Color",
+        color_discrete_map="identity",
+        category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
+    )
+
+    # Customize layout
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 6, 12, 18, 23],
+            title = None
+        ),
+        yaxis=dict(
+            title=None
+        ),
+        showlegend=False,  
+        bargap=0.2
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Calories:</b> %{y:.0f} kcal <extra></extra>"
+    )
+
+    return fig
+
+def scatterplot_heart_rate_intensityvity(dates):
+
+    data = part5.heart_rate_and_intensitibity(dates)
+    
+    # Scatter plot with regression line using Plotly
+    fig = px.scatter(
+        data, 
+        x="TotalIntensity", 
+        y="HeartRate", 
+        trendline="ols",
+        labels={"TotalIntensity": "Exercise Intensity", "HeartRate": "Heart Rate (bpm)"},
+        title="Correlation between Heart Rate<br>and Exercise Intensity"
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Exercise Intensity:</b> %{x:.2f}<br><b>Heart Rate:</b> %{y:.0f} bpm<extra></extra>"
+    )
+    
+    return fig
+
+def scatterplot_calories_and_active_minutes(dates):
+    data = part5.calories_and_active_minutes(dates)
+    
+    # Scatter plot with regression line using Plotly
+    fig = px.scatter(
+        data, 
+        x="TotalActiveMinutes", 
+        y="Calories", 
+        trendline="ols",
+        labels={"TotalActiveMinutes": "Active Minutes", "Calories": "Calories (kcal)"},
+        title="Correlation between Calories <br>and Active Minutes"
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Active Minutes:</b> %{x:.2f}<br><b>Calories:</b> %{y:.0f} kcal<extra></extra>"
+    )
+    
+    return fig    
+
+col1, col2, col3 = st.columns([1.5, 1.5, 1.5])  
+
+with col1:
+    st.plotly_chart(hist_hourly_average_calories(dates), use_container_width=True)
+
+with col2:
+    st.plotly_chart(scatterplot_heart_rate_intensityvity(dates), use_container_width=True)
+
+with col3:
+    st.plotly_chart(scatterplot_calories_and_active_minutes(dates), use_container_width=True)
