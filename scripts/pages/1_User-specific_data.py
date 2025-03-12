@@ -1,11 +1,11 @@
-# IMPORTS
 import streamlit as st
+import plotly.express as px
+import pandas as pd
+import sqlite3
 import datetime
 import part1
 import part3
 import part4
-import pandas as pd
-import plotly.express as px
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -29,7 +29,7 @@ with st.sidebar:
 
     if user_sidebar != st.session_state.user:
         st.session_state.user = user_sidebar
-        st.experimental_rerun() 
+        st.rerun()
 
     start_date = st.date_input(
         "Select a start date:", 
@@ -60,14 +60,25 @@ selected_user_main = st.selectbox(
 # Update the session state and sidebar
 if selected_user_main != st.session_state.user:
     st.session_state.user = selected_user_main
-    st.experimental_rerun()
+    st.rerun()
 
 if st.session_state.user:
     user = st.session_state.user
     
-    user_data = part1.data[part1.data["Id"] == user]
-    user_data["ActivityDate"] = pd.to_datetime(user_data["ActivityDate"])
-    filtered_data = user_data[(user_data["ActivityDate"] >= pd.Timestamp(start_date)) & (user_data["ActivityDate"] <= pd.Timestamp(end_date))]
+    user_data = part1.data[part1.data["Id"] == user].copy()
+    user_data.loc[:, "ActivityDate"] = pd.to_datetime(user_data["ActivityDate"], format="%Y-%m-%d")
+    
+    # Fetch sleep duration and merge with user_data
+    sleep_data = part3.compute_sleep_duration(user)
+    sleep_data.rename(columns={"MinutesSlept": "TotalSleepMinutes"}, inplace=True)
+    sleep_data["TotalSleepHours"] = sleep_data["TotalSleepMinutes"] / 60
+    sleep_data["Date"] = pd.to_datetime(sleep_data["Date"], errors="coerce")
+    
+    # Merge sleep duration into user_data based on date
+    filtered_data = user_data.merge(sleep_data, left_on="ActivityDate", right_on="Date", how="left")
+    
+    # Filter data based on selected date range
+    filtered_data = filtered_data[(filtered_data["ActivityDate"] >= pd.Timestamp(start_date)) & (filtered_data["ActivityDate"] <= pd.Timestamp(end_date))]
     
     if not filtered_data.empty:
         # Summary
@@ -98,6 +109,16 @@ if st.session_state.user:
         # Tab 3: Sleep Duration
         with tab3:
             st.subheader("Sleep Duration Over Time")
+            if "TotalSleepHours" in filtered_data.columns and not filtered_data["TotalSleepHours"].isna().all():
+                fig_sleep = px.bar(
+                    filtered_data, 
+                    x="ActivityDate", 
+                    y="TotalSleepHours", 
+                    title="Sleep Duration (Hours)"
+                )
+                st.plotly_chart(fig_sleep)
+            else:
+                st.warning("No sleep data available for the selected user and date range.")
         
     else:
         st.warning("No data available for the selected date range.")
