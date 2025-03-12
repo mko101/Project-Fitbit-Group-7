@@ -89,9 +89,7 @@ def average_steps_per_hour(dates):
     
     return hourly_avg
 
-def average_heart_rate_per_hour(dates):
-    dates = pd.to_datetime(dates, format='%m/%d/%Y')
-    
+def average_heart_rate_per_hour():
     con = sqlite3.connect("../data/fitbit_database.db")
     cur = con.cursor()
     
@@ -103,21 +101,25 @@ def average_heart_rate_per_hour(dates):
     # Convert to DataFrame
     data = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description])
     data["Time"] = pd.to_datetime(data["Time"], format="%m/%d/%Y %I:%M:%S %p")
-    filtered_data = data[data["Time"].dt.date.isin(dates.date)]
-    filtered_data["Hour"] = data["Time"].dt.hour  # Rounds down to the nearest hour
+    data["Day"] = data["Time"].dt.date
+    data["Hour"] = data["Time"].dt.hour  # Rounds down to the nearest hour
     
     # Group by the hour and calculate the average heart rate
-    data_avg = filtered_data.groupby("Hour")["Value"].mean().reset_index()
+    data_avg = data.groupby(["Day", "Hour"], as_index=False)["Value"].mean().reset_index()
     
     con.close()
     
     return data_avg
 
+heart_rates = average_heart_rate_per_hour()
+
+def hourly_average_heart_rate_dates(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    filtered_data = heart_rates[heart_rates["Day"].isin(dates.date)]
+
+    data_avg = filtered_data.groupby(["Hour"], as_index=False)["Value"].mean().reset_index()    
+
+    return data_avg
+
 print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
-    
-
-
-
-
-
-
