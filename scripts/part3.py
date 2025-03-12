@@ -198,7 +198,24 @@ def compute_sleep_duration(user_id):
 
     return sleep_durations
 
-print(compute_sleep_duration(1503960366))
+# print(compute_sleep_duration(1503960366))
+
+def compute_sleep_on_day(user_id):
+    if user_id: 
+        cur.execute(f"SELECT Id, date, logId, value FROM minute_sleep WHERE Id={user_id}")
+    else:
+        cur.execute("SELECT Id, date, logId, value FROM minute_sleep")
+
+    rows = cur.fetchall()
+    df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
+    df_sleep = df_sleep.groupby(["Id", "date"], as_index=False)["value"].count()
+    df_sleep.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.date
+
+    return df_sleep
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
 def compare_activity_and_sleep(user_id):
@@ -215,17 +232,15 @@ def compare_activity_and_sleep(user_id):
     daily_activity = df.groupby('ActivityDate')['ActiveMinutes'].sum().reset_index()
 
     # renames the ActivityDate column to Date
-    daily_activity.rename(columns={"ActivityDate": "Date"}, inplace=True)
+    daily_activity.rename(columns={"ActivityDate": "date"}, inplace=True)
 
-    # sums the duration of sleep based on date
-    daily_sleep = compute_sleep_duration(user_id)
-    daily_sleep = daily_sleep.groupby('Date')['MinutesSlept'].sum().reset_index()
+    daily_sleep = compute_sleep_on_day(user_id)
 
     # merges the total active minutes and the duration of sleep based on the date, leaving out any dates where no active minutes or sleep duration is available
-    data_sleep_and_activity = pd.merge(daily_activity, daily_sleep, on="Date", how="inner")
+    data_sleep_and_activity = pd.merge(daily_activity, daily_sleep, on="date", how="inner")
 
     # linear regression model
-    X = data_sleep_and_activity["MinutesSlept"] # independent variable
+    X = data_sleep_and_activity["TotalMinutesAsleep"] # independent variable
     y = data_sleep_and_activity["ActiveMinutes"] # dependent variable
 
     X = sm.add_constant(X)
@@ -235,24 +250,19 @@ def compare_activity_and_sleep(user_id):
     print(model.summary())
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(data_sleep_and_activity["MinutesSlept"], data_sleep_and_activity["ActiveMinutes"], color="skyblue", label="Data points")
-    plt.plot(data_sleep_and_activity["MinutesSlept"], model.predict(X), color="red", label="Regression line")
+    plt.scatter(data_sleep_and_activity["TotalMinutesAsleep"], data_sleep_and_activity["ActiveMinutes"], color="skyblue", label="Data points")
+    plt.plot(data_sleep_and_activity["TotalMinutesAsleep"], model.predict(X), color="red", label="Regression line")
     plt.xlabel("Minutes Slept")
     plt.ylabel("Active Minutes")
     plt.title(f"Linear Relationship between Active Minutes and Minutes Slept for User {user_id}")
     plt.legend()
     plt.show()
 
-compare_activity_and_sleep(1503960366)
+# compare_activity_and_sleep(1503960366)
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
 def compare_sedentary_activity_and_sleep():
-    cur.execute("SELECT Id, date, logId, value FROM minute_sleep")
-    rows = cur.fetchall()
-    df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
-
-    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.date
-    df_sleep_agg = df_sleep.groupby(["Id", "date"]).agg(TotalMinutesAsleep=("value", "sum")).reset_index()
+    df_sleep = compute_sleep_on_day(None)
 
     cur.execute("SELECT Id, ActivityDate, SedentaryMinutes FROM daily_activity")
     rows = cur.fetchall()
@@ -261,7 +271,7 @@ def compare_sedentary_activity_and_sleep():
     df_activity["ActivityDate"] = pd.to_datetime(df_activity["ActivityDate"]).dt.date
     df_activity.rename(columns={"ActivityDate": "date"}, inplace=True)
 
-    df_merged = pd.merge(df_activity, df_sleep_agg, on=["Id", "date"], how="inner")
+    df_merged = pd.merge(df_activity, df_sleep, on=["Id", "date"], how="inner")
 
     X = df_merged["SedentaryMinutes"] # explanatory variable
     y = df_merged["TotalMinutesAsleep"] # response variable
