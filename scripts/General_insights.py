@@ -158,7 +158,7 @@ def hist_daily_average_steps(dates):
 
 def plot_heart_rate(dates):
 
-    heart_rate_data = part5.average_heart_rate_per_hour(dates)
+    heart_rate_data = part5.hourly_average_heart_rate_dates(dates)
     heart_rate_data['Hour'] = heart_rate_data['Hour'].astype(str) + ":00"
 
     fig = px.line(
