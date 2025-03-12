@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 import part1
 import plotly.express as px
-import dashboardFunctions as dF
+import Part5 as part5
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -37,12 +37,12 @@ with st.sidebar:
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 # Retrieve data
-steps = dF.retrieve_average("TotalSteps", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"])
-users = dF.retrieve_average("total_users", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"]) 
-distance = dF.retrieve_average("TotalDistance", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"]) 
-calories = dF.retrieve_average("Calories", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"]) 
-active_minutes = dF.retrieve_average("ActiveMinutes", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"]) 
-sedentary_minutes = dF.retrieve_average("SedentaryMinutes", ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016"]) 
+steps = part5.retrieve_average("TotalSteps", dates)
+users = part5.retrieve_average("total_users", dates) 
+distance = part5.retrieve_average("TotalDistance", dates) 
+calories = part5.retrieve_average("Calories", dates) 
+active_minutes = part5.retrieve_average("ActiveMinutes", dates) 
+sedentary_minutes = part5.retrieve_average("SedentaryMinutes", dates) 
 
 # Define a function for styled containers
 def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
@@ -85,7 +85,7 @@ create_metric_block(col4, "Average Calories", calories, "kcal")
 create_metric_block(col5, "Avr. Active Min", active_minutes, "")
 create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
-def plot_activity_pie_chart(date): 
+def plot_activity_pie_chart(dates): 
     custom_colors = {
         "Very Active": "#005B8D",  
         "Fairly Active": "#006166", 
@@ -93,7 +93,7 @@ def plot_activity_pie_chart(date):
         "Sedentary": "#CFEBEC"  
     }
     
-    data = dF.activity_sum_data(date)
+    data = part5.activity_sum_data(dates)
 
     fig = px.pie(
         data, values='Minutes', names='Activity', 
@@ -117,7 +117,7 @@ def plot_activity_pie_chart(date):
     return fig
 
 def hist_daily_average_steps(dates):
-    hourly_data = dF.average_steps_per_hour(dates)
+    hourly_data = part5.average_steps_per_hour(dates)
 
     # Identify top 3 most intensive hours
     top_hours = hourly_data.nlargest(3, "StepTotal")["Hour"].tolist()
@@ -158,7 +158,7 @@ def hist_daily_average_steps(dates):
 
 def plot_heart_rate(dates):
 
-    heart_rate_data = dF.average_heart_rate_per_hour(dates)
+    heart_rate_data = part5.average_heart_rate_per_hour(dates)
     heart_rate_data['Hour'] = heart_rate_data['Hour'].astype(str) + ":00"
 
     fig = px.line(
@@ -194,10 +194,10 @@ def plot_heart_rate(dates):
 col1, col2, col3 = st.columns([1, 1.5, 1.5])  
 
 with col1:
-    st.plotly_chart(plot_activity_pie_chart(["4/4/2016", "4/5/2016", "4/6/2016"]), use_container_width=True)
+    st.plotly_chart(plot_activity_pie_chart(dates), use_container_width=True)
 
 with col2:
-    st.plotly_chart(hist_daily_average_steps(["4/4/2016", "4/5/2016", "4/6/2016"]), use_container_width=True)
+    st.plotly_chart(hist_daily_average_steps(dates), use_container_width=True)
 
 with col3:
-    st.plotly_chart(plot_heart_rate(["4/4/2016", "4/5/2016", "4/6/2016"]), use_container_width=True)
+    st.plotly_chart(plot_heart_rate(dates), use_container_width=True)
