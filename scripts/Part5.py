@@ -123,3 +123,95 @@ def hourly_average_heart_rate_dates(dates):
     return data_avg
 
 print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
+
+# weather data
+def hourly_weather_data():
+    weather = pd.read_csv("../data/weather_Chicago_hourly.csv", header=0)
+
+    weather["datetime"] = pd.to_datetime(weather["datetime"])
+    weather["Hour"] = weather["datetime"].dt.hour
+    weather["Day"] = weather["datetime"].dt.weekday
+
+    return weather
+
+# hourly steps
+def compute_steps_hourly():
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM hourly_steps")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityHour"] = pd.to_datetime(df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    df.rename(columns={"ActivityHour": "datetime"}, inplace=True)
+    df["Hour"] = df["datetime"].dt.hour
+    df["Day"] = df["datetime"].dt.weekday
+
+    df = df.groupby(["datetime", "Hour", "Day"], as_index=False)["StepTotal"].mean()  
+
+    return df
+
+# hourly intensity
+def compute_intensity_hourly():
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM hourly_intensity")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityHour"] = pd.to_datetime(df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    df.rename(columns={"ActivityHour": "datetime"}, inplace=True)
+    df["Hour"] = df["datetime"].dt.hour
+    df["Day"] = df["datetime"].dt.weekday
+
+    df = df.groupby(["datetime", "Hour", "Day"], as_index=False)["TotalIntensity"].mean()  
+
+    return df
+
+def create_scatterplot_weather(df1, df2, hours, days, dates):
+    dates = pd.to_datetime(dates)
+
+    hour_ranges = {
+        "0-4": range(0, 4),
+        "4-8": range(4, 8),
+        "8-12": range(8, 12),
+        "12-16": range(12, 16),
+        "16-20": range(16, 20),
+        "20-24": range(20, 24)
+    }
+
+    hours_converted = [hour for range_str in hours if range_str in hour_ranges for hour in hour_ranges[range_str]]
+
+    days_ranges = {
+        "Weekdays": range(0, 5),
+        "Weekend": range(5, 7)
+    }
+    
+    days_converted = [day for day_str in days if day_str in days_ranges for day in days_ranges[day_str]]
+
+    df_merged = pd.merge(df1, df2, on=["datetime", "Hour", "Day"], how="inner")
+    df_merged["datetime"] = pd.to_datetime(df_merged["datetime"]).dt.normalize()
+    
+    df_merged = df_merged[df_merged["Hour"].isin(hours_converted)]
+    df_merged = df_merged[df_merged["Day"].isin(days_converted)]
+    df_merged = df_merged[df_merged["datetime"].isin(dates)]
+
+    if "StepTotal" not in df_merged.columns:
+        var = "TotalIntensity"
+    else:
+        var = "StepTotal"
+
+    plt.figure(figsize=(8,6))
+    sns.scatterplot(x=df_merged["temp"], y=df_merged[var], alpha=0.5)
+    plt.title(f"Scatterplot temp vs {var}")
+    plt.show()
+
+    return df_merged
+
+hourly_weather = hourly_weather_data()
+hourly_steps = compute_steps_hourly()
+hourly_intensity = compute_intensity_hourly()
