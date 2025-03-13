@@ -44,6 +44,7 @@ cur = con.cursor()
 def resolve_missing_values_weight_log():
     # the following query was run once, to remove the Fat column from the weight_log table (as there were only 2 values and no "good" way to fill them in)
     # cur.execute("ALTER TABLE weight_log DROP COLUMN Fat")
+    # con.commit()
 
     weights = cur.execute("SELECT * FROM weight_log")
     rows = weights.fetchall()
@@ -55,18 +56,18 @@ def resolve_missing_values_weight_log():
         # 1 kg = 2.20462262 pounds
         corrected_df["WeightKg"] = corrected_df.apply(lambda row: (row["WeightPounds"] / 2.20462262) if pd.isnull(row["WeightKg"]) else row["WeightKg"], axis=1)
 
+        # corrects the values in the database itself
+        for index, row in df.iterrows():
+            if pd.isnull(row["WeightKg"]):
+                print(row["WeightKg"])
+                update_query = "UPDATE weight_log SET WeightKg = ? WHERE Id = ? AND Date = ?"
+
+                cur.execute(update_query, (corrected_df.at[index, "WeightKg"], row["Id"], row["Date"]))
+        
+        con.commit()
+
     # if df["Fat"].isnull().sum() > 0:
     #     df["Fat"] = df.apply(lambda row: ((row["BMI"] * 1.2) + (0.23 * sample_random_age(row["Id"])) - (5.4 if sample_random_gender(row["Id"]) == "F" else 16.2)) if pd.isnull(row["Fat"]) else row["Fat"], axis=1)
-    
-    # corrects the values in the database itself
-    for index, row in df.iterrows():
-        if pd.isnull(row["WeightKg"]):
-            print(row["WeightKg"])
-            update_query = "UPDATE weight_log SET WeightKg = ? WHERE Id = ? AND Date = ?"
-
-            cur.execute(update_query, (corrected_df.at[index, "WeightKg"], row["Id"], row["Date"]))
-    
-    con.commit()
 
     return corrected_df
 
