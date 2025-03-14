@@ -258,7 +258,9 @@ def scatterplot_heart_rate_intensityvity(dates):
     )
 
     fig.update_traces(
-        hovertemplate="<b>Exercise Intensity:</b> %{x:.2f}<br><b>Heart Rate:</b> %{y:.0f} bpm<extra></extra>"
+        hovertemplate="<b>Exercise Intensity:</b> %{x:.2f}<br><b>Heart Rate:</b> %{y:.0f} bpm<extra></extra>",
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
     )
     
     return fig
@@ -277,7 +279,9 @@ def scatterplot_calories_and_active_minutes(dates):
     )
 
     fig.update_traces(
-        hovertemplate="<b>Active Minutes:</b> %{x:.2f}<br><b>Calories:</b> %{y:.0f} kcal<extra></extra>"
+        hovertemplate="<b>Active Minutes:</b> %{x:.2f}<br><b>Calories:</b> %{y:.0f} kcal<extra></extra>",
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
     )
     
     return fig    
