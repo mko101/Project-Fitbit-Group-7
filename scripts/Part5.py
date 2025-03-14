@@ -8,11 +8,12 @@ import seaborn as sns
 import plotly.express as px
 import streamlit as st
 
+connect = "../data/cleaned_fitbit.db"
 
 def retrieve_average(category, dates):
 
     dates = pd.to_datetime(dates, format='%m/%d/%Y') # if dates is already a list of datetime values from Streamlit, this step might not be needed. ???????
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect(connect)
     cur = con.cursor()
 
     # filtering dates using sql might be more efficient ????????
@@ -50,7 +51,7 @@ def retrieve_average(category, dates):
 def activity_sum_data(dates):
 
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect(connect)
     cur = con.cursor()
     query = "SELECT ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes, SedentaryMinutes FROM daily_activity"
     cur.execute(query) 
@@ -73,7 +74,7 @@ def activity_sum_data(dates):
 
 def average_steps_per_hour(dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect(connect)
     cur = con.cursor()
     query ="SELECT ActivityHour, StepTotal FROM hourly_steps"
     cur.execute(query) 
@@ -90,7 +91,7 @@ def average_steps_per_hour(dates):
     return hourly_avg
 
 def average_heart_rate_per_hour():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect(connect)
     cur = con.cursor()
     
     # Fetch heart rate data
@@ -123,7 +124,7 @@ def hourly_average_heart_rate_dates(dates):
     return data_avg
 
 def hourly_average_calories(dates):
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect(connect)
     cur = con.cursor()
     query = "SELECT ActivityHour, Calories FROM hourly_calories"
     cur.execute(query) 
@@ -142,7 +143,7 @@ def hourly_average_calories(dates):
 
 def heart_rate_and_intensitibity(dates):
     # Connect to the database
-    conn = sqlite3.connect("../data/fitbit_database.db")
+    conn = sqlite3.connect(connect)
     cur = conn.cursor()
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
     # Fetch heart rate data and compute hourly average
@@ -171,7 +172,7 @@ def heart_rate_and_intensitibity(dates):
 
 def heart_rate_and_intensitibity(dates):
     # Connect to the database
-    conn = sqlite3.connect("../data/fitbit_database.db")
+    conn = sqlite3.connect(connect)
     cur = conn.cursor()
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
     # Fetch heart rate data and compute hourly average
@@ -199,7 +200,7 @@ def heart_rate_and_intensitibity(dates):
     return merged_df
 
 def calories_and_active_minutes(dates):
-    conn = sqlite3.connect("../data/fitbit_database.db")
+    conn = sqlite3.connect(connect)
     cur = conn.cursor()
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
     query = "SELECT ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes, Calories FROM daily_activity"
