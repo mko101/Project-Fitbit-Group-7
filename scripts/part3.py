@@ -42,7 +42,7 @@ def create_new_dataframe():
     print(new_data)
     return new_data
 
-create_new_dataframe()
+# create_new_dataframe()
 
 # Part2: Verifying data
 def get_verified_data(data_type):
@@ -201,6 +201,9 @@ def compute_sleep_duration(user_id):
 # print(compute_sleep_duration(1503960366))
 
 def compute_sleep_on_day(user_id):
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
     if user_id: 
         cur.execute(f"SELECT Id, date, logId, value FROM minute_sleep WHERE Id={user_id}")
     else:
@@ -208,6 +211,8 @@ def compute_sleep_on_day(user_id):
 
     rows = cur.fetchall()
     df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
+
+    con.close()
 
     df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
     df_sleep = df_sleep.groupby(["Id", "date"], as_index=False)["value"].count()
@@ -218,26 +223,42 @@ def compute_sleep_on_day(user_id):
     return df_sleep
 
 # Step 4: analyse the relationship between the duration of sleep and the active minutes for an individual
-def compare_activity_and_sleep(user_id):
+def compare_activity_and_sleep(user_id, dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
     # gets data from the database and adds it to a dataframe
-    active_minutes = cur.execute(f"SELECT Id, ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes FROM daily_activity WHERE Id={user_id}")
+    if user_id:
+        active_minutes = cur.execute(f"SELECT Id, ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes FROM daily_activity WHERE Id={user_id}")
+    else:
+        active_minutes = cur.execute(f"SELECT Id, ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes FROM daily_activity")
     rows = active_minutes.fetchall()
-    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    daily_activity = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
 
-    # converts the date column to the type datetime
-    df["ActivityDate"] = pd.to_datetime(df["ActivityDate"]).dt.date
-
-    # calculates the time the user is active by summing the active minutes for that day
-    df['ActiveMinutes'] = (df['VeryActiveMinutes'] + df['FairlyActiveMinutes'] + df['LightlyActiveMinutes'])
-    daily_activity = df.groupby('ActivityDate')['ActiveMinutes'].sum().reset_index()
+    con.close()
 
     # renames the ActivityDate column to Date
     daily_activity.rename(columns={"ActivityDate": "date"}, inplace=True)
 
+    # converts the date column to the type datetime
+    daily_activity["date"] = pd.to_datetime(daily_activity["date"]).dt.date
+
+    # calculates the time the user is active by summing the active minutes for that day
+    daily_activity['ActiveMinutes'] = (daily_activity['VeryActiveMinutes'] + daily_activity['FairlyActiveMinutes'] + daily_activity['LightlyActiveMinutes'])
+    if user_id:
+        daily_activity = daily_activity.groupby('date')['ActiveMinutes'].sum().reset_index()
+
     daily_sleep = compute_sleep_on_day(user_id)
 
     # merges the total active minutes and the duration of sleep based on the date, leaving out any dates where no active minutes or sleep duration is available
-    data_sleep_and_activity = pd.merge(daily_activity, daily_sleep, on="date", how="inner")
+    if user_id:
+        data_sleep_and_activity = pd.merge(daily_activity, daily_sleep, on="date", how="inner")
+    else:
+        data_sleep_and_activity = pd.merge(daily_activity, daily_sleep, on=["Id", "date"], how="inner")
+
+    filtered_data = data_sleep_and_activity[data_sleep_and_activity["date"].isin(dates.date)]
 
     # linear regression model
     X = data_sleep_and_activity["TotalMinutesAsleep"] # independent variable
@@ -258,20 +279,31 @@ def compare_activity_and_sleep(user_id):
     plt.legend()
     plt.show()
 
-# compare_activity_and_sleep(1503960366)
+    return filtered_data
+
+compare_activity_and_sleep(None, ['03/12/2016', '03/13/2016', '03/14/2016', '03/15/2016', '03/16/2016', '03/17/2016', '03/18/2016', '03/19/2016', '03/20/2016', '03/21/2016', '03/22/2016', '03/23/2016', '03/24/2016', '03/25/2016', '03/26/2016', '03/27/2016', '03/28/2016', '03/29/2016', '03/30/2016', '03/31/2016', '04/01/2016', '04/02/2016', '04/03/2016', '04/04/2016', '04/05/2016', '04/06/2016', '04/07/2016', '04/08/2016', '04/09/2016', '04/10/2016', '04/11/2016', '04/12/2016'])
 
 # Step 5: analyse the relationship between sedentary activity and sleep duration
-def compare_sedentary_activity_and_sleep():
+def compare_sedentary_activity_and_sleep(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
     df_sleep = compute_sleep_on_day(None)
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
 
     cur.execute("SELECT Id, ActivityDate, SedentaryMinutes FROM daily_activity")
     rows = cur.fetchall()
     df_activity = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
 
+    con.close()
+
     df_activity["ActivityDate"] = pd.to_datetime(df_activity["ActivityDate"]).dt.date
     df_activity.rename(columns={"ActivityDate": "date"}, inplace=True)
 
     df_merged = pd.merge(df_activity, df_sleep, on=["Id", "date"], how="inner")
+
+    filtered_data = df_merged[df_merged["date"].isin(dates.date)]
 
     X = df_merged["SedentaryMinutes"] # explanatory variable
     y = df_merged["TotalMinutesAsleep"] # response variable
@@ -307,7 +339,9 @@ def compare_sedentary_activity_and_sleep():
     p_value = stats.shapiro(residuals.tolist()).pvalue
     print(f"Shapiro-Wilk Test: p-value = {p_value:.4f}")
 
-# compare_sedentary_activity_and_sleep()
+    return filtered_data
+
+# compare_sedentary_activity_and_sleep(['03/12/2016', '03/13/2016', '03/14/2016', '03/15/2016', '03/16/2016', '03/17/2016', '03/18/2016', '03/19/2016', '03/20/2016', '03/21/2016', '03/22/2016', '03/23/2016', '03/24/2016', '03/25/2016', '03/26/2016', '03/27/2016', '03/28/2016', '03/29/2016', '03/30/2016', '03/31/2016', '04/01/2016', '04/02/2016', '04/03/2016', '04/04/2016', '04/05/2016', '04/06/2016', '04/07/2016', '04/08/2016', '04/09/2016', '04/10/2016', '04/11/2016', '04/12/2016'])
 
 # Step 6: compute 4-hours block Average Steps, Sleep, Calories
 def categorize_time(hour):

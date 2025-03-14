@@ -80,6 +80,38 @@ if start_date <= end_date:
                 unsafe_allow_html=True  # This is needed for styling
             )
 
+    def create_correlation_block(col, title, value, unit="", bg_color="#CFEBEC"):
+        with col:
+            container = st.container()
+            container.markdown(
+                f"""
+                <style>
+                .correlation-box {{
+                    background-color: {bg_color};
+                    padding: 10px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                }}
+                .correlation-title {{
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }}
+                .correlation-value {{
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #333;
+                }}
+                </style>
+                <div class="correlation-box">
+                    <div class="correlation-title">{title}</div>
+                    <div class="correlation-value">{value} {unit}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
     # Display each metric
     create_metric_block(col1, "Total Users", users, "")
     create_metric_block(col2, "Average Steps", steps, "")
@@ -283,12 +315,12 @@ if start_date <= end_date:
     with col1:
         fig, corr = plot_correlation_sleep_sedentary_minutes(dates)
         st.plotly_chart(fig, use_container_width=True)
-        create_metric_block(col1, "Correlation coefficient:", corr, "")
+        create_correlation_block(col1, "Correlation coefficient:", corr, "")
 
     with col2:
         fig, corr = plot_correlation_sleep_active_minutes(None, dates)
         st.plotly_chart(fig, use_container_width=True)
-        create_metric_block(col2, "Correlation coefficient:", corr, "")
+        create_correlation_block(col2, "Correlation coefficient:", corr, "")
 
     def plot_correlation_weather_steps(hours, days, dates):
         data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_steps, hours, days, dates)
@@ -346,7 +378,7 @@ if start_date <= end_date:
                 title="Hourly Total Intensity"
             ),
             yaxis=dict(
-                title="Temperature (in F)"
+                title=None
             ),
             showlegend=False
         )
@@ -373,7 +405,7 @@ if start_date <= end_date:
 
         fig, corr = plot_correlation_weather_steps(hours, days, dates)
         st.plotly_chart(fig, use_container_width=True)
-        create_metric_block(col1, "Correlation coefficient:", corr, "")
+        create_correlation_block(col1, "Correlation coefficient:", corr, "")
 
     with col2:
         st.markdown("</br>", unsafe_allow_html=True)
@@ -382,4 +414,4 @@ if start_date <= end_date:
 
         fig, corr = plot_correlation_weather_intensity(hours2, days2, dates)
         st.plotly_chart(fig, use_container_width=True)
-        create_metric_block(col2, "Correlation coefficient:", corr, "")
+        create_correlation_block(col2, "Correlation coefficient:", corr, "")
