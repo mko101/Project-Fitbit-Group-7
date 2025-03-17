@@ -71,5 +71,44 @@ Script `part3.py` contains functions that help explore the `fitbit_database.db` 
 
 
 ### Part 4: Interacting with the database continued
+* `sample_random_age(user)` - 
+* `sample_random_gender(user)` - 
 * `resolve_missing_values_weight_log()` - 
 * `check_correlation_weight_calories()` - Analyzes the correlation between Calories and Weight. It merges daily calories data from daily_activity with weight from weight_logs, forward-fills missing weights, and visualizes the relationship using a scatter plot (in `plot_scatterplot_calculate_correlation(merged_df)`). It also calculates and prints the overall correlation. 
+
+## Cleaning Fitbit database: MAYBE ADD SOME MORE IF WE ARE GONNA USE CLEANED DATABASE
+* `data_cleaning()` - This function cleans and processes Fitbit activity data. It removes duplicate entries, filters out invalid records (such as days with no activity or incomplete data), and ensures meaningful activity tracking. After cleaning, it transfers the refined data, along with other unmodified tables, to a new database (cleaned_fitbit.db). 
+
+## Part 5: Functions to retrieve data for dashboard
+*  `retrieve_average(category, dates)` - returns average for one of given categories with given date list: "total_user" , "TotalSteps", "Calories", "TotalDistance", "ActiveMinutes", "SedentaryMinutes" 
+*  `activity_sum_data(dates)` - return dataframe with two columns one with the type of activity (Very, Fairly, Lightly Active or Sedentary) and average minutes per day for given period passed as list
+* `average_steps_per_hour(dates)` - return dataframe with columns Hour and mean of TotalSteps per hour for given period passed as list
+* `average_heart_rate_per_hour()` - This function retrieves heart rate data from the database, processes the timestamps to extract hourly values, and calculates the average heart rate per hour for each day. It returns a DataFrame with daily hourly averages.
+* `hourly_average_heart_rate_dates(dates)` - This function filters the heart rate data to include only the specified dates and computes the average heart rate per hour across those dates. It returns a DataFrame containing the final hourly averages.
+* `hourly_average_calories(dates)` - return dataframe with columns Hour and mean of Calories burned per hour for given period passed as list
+* ` heart_rate_and_intensitivity(dates)` - This function retrieves heart rate and intensity data from the database, filters it based on the given dates, calculates the average heart rate and total intensity per hour, and merges both datasets into a single DataFrame.
+* `calories_and_active_minutes(dates)` - This function extracts activity and calorie data, filters it by date, calculates the total active minutes (sum of very active, fairly active, and lightly active minutes), and returns a DataFrame with total active minutes and calories for further analysis 
+* `heart_rate_and_sleep_value(dates)` - NOT SURE IF WE WILL USE THIS ONE AT THE END
+This function extracts heart rate and sleep value data, filters it by date, calculates the average heart rate per minute, and returns a DataFrame with heart per minute and sleep value for further analysis 
+* `average_distance_per_week(dates)` - This function retrieves daily distance data from the database, filters it based on the given dates, and calculates the average total distance traveled for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
+* `average_steps_per_week(dates)` - This function retrieves daily total steps data from the database, filters it based on the given dates, and calculates the average total steps walked for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
+* `average_calories_per_week(dates)` - This function retrieves daily total calories data from the database, filters it based on the given dates, and calculates the average calories burned for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
+* `average_active_minutes_per_week(dates)` - This function retrieves daily very, fairly and lightly active minutes data from the database, filters it based on the given dates, and calculates the average very, fairly and lightly active minutes for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
+
+## Graphing functions for dashboard: Functions to create graphs in dashboard
+* ` create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):` - This function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
+* `plot_activity_pie_chart(dates)` -  This function creates a pie chart to visualize the average daily activity breakdown based on user-selected dates. It retrieves activity data, categorizes minutes into different activity levels (Very Active, Fairly Active, Lightly Active, Sedentary), and assigns custom colors for better distinction. The pie chart includes percentage labels and an interactive hover feature displaying the exact minutes per activity category.
+* `bar_chart_hourly_average_steps(dates)` - This function generates a bar chart displaying the average number of steps taken per hour for the given dates. It highlights the top three most active hours with a distinct color. 
+* `plot_heart_rate(dates)` - This function generates a line chart displaying the average heart rate per hour for the given dates.
+* `bar_chart_hourly_average_calories(dates)` - This function generates a bar chart displaying the average number of calories burned per hour for the given dates. It highlights the top three most calories burned hours with a distinct color. 
+* `scatterplot_heart_rate_intensityvity(dates)` - This function generates the scatterplot between heart rate and exercise intensitivity for the given dates.
+* `scatterplot_calories_and_active_minutes(dates)` - This function generates the scatterplot between calories and active minutes for the given dates.
+* `scatterplot_heart_rate_sleep_value(dates)` - This function generates the scatterplot between heart rate and sleep value for the given dates. NOT USED FOR NOW
+* `lineplot_heart_rate_over_night(dates)` - This function generates a line plot displaying the average heart rate per hour over night for the given dates. NOT USED FOR NOW
+* `bar_chart_average_distance_per_week(dates)` - This function generates a bar chart displaying the average distance walked per day per week for the given dates. It highlights the most active day with a distinct color. 
+* `bar_chart_average_steps_per_week(dates)` - This function generates a bar chart displaying the average steps taken per day per week for the given dates. It highlights the most active day with a distinct color. 
+* `bar_chart_average_calories_per_day_for_week(dates)` - This function generates a bar chart displaying the average calories burned per day per week for the given dates. It highlights the most active day with a distinct color. 
+* `plot_active_minutes_bar_chart_per_day(dates)` - This function generates a bar chart displaying the average different type of active minutes per day per week for the given dates. It highlights the most active day with a distinct color. 
+
+
+## General insights: Creating dashboard by calling functions from Graphing_functions_for_dashboard.py
