@@ -4,7 +4,9 @@ import pandas as pd
 import datetime
 import part1
 import Part5 as part5
+import numpy as np
 import plots_general_insights as plots
+import Graphing_functions_for_dashboard as gf
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -33,8 +35,9 @@ with st.sidebar:
             st.error("Please ensure that the end date is later than the start date.")
         else:
             dates = pd.date_range(start_date, end_date, freq='d').strftime("%m/%d/%Y")
-
+            
 if start_date <= end_date:
+    # Row of average metrics
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
     # Retrieve data
@@ -111,12 +114,12 @@ if start_date <= end_date:
             )
 
     # Display each metric
-    create_metric_block(col1, "Total Users", users, "")
-    create_metric_block(col2, "Average Steps", steps, "")
-    create_metric_block(col3, "Average Distance", distance, "km")
-    create_metric_block(col4, "Average Calories", calories, "kcal")
-    create_metric_block(col5, "Avr. Active Min", active_minutes, "")
-    create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
+    gf.create_metric_block(col1, "Total Users", users, "")
+    gf.create_metric_block(col2, "Average Steps", steps, "")
+    gf.create_metric_block(col3, "Average Distance", distance, "km")
+    gf.create_metric_block(col4, "Average Calories", calories, "kcal")
+    gf.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
+    gf.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
     st.markdown("</br></br>", unsafe_allow_html=True)
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
@@ -202,3 +205,40 @@ if start_date <= end_date:
             st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
         st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
+        
+    # First row of graphs
+    col1, col2, col3 = st.columns([1, 1.5, 1.5])  
+
+    with col1:
+        st.plotly_chart(gf.plot_activity_pie_chart(dates), use_container_width=True)
+    with col2:
+        st.plotly_chart(gf.bar_chart_hourly_average_steps(dates), use_container_width=True)
+    with col3:
+        st.plotly_chart(gf.plot_heart_rate(dates), use_container_width=True)
+
+    # Second row of graphs
+    col1, col2, col3 = st.columns([1.5, 1.5, 1.5])  
+
+    with col1:
+        st.plotly_chart(gf.bar_chart_hourly_average_calories(dates), use_container_width=True)
+    with col2:
+        st.plotly_chart(gf.scatterplot_heart_rate_intensityvity(dates), use_container_width=True)
+    with col3:
+        st.plotly_chart(gf.scatterplot_calories_and_active_minutes(dates), use_container_width=True)
+
+    col1, col2 = st.columns([2,2])  
+
+    # Third row of graphs
+    with col1:
+        st.plotly_chart(gf.bar_chart_average_distance_per_week(dates), use_container_width=True)
+    with col2:
+        st.plotly_chart(gf.bar_chart_average_steps_per_week(dates), use_container_width=True)
+
+
+    # Fourth row of graphs
+    col1, col2 = st.columns([2,2])  
+
+    with col1:
+        st.plotly_chart(gf.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
+    with col2:
+        st.plotly_chart(gf.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
