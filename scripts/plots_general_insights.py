@@ -318,7 +318,7 @@ def plot_active_minutes_active_distance(dates):
             y=df["VeryActiveMinutes"],
             name="Very Active Minutes",
             line_shape="spline",  # Smooth curve
-            marker=dict(color="#CFEBEC"),
+            marker=dict(color="#005B8D"),
             yaxis="y2",
         )
     )
@@ -439,7 +439,7 @@ def hist_weekly_sleep(dates):
     # Identify top 3 most intensive hours
     top_hours = weekly_data.nlargest(2, "TotalMinutesAsleep")["Day"].tolist()
 
-    weekly_data["Color"] = weekly_data["Day"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
+    weekly_data["Color"] = weekly_data["Day"].apply(lambda x: "#0095B2" if x in top_hours else "#8BC5D5")
     weekly_data["DayFormatted"] = weekly_data["Day"].astype(str) + ":00"
 
     # Plot histogram using Plotly
@@ -473,3 +473,75 @@ def hist_weekly_sleep(dates):
     )
 
     return fig
+
+def plot_correlation_sleep_steps(dates):
+    data = part5.create_dataframe_scatterplot_sleep("Steps", dates)
+
+    corr = data["StepTotal"].corr(data["TotalMinutesAsleep"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
+
+    fig = px.scatter(
+        data, 
+        x="StepTotal", 
+        y="TotalMinutesAsleep",
+        title="Correlation between Total Steps and Total Sleep Minutes",
+        labels={"StepTotal": "Total Steps", "TotalMinutesAsleep": "Total Sleep Minutes"},
+        trendline="ols"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            title = "Total Steps"
+        ),
+        yaxis=dict(
+            title=None
+        ),
+        showlegend=False
+    )
+
+    fig.update_traces(
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
+    )
+    
+    fig.update_traces(
+        hovertemplate="<b>Total Steps:</b> %{x}<br><b>Total Sleep Minutes:</b> %{y:.0f}<extra></extra>"
+    )
+
+    return fig, corr
+
+def plot_correlation_sleep_calories(dates):
+    data = part5.create_dataframe_scatterplot_sleep("Calories", dates)
+
+    corr = data["Calories"].corr(data["TotalMinutesAsleep"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
+
+    fig = px.scatter(
+        data, 
+        x="Calories", 
+        y="TotalMinutesAsleep",
+        title="Correlation between Calories and Total Sleep Minutes",
+        labels={"Calories": "Calories", "TotalMinutesAsleep": "Total Sleep Minutes"},
+        trendline="ols"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            title = "Calories"
+        ),
+        yaxis=dict(
+            title=None
+        ),
+        showlegend=False
+    )
+
+    fig.update_traces(
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
+    )
+    
+    fig.update_traces(
+        hovertemplate="<b>Calories:</b> %{x}<br><b>Total Sleep Minutes:</b> %{y:.0f}<extra></extra>"
+    )
+
+    return fig, corr

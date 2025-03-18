@@ -281,7 +281,7 @@ def sleep_data(dates):
     con = sqlite3.connect("../data/fitbit_database.db")
     cur = con.cursor()
 
-    cur.execute("SELECT Id, date, logId, value FROM minute_sleep")
+    cur.execute("SELECT * FROM minute_sleep")
     rows = cur.fetchall()
     df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
 
@@ -293,8 +293,54 @@ def sleep_data(dates):
     df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
     df_sleep = df_sleep[df_sleep["date"].isin(dates)]
 
-    df_sleep = df_sleep.groupby(["Id", "date", "Hour"], as_index=False)["value"].count()
+    df_sleep["Hour"] = df_sleep["Hour"].astype('category')
+    df_sleep = df_sleep.groupby(["Id", "date", "Hour"], as_index=False)["value"].count().fillna(0).astype(int).reset_index()
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
+    df_sleep["DayTotal"] = df_sleep.groupby(["Id", "date"])["value"].transform("sum")
+    df_sleep = df_sleep[df_sleep["DayTotal"] > 0]
+    df_sleep = df_sleep.reset_index(drop=True)
     df_sleep.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+
     df_sleep = df_sleep.groupby(["Hour"], as_index=False)["TotalMinutesAsleep"].mean()
 
     return df_sleep
+
+def create_dataframe_scatterplot_sleep(variable, dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    sleep_duration = cur.execute(f"SELECT * FROM minute_sleep")
+    rows = sleep_duration.fetchall()
+    sleep_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    # converts the date column to the type datetime
+    sleep_df["date"] = pd.to_datetime(sleep_df["date"]).dt.normalize()
+    sleep_df = sleep_df.groupby(["Id", "date"], as_index=False)["value"].count()
+    sleep_df.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+
+    if variable == "Steps":
+        steps = cur.execute(f"SELECT * FROM hourly_steps")
+        rows = steps.fetchall()
+        other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+        other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
+        other_df = other_df.groupby(["Id", "date"], as_index=False)["StepTotal"].sum()
+    else: 
+        calories = cur.execute(f"SELECT * FROM hourly_calories")
+        rows = calories.fetchall()
+        other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+        other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
+        other_df = other_df.groupby(["Id", "date"], as_index=False)["Calories"].sum()
+        
+    con.close()
+
+    sleep_df["date"] = pd.to_datetime(sleep_df["date"])
+    other_df["date"] = pd.to_datetime(other_df["date"])
+
+    df_merged = pd.merge(sleep_df, other_df, on=["Id", "date"], how="inner")
+    filtered_data = df_merged.loc[df_merged["date"].isin(dates)]
+
+    return filtered_data

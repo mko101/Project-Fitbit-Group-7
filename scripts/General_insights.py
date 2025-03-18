@@ -119,7 +119,7 @@ if start_date <= end_date:
     create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
     st.markdown("</br></br>", unsafe_allow_html=True)
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weahter insights", "Other"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
 
     # Daily graphs
     with tab1:
@@ -154,6 +154,18 @@ if start_date <= end_date:
             fig, corr = plots.plot_correlation_sleep_active_minutes(None, dates)
             st.plotly_chart(fig, use_container_width=True)
             create_correlation_block(col2, "Correlation coefficient:", corr, "")
+        
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fig, corr = plots.plot_correlation_sleep_steps(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+
+        with col2:
+            fig, corr = plots.plot_correlation_sleep_calories(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
     
     # Weather insights
     with tab4:
@@ -181,7 +193,7 @@ if start_date <= end_date:
 
     # Other insights
     with tab5:
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         
         with col1:
             st.plotly_chart(plots.plot_activity_pie_chart(dates), use_container_width=True)
@@ -189,5 +201,4 @@ if start_date <= end_date:
         with col2:
             st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
-        with col3:
-            st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
+        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
