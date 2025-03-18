@@ -222,15 +222,10 @@ def average_distance_per_week(dates):
     cur.execute(query) 
     data = cur.fetchall()
     data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
-    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"]).dt.normalize()
     filtered_data = data.loc[data["ActivityDate"].isin(dates)]
-    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.day_name()
+    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.weekday
     filtered_data_avr = filtered_data.groupby("DayOfWeek")["TotalDistance"].mean().reset_index()
-
-    day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    filtered_data_avr["DayOfWeek"] = pd.Categorical(filtered_data_avr["DayOfWeek"], categories=day_order, ordered=True)
-    filtered_data_avr = filtered_data_avr.sort_values("DayOfWeek").reset_index(drop=True)
-
     conn.close()
     return filtered_data_avr
 
@@ -242,14 +237,10 @@ def average_steps_per_week(dates):
     cur.execute(query) 
     data = cur.fetchall()
     data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
-    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"]).dt.normalize()
     filtered_data = data.loc[data["ActivityDate"].isin(dates)]
-    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.day_name()
+    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.weekday
     filtered_data_avr = filtered_data.groupby("DayOfWeek")["TotalSteps"].mean().reset_index()
-
-    day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    filtered_data_avr["DayOfWeek"] = pd.Categorical(filtered_data_avr["DayOfWeek"], categories=day_order, ordered=True)
-    filtered_data_avr = filtered_data_avr.sort_values("DayOfWeek").reset_index(drop=True)
 
     conn.close()
     return filtered_data_avr
@@ -262,15 +253,10 @@ def average_calories_per_week(dates):
     cur.execute(query) 
     data = cur.fetchall()
     data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
-    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"]).dt.normalize()
     filtered_data = data.loc[data["ActivityDate"].isin(dates)]
-    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.day_name()
+    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.weekday
     filtered_data_avr = filtered_data.groupby("DayOfWeek")["Calories"].mean().reset_index()
-
-    day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    filtered_data_avr["DayOfWeek"] = pd.Categorical(filtered_data_avr["DayOfWeek"], categories=day_order, ordered=True)
-    filtered_data_avr = filtered_data_avr.sort_values("DayOfWeek").reset_index(drop=True)
-
     conn.close()
     return filtered_data_avr
 
@@ -282,16 +268,12 @@ def average_active_minutes_per_week(dates):
     cur.execute(query) 
     data = cur.fetchall()
     data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
-    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
-    filtered_data = data.loc[data["ActivityDate"].isin(dates)]
-    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.day_name()
-    filtered_data_avr = filtered_data.groupby("DayOfWeek")[["VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes"]].mean().reset_index()
-    day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    filtered_data_avr["DayOfWeek"] = pd.Categorical(filtered_data_avr["DayOfWeek"], categories=day_order, ordered=True)
-    filtered_data_avr = filtered_data_avr.sort_values("DayOfWeek").reset_index(drop=True)
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"]).dt.normalize()
 
+    filtered_data = data.loc[data["ActivityDate"].isin(dates)]
+    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.weekday
+    filtered_data_avr = filtered_data.groupby("DayOfWeek")[["VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes"]].mean().reset_index()
     conn.close()
     return filtered_data_avr
-
 
 

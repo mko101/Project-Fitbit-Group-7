@@ -270,7 +270,7 @@ def bar_chart_average_distance_per_week(dates):
     total_distance_avr = part5.average_distance_per_week(dates)
     max_distance = total_distance_avr["TotalDistance"].max()
     total_distance_avr["Color"] = total_distance_avr["TotalDistance"].apply(
-        lambda x: "#00B3BD" if x == max_distance else "#CFEBEC"
+        lambda x: "#0095B2" if x == max_distance else "#8bc5d5"
     )
     fig = px.bar(
         total_distance_avr, 
@@ -281,12 +281,14 @@ def bar_chart_average_distance_per_week(dates):
         color_discrete_map="identity"
     )
     fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
         xaxis_title="", 
         yaxis_title="", 
-)
-    fig.update_xaxes(
-        tickmode="array", 
-        tickvals=["Monday", "Thursday", "Sunday"]
     )
     fig.update_traces(
         hovertemplate="<b>Day of week:</b> %{x}<br><b>Total Distance:</b> %{y:.2f} km<extra></extra>",
@@ -297,7 +299,7 @@ def bar_chart_average_steps_per_week(dates):
     data_avr = part5.average_steps_per_week(dates)
     max_distance = data_avr["TotalSteps"].max()
     data_avr["Color"] = data_avr["TotalSteps"].apply(
-        lambda x: "#00B3BD" if x == max_distance else "#CFEBEC"
+        lambda x: "#0095B2" if x == max_distance else "#8bc5d5"
     )
     fig = px.bar(
         data_avr, 
@@ -308,12 +310,14 @@ def bar_chart_average_steps_per_week(dates):
         color_discrete_map="identity"
     )
     fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
         xaxis_title="", 
         yaxis_title="", 
-)
-    fig.update_xaxes(
-        tickmode="array", 
-        tickvals=["Monday", "Thursday", "Sunday"]
     )
     fig.update_traces(
         hovertemplate="<b>Day of week:</b> %{x}<br><b>Total Steps:</b> %{y:.0f} <extra></extra>",
@@ -324,7 +328,7 @@ def bar_chart_average_calories_per_day_for_week(dates):
     data_avr = part5.average_calories_per_week(dates)
     max_distance = data_avr["Calories"].max()
     data_avr["Color"] = data_avr["Calories"].apply(
-        lambda x: "#00B3BD" if x == max_distance else "#CFEBEC"
+        lambda x: "#0095B2" if x == max_distance else "#8bc5d5"
     )
     fig = px.bar(
         data_avr, 
@@ -335,12 +339,14 @@ def bar_chart_average_calories_per_day_for_week(dates):
         color_discrete_map="identity"
     )
     fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
         xaxis_title="", 
         yaxis_title="", 
-)
-    fig.update_xaxes(
-        tickmode="array", 
-        tickvals=["Monday", "Thursday", "Sunday"]
     )
     fig.update_traces(
         hovertemplate="<b>Day of week:</b> %{x}<br><b> Calories:</b> %{y:.0f} kcal <extra></extra>",
@@ -358,8 +364,8 @@ def plot_active_minutes_bar_chart_per_day(dates):
 
     color_map = {
         "VeryActiveMinutes": "#006166",   
-        "FairlyActiveMinutes": "#00B3BD", 
-        "LightlyActiveMinutes": "#CFEBEC" 
+        "FairlyActiveMinutes": "#0095B2", 
+        "LightlyActiveMinutes": "#8bc5d5" 
     }
 
     fig = px.bar(
@@ -372,21 +378,20 @@ def plot_active_minutes_bar_chart_per_day(dates):
         color_discrete_map=color_map
     )
 
-    fig.update_xaxes(
-        tickmode="array", 
-        tickvals=["Monday", "Thursday", "Sunday"]
-    )
     fig.update_layout(
         showlegend=True,
         legend=dict(
             orientation="h", 
             title= ""
-        )   
-    )
-    fig.update_layout(
+        ),  
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
         xaxis_title="", 
-        yaxis_title="",  
- 
+        yaxis_title="", 
     )
     fig.update_traces(
         hovertemplate="<b>Day:</b> %{x}<br>" 
