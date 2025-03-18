@@ -277,3 +277,226 @@ def average_active_minutes_per_week(dates):
     return filtered_data_avr
 
 
+=======
+print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
+
+# weather data
+def hourly_weather_data():
+    weather = pd.read_csv("../data/weather_Chicago_hourly.csv", header=0)
+
+    weather["datetime"] = pd.to_datetime(weather["datetime"])
+    weather["Hour"] = weather["datetime"].dt.hour
+    weather["Day"] = weather["datetime"].dt.weekday
+
+    return weather
+
+# hourly steps
+def compute_steps_hourly():
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM hourly_steps")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityHour"] = pd.to_datetime(df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    df.rename(columns={"ActivityHour": "datetime"}, inplace=True)
+    df["Hour"] = df["datetime"].dt.hour
+    df["Day"] = df["datetime"].dt.weekday
+
+    df = df.groupby(["datetime", "Hour", "Day"], as_index=False)["StepTotal"].mean()  
+
+    return df
+
+# hourly intensity
+def compute_intensity_hourly():
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM hourly_intensity")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityHour"] = pd.to_datetime(df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p")
+    df.rename(columns={"ActivityHour": "datetime"}, inplace=True)
+    df["Hour"] = df["datetime"].dt.hour
+    df["Day"] = df["datetime"].dt.weekday
+
+    df = df.groupby(["datetime", "Hour", "Day"], as_index=False)["TotalIntensity"].mean()  
+
+    return df
+
+def create_scatterplot_weather(df1, df2, hours, days, dates):
+    dates = pd.to_datetime(dates)
+
+    hour_ranges = {
+        "0-4": range(0, 4),
+        "4-8": range(4, 8),
+        "8-12": range(8, 12),
+        "12-16": range(12, 16),
+        "16-20": range(16, 20),
+        "20-24": range(20, 24)
+    }
+
+    hours_converted = [hour for range_str in hours if range_str in hour_ranges for hour in hour_ranges[range_str]]
+
+    days_ranges = {
+        "Weekdays": range(0, 5),
+        "Weekend": range(5, 7)
+    }
+    
+    days_converted = [day for day_str in days if day_str in days_ranges for day in days_ranges[day_str]]
+
+    df_merged = pd.merge(df1, df2, on=["datetime", "Hour", "Day"], how="inner")
+    df_merged["datetime"] = pd.to_datetime(df_merged["datetime"]).dt.normalize()
+    
+    df_merged = df_merged[df_merged["Hour"].isin(hours_converted)]
+    df_merged = df_merged[df_merged["Day"].isin(days_converted)]
+    df_merged = df_merged[df_merged["datetime"].isin(dates)]
+
+    if "StepTotal" not in df_merged.columns:
+        var = "TotalIntensity"
+    else:
+        var = "StepTotal"
+
+    plt.figure(figsize=(8,6))
+    sns.scatterplot(x=df_merged["temp"], y=df_merged[var], alpha=0.5)
+    plt.title(f"Scatterplot temp vs {var}")
+    plt.show()
+
+    return df_merged
+
+hourly_weather = hourly_weather_data()
+hourly_steps = compute_steps_hourly()
+hourly_intensity = compute_intensity_hourly()
+
+def daily_activity(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM daily_activity")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityDate"] = pd.to_datetime(df["ActivityDate"])
+    df = df[df["ActivityDate"].isin(dates)]
+
+    very_active_distance = df.groupby(["ActivityDate"], as_index=False)["VeryActiveDistance"].mean()
+    very_active_minutes = df.groupby(["ActivityDate"], as_index=False)["VeryActiveMinutes"].mean()
+
+    df = pd.merge(very_active_distance, very_active_minutes, on="ActivityDate", how="inner")
+
+    df["Month"] = df["ActivityDate"].dt.month_name()
+    df = df.sort_values(by="ActivityDate")
+
+    return df
+
+def categorize_weight(weight):
+    if weight >= 110:
+        return "110 - 130kg"
+    elif weight >= 90:
+        return "90 - 110kg"
+    elif weight >= 70:
+        return "70 - 90kg"
+    else:
+        return "50 - 70kg"
+    
+def categorized_weight_data(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT Id, Date, WeightKg FROM weight_log") 
+    rows = cur.fetchall()
+    data = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    data["Date"] = pd.to_datetime(data["Date"]).dt.normalize()
+    filtered_data = data.loc[data["Date"].isin(dates)]
+
+    filtered_data = filtered_data.groupby(["Id"], as_index=False)["WeightKg"].mean()
+    filtered_data["CategoryWeight"] = filtered_data["WeightKg"].apply(categorize_weight)
+    
+    weights = {
+        "50 - 70kg": filtered_data[filtered_data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
+        "70 - 90kg": filtered_data[filtered_data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
+        "90 - 110kg": filtered_data[filtered_data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
+        "110 - 130kg": filtered_data[filtered_data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
+    }
+
+    df = pd.DataFrame(list(weights.items()), columns=["CategoryWeight", "Count"])
+
+    return df
+
+def sleep_data(dates):
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM minute_sleep")
+    rows = cur.fetchall()
+    df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
+
+    con.close()
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"])
+    df_sleep["Hour"] = df_sleep["date"].dt.hour
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
+    df_sleep = df_sleep[df_sleep["date"].isin(dates)]
+
+    df_sleep["Hour"] = df_sleep["Hour"].astype('category')
+    df_sleep = df_sleep.groupby(["Id", "date", "Hour"], as_index=False)["value"].count().fillna(0).astype(int).reset_index()
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
+    df_sleep["DayTotal"] = df_sleep.groupby(["Id", "date"])["value"].transform("sum")
+    df_sleep = df_sleep[df_sleep["DayTotal"] > 0]
+    df_sleep = df_sleep.reset_index(drop=True)
+    df_sleep.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+
+    df_sleep = df_sleep.groupby(["Hour"], as_index=False)["TotalMinutesAsleep"].mean()
+
+    return df_sleep
+
+def create_dataframe_scatterplot_sleep(variable, dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    sleep_duration = cur.execute(f"SELECT * FROM minute_sleep")
+    rows = sleep_duration.fetchall()
+    sleep_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    # converts the date column to the type datetime
+    sleep_df["date"] = pd.to_datetime(sleep_df["date"]).dt.normalize()
+    sleep_df = sleep_df.groupby(["Id", "date"], as_index=False)["value"].count()
+    sleep_df.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+
+    if variable == "Steps":
+        steps = cur.execute(f"SELECT * FROM hourly_steps")
+        rows = steps.fetchall()
+        other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+        other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
+        other_df = other_df.groupby(["Id", "date"], as_index=False)["StepTotal"].sum()
+    else: 
+        calories = cur.execute(f"SELECT * FROM hourly_calories")
+        rows = calories.fetchall()
+        other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+        other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
+        other_df = other_df.groupby(["Id", "date"], as_index=False)["Calories"].sum()
+        
+    con.close()
+
+    sleep_df["date"] = pd.to_datetime(sleep_df["date"])
+    other_df["date"] = pd.to_datetime(other_df["date"])
+
+    df_merged = pd.merge(sleep_df, other_df, on=["Id", "date"], how="inner")
+    filtered_data = df_merged.loc[df_merged["date"].isin(dates)]
+
+    return filtered_data
