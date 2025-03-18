@@ -215,3 +215,86 @@ def create_scatterplot_weather(df1, df2, hours, days, dates):
 hourly_weather = hourly_weather_data()
 hourly_steps = compute_steps_hourly()
 hourly_intensity = compute_intensity_hourly()
+
+def daily_activity(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    steps = cur.execute(f"SELECT * FROM daily_activity")
+    rows = steps.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+    con.close()
+
+    df["ActivityDate"] = pd.to_datetime(df["ActivityDate"])
+    df = df[df["ActivityDate"].isin(dates)]
+
+    very_active_distance = df.groupby(["ActivityDate"], as_index=False)["VeryActiveDistance"].mean()
+    very_active_minutes = df.groupby(["ActivityDate"], as_index=False)["VeryActiveMinutes"].mean()
+
+    df = pd.merge(very_active_distance, very_active_minutes, on="ActivityDate", how="inner")
+
+    df["Month"] = df["ActivityDate"].dt.month_name()
+    df = df.sort_values(by="ActivityDate")
+
+    return df
+
+def categorize_weight(weight):
+    if weight >= 110:
+        return "110 - 130kg"
+    elif weight >= 90:
+        return "90 - 110kg"
+    elif weight >= 70:
+        return "70 - 90kg"
+    else:
+        return "50 - 70kg"
+    
+def categorized_weight_data(dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT Id, Date, WeightKg FROM weight_log") 
+    rows = cur.fetchall()
+    data = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
+
+    data["Date"] = pd.to_datetime(data["Date"]).dt.normalize()
+    filtered_data = data.loc[data["Date"].isin(dates)]
+
+    filtered_data = filtered_data.groupby(["Id"], as_index=False)["WeightKg"].mean()
+    filtered_data["CategoryWeight"] = filtered_data["WeightKg"].apply(categorize_weight)
+    
+    weights = {
+        "50 - 70kg": filtered_data[filtered_data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
+        "70 - 90kg": filtered_data[filtered_data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
+        "90 - 110kg": filtered_data[filtered_data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
+        "110 - 130kg": filtered_data[filtered_data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
+    }
+
+    df = pd.DataFrame(list(weights.items()), columns=["CategoryWeight", "Count"])
+
+    return df
+
+def sleep_data(dates):
+    con = sqlite3.connect("../data/fitbit_database.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT Id, date, logId, value FROM minute_sleep")
+    rows = cur.fetchall()
+    df_sleep = pd.DataFrame(rows, columns=[x[0] for x in cur.description])
+
+    con.close()
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"])
+    df_sleep["Hour"] = df_sleep["date"].dt.hour
+
+    df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
+    df_sleep = df_sleep[df_sleep["date"].isin(dates)]
+
+    df_sleep = df_sleep.groupby(["Id", "date", "Hour"], as_index=False)["value"].count()
+    df_sleep.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
+    df_sleep = df_sleep.groupby(["Hour"], as_index=False)["TotalMinutesAsleep"].mean()
+
+    return df_sleep

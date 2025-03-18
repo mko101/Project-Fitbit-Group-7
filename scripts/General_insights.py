@@ -1,12 +1,10 @@
 # IMPORTS 
 import streamlit as st
 import pandas as pd
-import numpy as np
 import datetime
-import plotly.express as px
 import part1
-import part3
 import Part5 as part5
+import plots_general_insights as plots
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -120,298 +118,76 @@ if start_date <= end_date:
     create_metric_block(col5, "Avr. Active Min", active_minutes, "")
     create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
-    def plot_activity_pie_chart(dates): 
-        custom_colors = {
-            "Very Active": "#005B8D",  
-            "Fairly Active": "#006166", 
-            "Lightly Active": "#00B3BD", 
-            "Sedentary": "#CFEBEC"  
-        }
-        
-        data = part5.activity_sum_data(dates)
+    st.markdown("</br></br>", unsafe_allow_html=True)
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weahter insights", "Other"])
 
-        fig = px.pie(
-            data, values='Minutes', names='Activity', 
-            title="Average Activity Breakdown Per Day",
-            hole=0.5, color='Activity', 
-            color_discrete_map=custom_colors  
-        )
+    # Daily graphs
+    with tab1:
+        col1, col2 = st.columns(2)
 
-        fig.update_layout(
-            showlegend=True,
-            legend=dict(
-                orientation="h",  # Horizontal layout
+        with col1:
+            st.plotly_chart(plots.hist_daily_average_steps(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(plots.plot_heart_rate(dates), use_container_width=True)
 
-            )   
-        )
-        
-        fig.update_traces(
-            textinfo='percent',
-            hovertemplate="<b>%{label}</b><br>Minutes: %{value:.0f}<extra></extra>"  
-        )
-        
-        return fig
+        col1, col2 = st.columns(2)
 
-    def hist_daily_average_steps(dates):
-        hourly_data = part5.average_steps_per_hour(dates)
-
-        # Identify top 3 most intensive hours
-        top_hours = hourly_data.nlargest(3, "StepTotal")["Hour"].tolist()
-
-        hourly_data["Color"] = hourly_data["Hour"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
-        hourly_data["HourFormatted"] = hourly_data["Hour"].astype(str) + ":00"
-
-        # Plot histogram using Plotly
-        fig = px.bar(
-            hourly_data, 
-            x="HourFormatted",
-            y="StepTotal",
-            title="Average Steps Per Hour",
-            color="Color",
-            color_discrete_map="identity",
-            category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
-        )
-
-        # Customize layout
-        fig.update_layout(
-            xaxis=dict(
-                tickmode="array",
-                tickvals=[0, 6, 12, 18, 23],
-                title = None
-            ),
-            yaxis=dict(
-                title=None
-            ),
-            showlegend=False,  
-            bargap=0.2
-        )
-
-        fig.update_traces(
-            hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Steps:</b> %{y:.0f}<extra></extra>"
-        )
-
-        return fig
-
-    def plot_heart_rate(dates):
-        heart_rate_data = part5.hourly_average_heart_rate_dates(dates)
-        heart_rate_data['Hour'] = heart_rate_data['Hour'].astype(str) + ":00"
-
-        fig = px.line(
-            heart_rate_data, 
-            x="Hour", 
-            y="Value",
-            title="Heart Rate Per Hour",
-            labels={"Hour": "Hour of Day", "Value": "Avg Heart Rate (bpm)"},
-            line_shape="spline",  # Smooth curve
-            markers=True
-        )
-
-        # Format x-axis for better readability
-        fig.update_layout(
-            xaxis=dict(
-                tickmode="array",
-                tickvals=[0, 6, 12, 18, 23],
-                title = None
-            ),
-            yaxis=dict(
-                title=None
-            ),
-            showlegend=False
-        )
-
-        fig.update_traces(line=dict(color="#00B3BD"))
-
-        fig.update_traces(
-            hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Heart Rate:</b> %{y:.0f} bmp<extra></extra>"
-        )
-
-        return fig
-
-    col1, col2, col3 = st.columns([1, 1.5, 1.5])  
-
-    with col1:
-        st.plotly_chart(plot_activity_pie_chart(dates), use_container_width=True)
-
-    with col2:
-        st.plotly_chart(hist_daily_average_steps(dates), use_container_width=True)
-
-    with col3:
-        st.plotly_chart(plot_heart_rate(dates), use_container_width=True)
-
-    def plot_correlation_sleep_sedentary_minutes(dates):
-        data = part3.compare_sedentary_activity_and_sleep(dates)
-
-        corr = data["SedentaryMinutes"].corr(data["TotalMinutesAsleep"])
-        corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
-
-        fig = px.scatter(
-            data, 
-            x="SedentaryMinutes", 
-            y="TotalMinutesAsleep",
-            title="Correlation between Sedentary Minutes and Total Sleep Minutes",
-            labels={"SedentaryMinutes": "Sedentary Minutes", "TotalMinutesAsleep": "Total Sleep Minutes"},
-            trendline="ols"
-        )
-
-        fig.update_layout(
-            xaxis=dict(
-                title = "Sedentary Minutes"
-            ),
-            yaxis=dict(
-                title="Total Minutes Asleep"
-            ),
-            showlegend=False
-        )
-
-        fig.update_traces(
-            marker=dict(color="#00B3BD"),
-            line=dict(color="#005B8D")
-        )
-        
-        fig.update_traces(
-            hovertemplate="<b>Sedentary Minutes:</b> %{x}<br><b>Total Sleep Minutes:</b> %{y:.0f}<extra></extra>"
-        )
-
-        return fig, corr
-
-    def plot_correlation_sleep_active_minutes(user_id, dates):
-        data = part3.compare_activity_and_sleep(user_id, dates)
-
-        corr = data["ActiveMinutes"].corr(data["TotalMinutesAsleep"]) 
-        corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
-
-        fig = px.scatter(
-            data, 
-            x="ActiveMinutes", 
-            y="TotalMinutesAsleep",
-            title="Correlation between Active Minutes and Total Sleep Minutes",
-            labels={"ActiveMinutes": "Active Minutes", "TotalMinutesAsleep": "Total Sleep Minutes"},
-            trendline="ols"
-        )
-
-        fig.update_layout(
-            xaxis=dict(
-                title = "Active Minutes"
-            ),
-            yaxis=dict(
-                title=None
-            ),
-            showlegend=False
-        )
-
-        fig.update_traces(
-            marker=dict(color="#00B3BD"),
-            line=dict(color="#005B8D")
-        )
-        
-        fig.update_traces(
-            hovertemplate="<b>Active Minutes:</b> %{x}<br><b>Total Sleep Minutes:</b> %{y:.0f}<extra></extra>"
-        )
-
-        return fig, corr
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        fig, corr = plot_correlation_sleep_sedentary_minutes(dates)
-        st.plotly_chart(fig, use_container_width=True)
-        create_correlation_block(col1, "Correlation coefficient:", corr, "")
-
-    with col2:
-        fig, corr = plot_correlation_sleep_active_minutes(None, dates)
-        st.plotly_chart(fig, use_container_width=True)
-        create_correlation_block(col2, "Correlation coefficient:", corr, "")
-
-    def plot_correlation_weather_steps(hours, days, dates):
-        data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_steps, hours, days, dates)
-
-        corr = data["StepTotal"].corr(data["temp"]) 
-        corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
-
-        fig = px.scatter(
-            data, 
-            x="StepTotal", 
-            y="temp",
-            title="Correlation between Temperature and Hourly Steps",
-            labels={"StepTotal": "Hourly Steps", "temp": "Temperature (in F)"},
-            trendline="ols"
-        )
-
-        fig.update_layout(
-            xaxis=dict(
-                title="Hourly Steps"
-            ),
-            yaxis=dict(
-                title="Temperature (in F)"
-            ),
-            showlegend=False
-        )
-
-        fig.update_traces(
-            marker=dict(color="#00B3BD"),
-            line=dict(color="#005B8D")
-        )
-        
-        fig.update_traces(
-            hovertemplate="<b>Hourly Steps:</b> %{x}<br><b>Temperature:</b> %{y:.0f} (in F)<extra></extra>"
-        )
-
-        return fig, corr
+        with col1:
+            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
     
-    def plot_correlation_weather_intensity(hours, days, dates):
-        data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_intensity, hours, days, dates)
+    # Weekly graphs
+    with tab2:
+        st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
 
-        corr = data["TotalIntensity"].corr(data["temp"]) 
-        corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
+    # Sleep insights
+    with tab3:
+        col1, col2 = st.columns(2)
 
-        fig = px.scatter(
-            data, 
-            x="TotalIntensity", 
-            y="temp",
-            title="Correlation between Temperature and Hourly Total Intensity",
-            labels={"TotalIntensity": "Hourly Total Intensity", "temp": "Temperature (in F)"},
-            trendline="ols"
-        )
+        with col1:
+            fig, corr = plots.plot_correlation_sleep_sedentary_minutes(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
 
-        fig.update_layout(
-            xaxis=dict(
-                title="Hourly Total Intensity"
-            ),
-            yaxis=dict(
-                title=None
-            ),
-            showlegend=False
-        )
+        with col2:
+            fig, corr = plots.plot_correlation_sleep_active_minutes(None, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+    
+    # Weather insights
+    with tab4:
+        col1, col2 = st.columns(2)
+        hour_selection = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"]
+        days_selection = ["Weekdays", "Weekend"]
 
-        fig.update_traces(
-            marker=dict(color="#00B3BD"),
-            line=dict(color="#005B8D")
-        )
+        with col1:
+            st.markdown("</br>", unsafe_allow_html=True)
+            hours = st.segmented_control("Hours", hour_selection, key="Hours", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
+            days = st.pills("Time of the week", days_selection, key="Days", default=["Weekend"], selection_mode="multi")
+
+            fig, corr = plots.plot_correlation_weather_steps(hours, days, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+
+        with col2:
+            st.markdown("</br>", unsafe_allow_html=True)
+            hours2 = st.segmented_control("Hours", hour_selection, key="Hours2", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
+            days2 = st.pills("Time of the week", days_selection, key="Days2", default=["Weekend"], selection_mode="multi")
+
+            fig, corr = plots.plot_correlation_weather_intensity(hours2, days2, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+
+    # Other insights
+    with tab5:
+        col1, col2, col3 = st.columns(3)
         
-        fig.update_traces(
-            hovertemplate="<b>Hourly Total Intensity:</b> %{x}<br><b>Temperature:</b> %{y:.0f} (in F)<extra></extra>"
-        )
+        with col1:
+            st.plotly_chart(plots.plot_activity_pie_chart(dates), use_container_width=True)
 
-        return fig, corr
+        with col2:
+            st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
-    col1, col2 = st.columns(2)
-    hour_selection = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"]
-    days_selection = ["Weekdays", "Weekend"]
-
-    with col1:
-        st.markdown("</br>", unsafe_allow_html=True)
-        hours = st.segmented_control("Hours", hour_selection, key="Hours", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
-        days = st.pills("Time of the week", days_selection, key="Days", default=["Weekend"], selection_mode="multi")
-
-        fig, corr = plot_correlation_weather_steps(hours, days, dates)
-        st.plotly_chart(fig, use_container_width=True)
-        create_correlation_block(col1, "Correlation coefficient:", corr, "")
-
-    with col2:
-        st.markdown("</br>", unsafe_allow_html=True)
-        hours2 = st.segmented_control("Hours", hour_selection, key="Hours2", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
-        days2 = st.pills("Time of the week", days_selection, key="Days2", default=["Weekend"], selection_mode="multi")
-
-        fig, corr = plot_correlation_weather_intensity(hours2, days2, dates)
-        st.plotly_chart(fig, use_container_width=True)
-        create_correlation_block(col2, "Correlation coefficient:", corr, "")
+        with col3:
+            st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)

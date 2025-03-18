@@ -215,7 +215,8 @@ def compute_sleep_on_day(user_id):
     con.close()
 
     df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.normalize()
-    df_sleep = df_sleep.groupby(["Id", "date"], as_index=False)["value"].count()
+    df_sleep["Day"] = df_sleep["date"].dt.weekday
+    df_sleep = df_sleep.groupby(["Id", "date", "Day"], as_index=False)["value"].count()
     df_sleep.rename(columns={"value": "TotalMinutesAsleep"}, inplace=True)
 
     df_sleep["date"] = pd.to_datetime(df_sleep["date"]).dt.date
@@ -592,4 +593,3 @@ def visualize_weather_activity():
     plt.show()
     
 # visualize_weather_activity()
-
