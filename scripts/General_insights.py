@@ -129,20 +129,38 @@ if start_date <= end_date:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.plotly_chart(plots.hist_daily_average_steps(dates), use_container_width=True)
+            st.plotly_chart(gf.bar_chart_hourly_average_steps(dates), use_container_width=True)
+        
         with col2:
-            st.plotly_chart(plots.plot_heart_rate(dates), use_container_width=True)
+            st.plotly_chart(gf.plot_heart_rate(dates), use_container_width=True)
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+            st.plotly_chart(gf.bar_chart_hourly_average_calories(dates), use_container_width=True)
         with col2:
-            st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
+            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+
+        st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
     
     # Weekly graphs
     with tab2:
-        st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
+        col1, col2 = st.columns(2) 
+
+        with col1:
+            st.plotly_chart(gf.bar_chart_average_distance_per_week(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(gf.bar_chart_average_steps_per_week(dates), use_container_width=True)
+
+        col1, col2 = st.columns(2)  
+
+        with col1:
+            st.plotly_chart(gf.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
+        
+        with col2:
+            st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
+            
+        st.plotly_chart(gf.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
 
     # Sleep insights
     with tab3:
@@ -199,46 +217,17 @@ if start_date <= end_date:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.plotly_chart(plots.plot_activity_pie_chart(dates), use_container_width=True)
+            st.plotly_chart(gf.plot_activity_pie_chart(dates), use_container_width=True)
 
         with col2:
             st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
-        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.plotly_chart(gf.scatterplot_heart_rate_intensityvity(dates), use_container_width=True)
         
-    # First row of graphs
-    col1, col2, col3 = st.columns([1, 1.5, 1.5])  
+        with col2:
+            st.plotly_chart(gf.scatterplot_calories_and_active_minutes(dates), use_container_width=True)
 
-    with col1:
-        st.plotly_chart(gf.plot_activity_pie_chart(dates), use_container_width=True)
-    with col2:
-        st.plotly_chart(gf.bar_chart_hourly_average_steps(dates), use_container_width=True)
-    with col3:
-        st.plotly_chart(gf.plot_heart_rate(dates), use_container_width=True)
-
-    # Second row of graphs
-    col1, col2, col3 = st.columns([1.5, 1.5, 1.5])  
-
-    with col1:
-        st.plotly_chart(gf.bar_chart_hourly_average_calories(dates), use_container_width=True)
-    with col2:
-        st.plotly_chart(gf.scatterplot_heart_rate_intensityvity(dates), use_container_width=True)
-    with col3:
-        st.plotly_chart(gf.scatterplot_calories_and_active_minutes(dates), use_container_width=True)
-
-    col1, col2 = st.columns([2,2])  
-
-    # Third row of graphs
-    with col1:
-        st.plotly_chart(gf.bar_chart_average_distance_per_week(dates), use_container_width=True)
-    with col2:
-        st.plotly_chart(gf.bar_chart_average_steps_per_week(dates), use_container_width=True)
-
-
-    # Fourth row of graphs
-    col1, col2 = st.columns([2,2])  
-
-    with col1:
-        st.plotly_chart(gf.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
-    with col2:
-        st.plotly_chart(gf.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
+        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)

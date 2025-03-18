@@ -437,7 +437,7 @@ def hist_weekly_sleep(dates):
     weekly_data = weekly_data.groupby(["Day"], as_index=False)["TotalMinutesAsleep"].mean() 
 
     # Identify top 3 most intensive hours
-    top_hours = weekly_data.nlargest(2, "TotalMinutesAsleep")["Day"].tolist()
+    top_hours = weekly_data.nlargest(1, "TotalMinutesAsleep")["Day"].tolist()
 
     weekly_data["Color"] = weekly_data["Day"].apply(lambda x: "#0095B2" if x in top_hours else "#8BC5D5")
     weekly_data["DayFormatted"] = weekly_data["Day"].astype(str) + ":00"

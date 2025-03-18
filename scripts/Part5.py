@@ -276,8 +276,6 @@ def average_active_minutes_per_week(dates):
     conn.close()
     return filtered_data_avr
 
-
-=======
 print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
 
 # weather data
