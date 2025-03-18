@@ -123,7 +123,7 @@ def plot_correlation_sleep_sedentary_minutes(dates):
         data, 
         x="SedentaryMinutes", 
         y="TotalMinutesAsleep",
-        title="Correlation between Sedentary Minutes and Total Sleep Minutes",
+        title="Correlation between Sedentary Minutes <br>and Minutes Asleep ",
         labels={"SedentaryMinutes": "Sedentary Minutes", "TotalMinutesAsleep": "Total Sleep Minutes"},
         trendline="ols"
     )
@@ -159,7 +159,7 @@ def plot_correlation_sleep_active_minutes(user_id, dates):
         data, 
         x="ActiveMinutes", 
         y="TotalMinutesAsleep",
-        title="Correlation between Active Minutes and Total Sleep Minutes",
+        title="Correlation between Active Minutes <br>and Minutes Asleep",
         labels={"ActiveMinutes": "Active Minutes", "TotalMinutesAsleep": "Total Sleep Minutes"},
         trendline="ols"
     )
@@ -403,7 +403,7 @@ def hist_daily_sleep(dates):
         hourly_data, 
         x="HourFormatted",
         y="TotalMinutesAsleep",
-        title="Average Total Minutes Asleep Per Hour",
+        title="Average Minutes Asleep Per Hour",
         color="Color",
         color_discrete_map="identity",
         category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
@@ -447,7 +447,7 @@ def hist_weekly_sleep(dates):
         weekly_data, 
         x="DayFormatted",
         y="TotalMinutesAsleep",
-        title="Average Total Minutes Asleep Per Week",
+        title="Average Total Minutes Asleep Per Day of the Week",
         color="Color",
         color_discrete_map="identity",
         category_orders={"DayFormatted": [f"{h}:00" for h in sorted(weekly_data["Day"].unique())]}  # Ensure correct order
@@ -484,7 +484,7 @@ def plot_correlation_sleep_steps(dates):
         data, 
         x="StepTotal", 
         y="TotalMinutesAsleep",
-        title="Correlation between Total Steps and Total Sleep Minutes",
+        title="Correlation between Total Steps <br>and Minutes Asleep",
         labels={"StepTotal": "Total Steps", "TotalMinutesAsleep": "Total Sleep Minutes"},
         trendline="ols"
     )
@@ -520,7 +520,7 @@ def plot_correlation_sleep_calories(dates):
         data, 
         x="Calories", 
         y="TotalMinutesAsleep",
-        title="Correlation between Calories and Total Sleep Minutes",
+        title="Correlation between Calories <br>and Minutes Asleep",
         labels={"Calories": "Calories", "TotalMinutesAsleep": "Total Sleep Minutes"},
         trendline="ols"
     )

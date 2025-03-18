@@ -225,9 +225,13 @@ if start_date <= end_date:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.plotly_chart(gf.scatterplot_heart_rate_intensityvity(dates), use_container_width=True)
+            fig, corr = gf.scatterplot_heart_rate_intensityvity(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
         
         with col2:
-            st.plotly_chart(gf.scatterplot_calories_and_active_minutes(dates), use_container_width=True)
+            fig, corr = gf.scatterplot_calories_and_active_minutes(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
 
         st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)

@@ -117,7 +117,7 @@ def plot_heart_rate(dates):
         heart_rate_data, 
         x="Hour", 
         y="Value",
-        title="Heart Rate Per Hour",
+        title="Average Heart Rate Per Hour",
         labels={"Hour": "Hour of Day", "Value": "Avg Heart Rate (bpm)"},
         line_shape="spline",  
         markers=True
@@ -183,8 +183,10 @@ def bar_chart_hourly_average_calories(dates):
     return fig
 
 def scatterplot_heart_rate_intensityvity(dates):
-
     data = part5.heart_rate_and_intensitivity(dates)
+
+    corr = data["TotalIntensity"].corr(data["HeartRate"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
     
     # Scatter plot with regression line 
     fig = px.scatter(
@@ -202,10 +204,13 @@ def scatterplot_heart_rate_intensityvity(dates):
         line=dict(color="#005B8D")
     )
     
-    return fig
+    return fig, corr
 
 def scatterplot_calories_and_active_minutes(dates):
     data = part5.calories_and_active_minutes(dates)
+
+    corr = data["Calories"].corr(data["TotalActiveMinutes"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
 
     fig = px.scatter(
         data, 
@@ -222,7 +227,7 @@ def scatterplot_calories_and_active_minutes(dates):
         line=dict(color="#005B8D")
     )
     
-    return fig  
+    return fig, corr  
 
 # VERY LONG ACUISITION, NOT SURE IF USEFUL
 def scatterplot_heart_rate_sleep_value(dates):
@@ -373,7 +378,7 @@ def plot_active_minutes_bar_chart_per_day(dates):
         x="DayOfWeek", 
         y="Minutes", 
         color="ActivityLevel",
-        title="Average Active Minutes Per Week",
+        title="Average Total Active Minutes Per Day of the Week",
         barmode="stack", 
         color_discrete_map=color_map
     )
