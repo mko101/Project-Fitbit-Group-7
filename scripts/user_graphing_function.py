@@ -1193,3 +1193,149 @@ def plot_daily_intensity_chart(user, selected_date):
     )
     
     return fig, avg_intensity, max_intensity, max_hour_formatted
+
+def get_sleep_stage_data(user, start_date, end_date):
+    conn = sqlite3.connect("../data/fitbit_database.db")
+    try:
+        query = f"SELECT date, value FROM minute_sleep WHERE Id = {user} ORDER BY date;"
+        sleep_stage_data = pd.read_sql(query, conn)
+        
+        if not sleep_stage_data.empty:
+            sleep_stage_data["date"] = pd.to_datetime(sleep_stage_data["date"])
+            sleep_stage_data = sleep_stage_data[
+                (sleep_stage_data["date"] >= pd.Timestamp(start_date)) &
+                (sleep_stage_data["date"] < pd.Timestamp(end_date) + pd.Timedelta(days=1))
+            ]
+            stage_map = {1: "Asleep", 2: "Restless", 3: "Awake"}
+            sleep_stage_data["Stage"] = sleep_stage_data["value"].map(stage_map)
+            sleep_stage_data["start"] = sleep_stage_data["date"]
+            sleep_stage_data["end"] = sleep_stage_data["start"] + pd.Timedelta(minutes=1)
+            
+        return sleep_stage_data
+    except Exception as e:
+        raise e
+    finally:
+        conn.close()
+
+def plot_sleep_duration_trend(filtered_data, avg_sleep_duration):
+    fig = px.line(
+        filtered_data,
+        x="ActivityDate",
+        y="TotalSleepHours",
+        title="Sleep Duration Trend",
+        labels={"TotalSleepHours": "Hours Slept", "ActivityDate": "Date"},
+        color_discrete_sequence=["#00B3BD"],
+        template="plotly_white"
+    )
+    
+    fig.update_traces(
+        mode="lines+markers",
+        line=dict(width=2.5),
+        marker=dict(
+            size=8,
+            color="#006166",
+            line=dict(width=1, color="DarkSlateGrey")
+        )
+    )
+    
+    if not np.isnan(avg_sleep_duration):
+        fig.add_hline(
+            y=avg_sleep_duration,
+            line_dash="dot",
+            line_color="#FF6B6B",
+            annotation_text=f"Average: {avg_sleep_duration:.1f}h",
+            annotation_font_size=12,
+            annotation_bgcolor="rgba(255,255,255,0.7)"
+        )
+    
+    fig.update_layout(
+        hovermode="x unified",
+        xaxis_title="",
+        yaxis_title="Hours Slept",
+        margin=dict(t=40),
+        height=400
+    )
+    
+    fig.update_traces(
+        hovertemplate="<b>%{x|%b %d}</b><br>%{y:.1f} hours<extra></extra>"
+    )
+    
+    if filtered_data["TotalSleepHours"].isna().any():
+        fig.add_annotation(
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.85,
+            text="Missing data points indicate days with no sleep records",
+            showarrow=False,
+            font=dict(color="#666666", size=10)
+        )
+    
+    return fig
+
+def plot_sleep_stage_distribution(sleep_stage_data):
+    stage_counts = sleep_stage_data["Stage"].value_counts().reset_index()
+    
+    fig = px.pie(
+        stage_counts,
+        values="count",
+        names="Stage",
+        title="Sleep Stage Distribution",
+        color="Stage",
+        color_discrete_map={
+            "Asleep": "#CFEBEC",
+            "Restless": "#0083BD",
+            "Awake": "#006166"
+        }
+    )
+    
+    fig.update_traces(
+        textposition="inside",
+        textinfo="percent+label",
+        hovertemplate="<b>%{label}</b><br>%{value} minutes (%{percent})",
+        marker=dict(line=dict(color='#FFFFFF', width=0.5))
+    )
+
+    fig.update_layout(
+        uniformtext_minsize=12,
+        uniformtext_mode="hide",
+        showlegend=True,
+        legend=dict(
+            title=dict(text="Sleep Stages", font=dict(size=12)),
+            orientation="h",
+            yanchor="bottom",
+            y=-0.25,
+            xanchor="center",
+            x=0.5
+        ),
+        margin=dict(t=40, b=80),
+        height=400
+    )
+    
+    return fig
+
+def plot_sleep_timeline(daily_stages, selected_date):
+    fig = px.timeline(
+        daily_stages,
+        x_start="start",
+        x_end="end",
+        y="Stage",
+        color="Stage",
+        color_discrete_map={
+            "Asleep": "#CFEBEC",
+            "Restless": "#0083BD",
+            "Awake": "#006166"
+        },
+        title=f"Sleep Stages Timeline - {selected_date}"
+    )
+    
+    fig.update_yaxes(autorange="reversed")
+    fig.update_layout(
+        xaxis_title="Time",
+        yaxis_title="",
+        height=300,
+        margin=dict(t=40),
+        legend=dict(orientation="h", y=1.1)
+    )
+    
+    return fig
