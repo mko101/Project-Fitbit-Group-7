@@ -40,9 +40,17 @@ def create_new_dataframe():
     new_data["Class"] = new_data["Id"].map(categorize_user)
 
     print(new_data)
-    return new_data
 
-# create_new_dataframe()
+    users = {
+        "LightUser": new_data[new_data["Class"] == "LightUser"].count()["Class"],
+        "ModerateUser": new_data[new_data["Class"] == "ModerateUser"].count()["Class"],
+        "HeavyUser": new_data[new_data["Class"] == "HeavyUser"].count()["Class"],
+    }
+
+    df = pd.DataFrame(list(users.items()), columns=["Class", "Count"])
+    return df
+
+create_new_dataframe()
 
 # Part2: Verifying data
 def get_verified_data(data_type):
