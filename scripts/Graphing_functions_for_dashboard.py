@@ -17,17 +17,25 @@ def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
             .metric-box {{
                 background-color: {bg_color};
                 padding: 15px;
-                border-radius: 10px;
+                border-radius: 13px;
                 text-align: center;
                 box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                height: 130px;
+                display: inline-block; 
+                justify-content: center;  
+                align-items: center; 
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
             }}
             .metric-title {{
-                font-size: 16px;
+                font-size: 17px;
                 font-weight: bold;
                 margin-bottom: 5px;
             }}
             .metric-value {{
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: bold;
                 color: #333;
             }}

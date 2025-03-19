@@ -231,7 +231,7 @@ def plot_correlation_weather_intensity(hours, days, dates):
         data, 
         x="TotalIntensity", 
         y="temp",
-        title="Correlation between Temperature and Hourly Total Intensity",
+        title="Correlation between Temperature and <br> Hourly Total Intensity",
         labels={"TotalIntensity": "Hourly Total Intensity", "temp": "Temperature (in F)"},
         trendline="ols"
     )
