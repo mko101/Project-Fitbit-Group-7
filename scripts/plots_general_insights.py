@@ -6,6 +6,75 @@ import part3
 import Part5 as part5
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import streamlit as st
+
+# Define a function for styled containers
+def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
+    with col:
+        container = st.container()
+        container.markdown(
+            f"""
+            <style>
+            .metric-box {{
+                background-color: {bg_color};
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            }}
+            .metric-title {{
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }}
+            .metric-value {{
+                font-size: 22px;
+                font-weight: bold;
+                color: #333;
+            }}
+            </style>
+            <div class="metric-box">
+                <div class="metric-title">{title}</div>
+                <div class="metric-value">{value} {unit}</div>
+            </div>
+            """,
+            unsafe_allow_html=True  
+        )
+
+def create_correlation_block(title, value, unit="", bg_color="#CFEBEC"):
+        container = st.container()
+        container.markdown(
+            f"""
+            <style>
+            .correlation-box {{
+                background-color: {bg_color};
+                padding: 10px;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            }}
+            .correlation-title {{
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }}
+            .correlation-value {{
+                font-size: 18px;
+                font-weight: bold;
+                color: #333;
+            }}
+            </style>
+            <div class="correlation-box">
+                <div class="correlation-title">{title}</div>
+                <div class="correlation-value">{value} {unit}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+def is_empty_dataframe(df):
+    if df.empty:
+        create_correlation_block("", "Sorry, no data is available for the selected date range in this graph.", "")
 
 def plot_activity_pie_chart(dates): 
     custom_colors = {
@@ -17,6 +86,9 @@ def plot_activity_pie_chart(dates):
     
     data = part5.activity_sum_data(dates)
 
+    if data["Minutes"].sum() == 0:
+        create_correlation_block("", "Sorry, no data is available for the selected date range in this graph.", "")
+
     fig = px.pie(
         data, values='Minutes', names='Activity', 
         title="Average Activity Breakdown Per Day",
@@ -27,7 +99,7 @@ def plot_activity_pie_chart(dates):
     fig.update_layout(
         showlegend=True,
         legend=dict(
-            orientation="h",  # Horizontal layout
+            orientation="h",
         ),   
     )
     
@@ -38,8 +110,10 @@ def plot_activity_pie_chart(dates):
     
     return fig
 
-def hist_daily_average_steps(dates):
+def bar_chart_hourly_average_steps(dates):
     hourly_data = part5.average_steps_per_hour(dates)
+
+    is_empty_dataframe(hourly_data)
 
     # Identify top 3 most intensive hours
     top_hours = hourly_data.nlargest(3, "StepTotal")["Hour"].tolist()
@@ -47,7 +121,6 @@ def hist_daily_average_steps(dates):
     hourly_data["Color"] = hourly_data["Hour"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
     hourly_data["HourFormatted"] = hourly_data["Hour"].astype(str) + ":00"
 
-    # Plot histogram using Plotly
     fig = px.bar(
         hourly_data, 
         x="HourFormatted",
@@ -58,7 +131,6 @@ def hist_daily_average_steps(dates):
         category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
     )
 
-    # Customize layout
     fig.update_layout(
         xaxis=dict(
             tickmode="array",
@@ -82,17 +154,18 @@ def plot_heart_rate(dates):
     heart_rate_data = part5.hourly_average_heart_rate_dates(dates)
     heart_rate_data['Hour'] = heart_rate_data['Hour'].astype(str) + ":00"
 
+    is_empty_dataframe(heart_rate_data)
+
     fig = px.line(
         heart_rate_data, 
         x="Hour", 
         y="Value",
         title="Heart Rate Per Hour",
         labels={"Hour": "Hour of Day", "Value": "Avg Heart Rate (bpm)"},
-        line_shape="spline",  # Smooth curve
+        line_shape="spline", 
         markers=True
     )
 
-    # Format x-axis for better readability
     fig.update_layout(
         xaxis=dict(
             tickmode="array",
@@ -113,8 +186,103 @@ def plot_heart_rate(dates):
 
     return fig
 
+def bar_chart_hourly_average_calories(dates):
+    hourly_data = part5.hourly_average_calories(dates)
+
+    is_empty_dataframe(hourly_data)
+
+    # Identify top 3 most intensive hours
+    top_hours = hourly_data.nlargest(3, "Calories")["Hour"].tolist()
+
+    hourly_data["Color"] = hourly_data["Hour"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
+    hourly_data["HourFormatted"] = hourly_data["Hour"].astype(str) + ":00"
+
+    # Plot histogram using Plotly
+    fig = px.bar(
+        hourly_data, 
+        x="HourFormatted",
+        y="Calories",
+        title="Average Burned Calories Per Hour", 
+        color="Color",
+        color_discrete_map="identity",
+        category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
+    )
+
+    # Customize layout
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 6, 12, 18, 23],
+            title = None
+        ),
+        yaxis=dict(
+            title=None
+        ),
+        showlegend=False,  
+        bargap=0.2
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Calories:</b> %{y:.0f} kcal <extra></extra>"
+    )
+
+    return fig
+
+def scatterplot_heart_rate_intensityvity(dates):
+    data = part5.heart_rate_and_intensitivity(dates)
+
+    is_empty_dataframe(data)
+
+    corr = data["TotalIntensity"].corr(data["HeartRate"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
+    
+    # Scatter plot with regression line 
+    fig = px.scatter(
+        data, 
+        x="TotalIntensity", 
+        y="HeartRate", 
+        trendline="ols",
+        labels={"TotalIntensity": "Exercise Intensity", "HeartRate": "Heart Rate (bpm)"},
+        title="Correlation between Heart Rate<br>and Exercise Intensity"
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Exercise Intensity:</b> %{x:.2f}<br><b>Heart Rate:</b> %{y:.0f} bpm<extra></extra>",
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
+    )
+    
+    return fig, corr
+
+def scatterplot_calories_and_active_minutes(dates):
+    data = part5.calories_and_active_minutes(dates)
+
+    is_empty_dataframe(data)
+
+    corr = data["Calories"].corr(data["TotalActiveMinutes"]) 
+    corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
+
+    fig = px.scatter(
+        data, 
+        x="TotalActiveMinutes", 
+        y="Calories", 
+        trendline="ols",
+        labels={"TotalActiveMinutes": "Active Minutes", "Calories": "Calories (kcal)"},
+        title="Correlation between Calories <br>and Active Minutes"
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Active Minutes:</b> %{x:.2f}<br><b>Calories:</b> %{y:.0f} kcal<extra></extra>",
+        marker=dict(color="#00B3BD"),
+        line=dict(color="#005B8D")
+    )
+    
+    return fig, corr  
+
 def plot_correlation_sleep_sedentary_minutes(dates):
     data = part3.compare_sedentary_activity_and_sleep(dates)
+
+    is_empty_dataframe(data)
 
     corr = data["SedentaryMinutes"].corr(data["TotalMinutesAsleep"])
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
@@ -152,6 +320,8 @@ def plot_correlation_sleep_sedentary_minutes(dates):
 def plot_correlation_sleep_active_minutes(user_id, dates):
     data = part3.compare_activity_and_sleep(user_id, dates)
 
+    is_empty_dataframe(data)
+
     corr = data["ActiveMinutes"].corr(data["TotalMinutesAsleep"]) 
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
 
@@ -187,6 +357,8 @@ def plot_correlation_sleep_active_minutes(user_id, dates):
 
 def plot_correlation_weather_steps(hours, days, dates):
     data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_steps, hours, days, dates)
+
+    is_empty_dataframe(data)
 
     corr = data["StepTotal"].corr(data["temp"]) 
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
@@ -224,6 +396,8 @@ def plot_correlation_weather_steps(hours, days, dates):
 def plot_correlation_weather_intensity(hours, days, dates):
     data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_intensity, hours, days, dates)
 
+    is_empty_dataframe(data)
+
     corr = data["TotalIntensity"].corr(data["temp"]) 
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
 
@@ -260,6 +434,8 @@ def plot_correlation_weather_intensity(hours, days, dates):
 def hist_daily_intensity(dates):
     hourly_data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_intensity, ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"], ["Weekdays", "Weekend"], dates)
     hourly_data = hourly_data.groupby(["Hour"], as_index=False)["TotalIntensity"].mean() 
+
+    is_empty_dataframe(hourly_data)
 
     # Identify top 3 most intensive hours
     top_hours = hourly_data.nlargest(3, "TotalIntensity")["Hour"].tolist()
@@ -301,6 +477,8 @@ def hist_daily_intensity(dates):
 def plot_active_minutes_active_distance(dates):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     df = part5.daily_activity(dates)
+
+    is_empty_dataframe(df)
 
     fig.add_trace(
         go.Scatter(
@@ -347,7 +525,7 @@ def plot_active_minutes_active_distance(dates):
     )
 
     fig.update_traces(
-        hovertemplate="<b>Date:</b> %{x}<br><b>Avg Very Active Distance:</b> %{y:.0f}<extra></extra>",
+        hovertemplate="<b>Date:</b> %{x}<br><b>Avg Very Active Distance:</b> %{y:.0f} km<extra></extra>",
         selector=dict(name="Very Active Distance")
     )
 
@@ -366,7 +544,10 @@ def plot_weight_pie_chart(dates):
         "110 - 130kg": "#005B8D" 
     }
     
-    data = part5.categorized_weight_data(dates)
+    data = part5.categorized_weight_data()
+
+    if data["Count"].sum() == 0:
+        create_correlation_block("", "Sorry, no data is available for the selected date range in this graph.", "")
 
     fig = px.pie(
         data, values="Count", names="CategoryWeight", 
@@ -391,6 +572,8 @@ def plot_weight_pie_chart(dates):
 
 def hist_daily_sleep(dates):
     hourly_data = part5.sleep_data(dates)
+
+    is_empty_dataframe(hourly_data)
 
     # Identify top 3 most intensive hours
     top_hours = hourly_data.nlargest(3, "TotalMinutesAsleep")["Hour"].tolist()
@@ -436,6 +619,8 @@ def hist_weekly_sleep(dates):
     weekly_data = weekly_data[weekly_data["date"].isin(dates)]
     weekly_data = weekly_data.groupby(["Day"], as_index=False)["TotalMinutesAsleep"].mean() 
 
+    is_empty_dataframe(weekly_data)
+
     # Identify top 3 most intensive hours
     top_hours = weekly_data.nlargest(1, "TotalMinutesAsleep")["Day"].tolist()
 
@@ -477,6 +662,8 @@ def hist_weekly_sleep(dates):
 def plot_correlation_sleep_steps(dates):
     data = part5.create_dataframe_scatterplot_sleep("Steps", dates)
 
+    is_empty_dataframe(data)
+
     corr = data["StepTotal"].corr(data["TotalMinutesAsleep"]) 
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
 
@@ -494,7 +681,7 @@ def plot_correlation_sleep_steps(dates):
             title = "Total Steps"
         ),
         yaxis=dict(
-            title=None
+            title="Total Minutes Asleep"
         ),
         showlegend=False
     )
@@ -512,6 +699,8 @@ def plot_correlation_sleep_steps(dates):
 
 def plot_correlation_sleep_calories(dates):
     data = part5.create_dataframe_scatterplot_sleep("Calories", dates)
+
+    is_empty_dataframe(data)
 
     corr = data["Calories"].corr(data["TotalMinutesAsleep"]) 
     corr = "Sorry, there is not enough data for this statistic" if np.isnan(corr) else f"{corr:.4f}"
@@ -548,12 +737,23 @@ def plot_correlation_sleep_calories(dates):
 
 def plot_user_pie_chart(): 
     custom_colors = {
-        "LightUser": "#CFEBEC",  
-        "ModerateUser": "#00B3BD", 
-        "HeavyUser": "#006166"
+        "Light User (≤ 10 daily records)": "#CFEBEC",  
+        "Moderate User (11 - 15 daily records)": "#00B3BD", 
+        "Heavy User (≥ 16 daily records)": "#006166"
     }
     
     data = part3.create_new_dataframe()
+
+    users = {
+        "Light User (≤ 10 daily records)": data[data["Class"] == "LightUser"].count()["Class"],
+        "Moderate User (11 - 15 daily records)": data[data["Class"] == "ModerateUser"].count()["Class"],
+        "Heavy User (≥ 16 daily records)": data[data["Class"] == "HeavyUser"].count()["Class"],
+    }
+
+    data = pd.DataFrame(list(users.items()), columns=["Class", "Count"])
+
+    if data["Count"].sum() == 0:
+        create_correlation_block("", "Sorry, no data is available for the selected date range in this graph.", "")
 
     fig = px.pie(
         data, values="Count", names="Class", 
@@ -574,4 +774,187 @@ def plot_user_pie_chart():
         hovertemplate="<b>%{label}</b><br>Participants: %{value:.0f}<extra></extra>"  
     )
     
+    return fig
+
+def bar_chart_average_distance_per_week(dates):
+    total_distance_avr = part5.average_distance_per_week(dates)
+    max_distance = total_distance_avr["TotalDistance"].max()
+    total_distance_avr["Color"] = total_distance_avr["TotalDistance"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
+    
+    is_empty_dataframe(total_distance_avr)
+
+    fig = px.bar(
+        total_distance_avr, 
+        x="DayOfWeek", 
+        y="TotalDistance",
+        title="Average Total Distance Per Day of the Week",
+        color="Color",
+        color_discrete_map="identity"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="Kilometers", 
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Day of week:</b> %{x}<br><b>Total Distance:</b> %{y:.2f} km<extra></extra>",
+    )
+
+    return fig
+
+def bar_chart_average_steps_per_week(dates):
+    data_avr = part5.average_steps_per_week(dates)
+    max_distance = data_avr["TotalSteps"].max()
+    data_avr["Color"] = data_avr["TotalSteps"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
+
+    is_empty_dataframe(data_avr)
+
+    fig = px.bar(
+        data_avr, 
+        x="DayOfWeek", 
+        y="TotalSteps",
+        title="Average Total Steps Per Day of the Week",
+        color="Color",
+        color_discrete_map="identity"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="", 
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Day of week:</b> %{x}<br><b>Total Steps:</b> %{y:.0f} <extra></extra>",
+    )
+
+    return fig
+
+def bar_chart_average_calories_per_day_for_week(dates):
+    data_avr = part5.average_calories_per_week(dates)
+    max_distance = data_avr["Calories"].max()
+    data_avr["Color"] = data_avr["Calories"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
+
+    is_empty_dataframe(data_avr)
+    
+    fig = px.bar(
+        data_avr, 
+        x="DayOfWeek", 
+        y="Calories",
+        title="Average Total Calories Per Day of the Week",
+        color="Color",
+        color_discrete_map="identity"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="", 
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Day of week:</b> %{x}<br><b> Calories:</b> %{y:.0f} kcal <extra></extra>",
+    )
+
+    return fig
+
+def plot_active_minutes_bar_chart_per_day(dates):
+    df = part5.average_active_minutes_per_week(dates)
+
+    df_melted = df.melt(
+        id_vars=["DayOfWeek"], 
+        value_vars=["VeryActiveMinutes", "FairlyActiveMinutes", "LightlyActiveMinutes"], 
+        var_name="ActivityLevel", 
+        value_name="Minutes"
+    )
+
+    is_empty_dataframe(df_melted)
+
+    color_map = {
+        "VeryActiveMinutes": "#006166",   
+        "FairlyActiveMinutes": "#0095B2", 
+        "LightlyActiveMinutes": "#8bc5d5" 
+    }
+
+    fig = px.bar(
+        df_melted, 
+        x="DayOfWeek", 
+        y="Minutes", 
+        color="ActivityLevel",
+        title="Average Total Active Minutes Per Day of the Week",
+        barmode="stack", 
+        color_discrete_map=color_map
+    )
+
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+            orientation="h", 
+            title= ""
+        ),  
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="", 
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Day:</b> %{x}<br>" 
+                      "<b>Minutes:</b> %{y:.0f}<extra></extra>"
+    )
+
+    return fig
+
+def bar_chart_workout_frequency_for_week(dates):
+    data_avr = part5.average_workout_frequency_per_week(dates)
+    max_distance = data_avr["WorkoutFrequency"].max()
+    data_avr["Color"] = data_avr["WorkoutFrequency"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
+
+    is_empty_dataframe(data_avr)
+
+    fig = px.bar(
+        data_avr, 
+        x="DayOfWeek", 
+        y="WorkoutFrequency",
+        title="Workout Frequency per Day of the Week",
+        color="Color",
+        color_discrete_map="identity"
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="", 
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>Day of week:</b> %{x}<br><b> Workout Frequency:</b> %{y:.2f} % <extra></extra>",
+    )
+
     return fig

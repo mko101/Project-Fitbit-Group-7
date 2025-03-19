@@ -404,9 +404,7 @@ def categorize_weight(weight):
     else:
         return "50 - 70kg"
     
-def categorized_weight_data(dates):
-    dates = pd.to_datetime(dates, format='%m/%d/%Y')
-    
+def categorized_weight_data():
     con = sqlite3.connect("../data/fitbit_database.db")
     cur = con.cursor()
 
@@ -415,16 +413,15 @@ def categorized_weight_data(dates):
     data = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
 
     data["Date"] = pd.to_datetime(data["Date"]).dt.normalize()
-    filtered_data = data.loc[data["Date"].isin(dates)]
 
-    filtered_data = filtered_data.groupby(["Id"], as_index=False)["WeightKg"].mean()
-    filtered_data["CategoryWeight"] = filtered_data["WeightKg"].apply(categorize_weight)
+    data = data.groupby(["Id"], as_index=False)["WeightKg"].mean()
+    data["CategoryWeight"] = data["WeightKg"].apply(categorize_weight)
     
     weights = {
-        "50 - 70kg": filtered_data[filtered_data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
-        "70 - 90kg": filtered_data[filtered_data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
-        "90 - 110kg": filtered_data[filtered_data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
-        "110 - 130kg": filtered_data[filtered_data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
+        "50 - 70kg": data[data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
+        "70 - 90kg": data[data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
+        "90 - 110kg": data[data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
+        "110 - 130kg": data[data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
     }
 
     df = pd.DataFrame(list(weights.items()), columns=["CategoryWeight", "Count"])
