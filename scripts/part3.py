@@ -31,11 +31,11 @@ def create_new_dataframe():
     def categorize_user(user_id):
         count = user_counts[user_id]
         if count <= 10:
-            return "LightUser"
+            return "Light User"
         elif 11 <= count <= 15:
-            return "ModerateUser"
+            return "Moderate User"
         else:
-            return "HeavyUser"
+            return "Heavy User"
 
     new_data["Class"] = new_data["Id"].map(categorize_user)
 
