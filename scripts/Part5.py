@@ -499,7 +499,7 @@ def create_dataframe_scatterplot_sleep(variable, dates):
 
     return filtered_data
 
-def average_workout_frequency_per_week(dates):
+def workout_frequency_per_period(dates):
     conn = sqlite3.connect(connect)
     cur = conn.cursor()
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
@@ -516,5 +516,5 @@ def average_workout_frequency_per_week(dates):
     conn.close()
     return filtered_data_avr
 
-print(average_workout_frequency_per_week(["4/4/2016", "4/5/2016", "4/6/2016"]))
+print(workout_frequency_per_period(["4/4/2016", "4/5/2016", "4/6/2016"]))
 
