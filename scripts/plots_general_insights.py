@@ -555,6 +555,15 @@ def plot_user_pie_chart():
     
     data = part3.create_new_dataframe()
 
+
+    users = {
+        "LightUser": data[data["Class"] == "LightUser"].count()["Class"],
+        "ModerateUser": data[data["Class"] == "ModerateUser"].count()["Class"],
+        "HeavyUser": data[data["Class"] == "HeavyUser"].count()["Class"],
+    }
+
+    data = pd.DataFrame(list(users.items()), columns=["Class", "Count"])
+
     fig = px.pie(
         data, values="Count", names="Class", 
         title="User Breakdown over All Participants",

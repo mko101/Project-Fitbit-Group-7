@@ -41,14 +41,7 @@ def create_new_dataframe():
 
     print(new_data)
 
-    users = {
-        "LightUser": new_data[new_data["Class"] == "LightUser"].count()["Class"],
-        "ModerateUser": new_data[new_data["Class"] == "ModerateUser"].count()["Class"],
-        "HeavyUser": new_data[new_data["Class"] == "HeavyUser"].count()["Class"],
-    }
-
-    df = pd.DataFrame(list(users.items()), columns=["Class", "Count"])
-    return df
+    return new_data
 
 create_new_dataframe()
 
