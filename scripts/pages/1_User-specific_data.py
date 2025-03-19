@@ -3,15 +3,12 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 import sqlite3
 import datetime
 import part1
 import part3
-import part4
-import matplotlib.pyplot as plt
-import General_insights as gi
 import user_graphing_function as ugf
+import Graphing_functions_for_dashboard as gf
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -229,13 +226,13 @@ if st.session_state.user and start_date < end_date:
         
         columns = [st.columns(5) if np.isnan(avg_sleep_duration) else st.columns(6)][0]
         
-        gi.create_metric_block(columns[0], "Avr. Steps", avg_steps, "")
-        gi.create_metric_block(columns[1], "Avr. Distance", avg_distance, "km")
-        gi.create_metric_block(columns[2], "Avr. Calories", avg_calories, "kcal")
-        gi.create_metric_block(columns[3], "Avr. Active Min", avg_active_min, "")
-        gi.create_metric_block(columns[4], "Avr. Sedentary Min", avg_sedentary_min, "")
+        gf.create_metric_block(columns[0], "Avr. Steps", avg_steps, "")
+        gf.create_metric_block(columns[1], "Avr. Distance", avg_distance, "km")
+        gf.create_metric_block(columns[2], "Avr. Calories", avg_calories, "kcal")
+        gf.create_metric_block(columns[3], "Avr. Active Min", avg_active_min, "")
+        gf.create_metric_block(columns[4], "Avr. Sedentary Min", avg_sedentary_min, "")
         if not np.isnan(avg_sleep_duration):
-            gi.create_metric_block(columns[5], "Avr. Sleep Duration", avg_sleep_duration, "h")
+            gf.create_metric_block(columns[5], "Avr. Sleep Duration", avg_sleep_duration, "h")
         
         st.markdown("<br>", unsafe_allow_html=True)
         
