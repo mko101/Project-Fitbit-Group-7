@@ -32,7 +32,7 @@ def calc_unique_graph_total_distance():
     plt.subplots_adjust(bottom=0.25)
     plt.show()
 
-calc_unique_graph_total_distance()
+#calc_unique_graph_total_distance()
 
 # Step 2: displays a line graph that shows the calories burnt on each day
 def visualise_calories_burned(user_id, dates):
@@ -53,25 +53,39 @@ def visualise_calories_burned(user_id, dates):
     ax.set_ylabel("Calories Burned")
     plt.show()
 
-visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016", "3/30/2016", "3/31/2016", "4/1/2016", "4/2/2016", "4/3/2016"])
+#visualise_calories_burned(1503960366, ["3/25/2016", "3/26/2016", "3/27/2016", "3/28/2016", "3/29/2016", "3/30/2016", "3/31/2016", "4/1/2016", "4/2/2016", "4/3/2016"])
 
 # Step 3: DateTime make a barplot Frequency and day
-def frequency_day_barplot():
+def process_workout_data(data):
+    """Processes workout data and returns a DataFrame with weekday frequency."""
     data["DayOfWeek"] = data["ActivityDate"].dt.day_name()
+    
+    workout_data = data[(data["VeryActiveMinutes"] > 0) | (data["FairlyActiveMinutes"] > 0)]
+    
+    workout_counts = workout_data["DayOfWeek"].value_counts().reindex(
+        ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], fill_value=0
+    )
 
-    workout_counts = data["DayOfWeek"].value_counts().reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-    workout_frequency = workout_counts / workout_counts.sum()
+    return pd.DataFrame({"DayOfWeek": workout_counts.index, "WorkoutFrequency": workout_counts.values})
 
+def plot_workout_frequency(workout_df):
+    """Generates a bar plot showing workout frequency per weekday."""
     plt.figure(figsize=(8, 5))
-    plt.bar(workout_frequency.index, workout_frequency.values, color='skyblue', edgecolor='black')
+    plt.bar(workout_df["DayOfWeek"], workout_df["WorkoutFrequency"], color='skyblue', edgecolor='black')
     plt.xlabel("Day of the Week")
-    plt.ylabel("Frequency of Workouts")
-    plt.title('Workout Frequency per Weekday')
-    for i, freq in enumerate(workout_frequency.values):
-        plt.text(i, freq, f'{freq:.2%}', ha="center", va="bottom", fontsize=10)
-    plt.show()
+    plt.ylabel("Workout Frequency")
+    plt.title("Workout Frequency per Weekday")
 
-frequency_day_barplot()
+    # Annotate bars with percentages
+    total_workouts = workout_df["WorkoutFrequency"].sum()
+    for i, freq in enumerate(workout_df["WorkoutFrequency"]):
+        plt.text(i, freq, f'{(freq/total_workouts):.2%}', ha="center", va="bottom", fontsize=10)
+
+    plt.show()
+if __name__ == "__main__":
+    workout_df = process_workout_data(data)  
+    print(workout_df) 
+    plot_workout_frequency(workout_df)  
 
 # Step 4: Linear Regression Model and Visualization
 def linear_regression_visualization(user_id):
@@ -100,7 +114,7 @@ def linear_regression_visualization(user_id):
     plt.show()
 
 # Example usage
-linear_regression_visualization(4020332650)
+#inear_regression_visualization(4020332650)
 
 # Step 5: Creativity visualization
 def calories_totalsteps_scatter():
@@ -121,7 +135,7 @@ def calories_totalsteps_scatter():
     plt.legend()
     plt.show()
     
-calories_totalsteps_scatter()
+#calories_totalsteps_scatter()
 
 
 def calories_totalhours_scatter():
@@ -145,7 +159,7 @@ def calories_totalhours_scatter():
     plt.legend()
     plt.show()
     
-calories_totalhours_scatter()
+#calories_totalhours_scatter()
 
 def make_correlation_heatmap():
     corr = data.corr(numeric_only=True)
@@ -157,7 +171,7 @@ def make_correlation_heatmap():
     plt.subplots_adjust(bottom=0.2)
     plt.show()
 
-make_correlation_heatmap()
+#make_correlation_heatmap()
 
 def describe_columns(user_id):
 
@@ -186,7 +200,7 @@ def plot_activity_pie_chart():
     plt.title("Activity Breakdown by Minutes")
     plt.show()
 
-plot_activity_pie_chart()
+#plot_activity_pie_chart()
 
 def plot_activity_pie_chart_only_active_minutes():
 
@@ -202,4 +216,4 @@ def plot_activity_pie_chart_only_active_minutes():
     plt.title("Very, Fairly and Lightly Active Minutes Breakdown")
     plt.show()
 
-plot_activity_pie_chart_only_active_minutes()
+#plot_activity_pie_chart_only_active_minutes()

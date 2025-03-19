@@ -3,8 +3,10 @@ import streamlit as st
 import pandas as pd
 import datetime
 import part1
-import plotly.express as px
 import Part5 as part5
+import numpy as np
+import plots_general_insights as plots
+import Graphing_functions_for_dashboard as gf
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -33,171 +35,211 @@ with st.sidebar:
             st.error("Please ensure that the end date is later than the start date.")
         else:
             dates = pd.date_range(start_date, end_date, freq='d').strftime("%m/%d/%Y")
+            
+if start_date <= end_date:
+    # Row of average metrics
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-col1, col2, col3, col4, col5, col6 = st.columns(6)
+    # Retrieve data
+    steps = part5.retrieve_average("TotalSteps", dates)
+    users = part5.retrieve_average("total_users", dates) 
+    distance = part5.retrieve_average("TotalDistance", dates) 
+    calories = part5.retrieve_average("Calories", dates) 
+    active_minutes = part5.retrieve_average("ActiveMinutes", dates) 
+    sedentary_minutes = part5.retrieve_average("SedentaryMinutes", dates) 
 
-# Retrieve data
-steps = part5.retrieve_average("TotalSteps", dates)
-users = part5.retrieve_average("total_users", dates) 
-distance = part5.retrieve_average("TotalDistance", dates) 
-calories = part5.retrieve_average("Calories", dates) 
-active_minutes = part5.retrieve_average("ActiveMinutes", dates) 
-sedentary_minutes = part5.retrieve_average("SedentaryMinutes", dates) 
+    # Define a function for styled containers
+    def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
+        with col:
+            container = st.container()
+            container.markdown(
+                f"""
+                <style>
+                .metric-box {{
+                    background-color: {bg_color};
+                    padding: 15px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                }}
+                .metric-title {{
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }}
+                .metric-value {{
+                    font-size: 22px;
+                    font-weight: bold;
+                    color: #333;
+                }}
+                </style>
+                <div class="metric-box">
+                    <div class="metric-title">{title}</div>
+                    <div class="metric-value">{value} {unit}</div>
+                </div>
+                """,
+                unsafe_allow_html=True  # This is needed for styling
+            )
 
-# Define a function for styled containers
-def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
-    with col:
-        container = st.container()
-        container.markdown(
-            f"""
-            <style>
-            .metric-box {{
-                background-color: {bg_color};
-                padding: 15px;
-                border-radius: 10px;
-                text-align: center;
-                box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-            }}
-            .metric-title {{
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }}
-            .metric-value {{
-                font-size: 22px;
-                font-weight: bold;
-                color: #333;
-            }}
-            </style>
-            <div class="metric-box">
-                <div class="metric-title">{title}</div>
-                <div class="metric-value">{value} {unit}</div>
-            </div>
-            """,
-            unsafe_allow_html=True  # This is needed for styling
-        )
+    def create_correlation_block(col, title, value, unit="", bg_color="#CFEBEC"):
+        with col:
+            container = st.container()
+            container.markdown(
+                f"""
+                <style>
+                .correlation-box {{
+                    background-color: {bg_color};
+                    padding: 10px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                }}
+                .correlation-title {{
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }}
+                .correlation-value {{
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #333;
+                }}
+                </style>
+                <div class="correlation-box">
+                    <div class="correlation-title">{title}</div>
+                    <div class="correlation-value">{value} {unit}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-# Display each metric
-create_metric_block(col1, "Total Users", users, "")
-create_metric_block(col2, "Average Steps", steps, "")
-create_metric_block(col3, "Average Distance", distance, "km")
-create_metric_block(col4, "Average Calories", calories, "kcal")
-create_metric_block(col5, "Avr. Active Min", active_minutes, "")
-create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
+    # Display each metric
+    gf.create_metric_block(col1, "Total Users", users, "")
+    gf.create_metric_block(col2, "Average Steps", steps, "")
+    gf.create_metric_block(col3, "Average Distance", distance, "km")
+    gf.create_metric_block(col4, "Average Calories", calories, "kcal")
+    gf.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
+    gf.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
-def plot_activity_pie_chart(dates): 
-    custom_colors = {
-        "Very Active": "#005B8D",  
-        "Fairly Active": "#006166", 
-        "Lightly Active": "#00B3BD", 
-        "Sedentary": "#CFEBEC"  
-    }
+    st.markdown("</br></br>", unsafe_allow_html=True)
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
+
+    # Daily graphs
+    with tab1:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.plotly_chart(gf.bar_chart_hourly_average_steps(dates), use_container_width=True)
+        
+        with col2:
+            st.plotly_chart(gf.plot_heart_rate(dates), use_container_width=True)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.plotly_chart(gf.bar_chart_hourly_average_calories(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+
+        st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
     
-    data = part5.activity_sum_data(dates)
+    # Weekly graphs
+    with tab2:
+        col1, col2 = st.columns(2) 
 
-    fig = px.pie(
-        data, values='Minutes', names='Activity', 
-        title="Average Activity Breakdown Per Day",
-        hole=0.5, color='Activity', 
-        color_discrete_map=custom_colors  
-    )
-    fig.update_layout(
-        showlegend=True,
-        legend=dict(
-            orientation="h",  # Horizontal layout
+        with col1:
+            st.plotly_chart(gf.bar_chart_average_distance_per_week(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(gf.bar_chart_average_steps_per_week(dates), use_container_width=True)
 
-        )   
-    )
+        col1, col2 = st.columns(2)  
+
+        with col1:
+            st.plotly_chart(gf.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
+        
+        with col2:
+            st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
+            
+        st.plotly_chart(gf.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
+
+    # Sleep insights
+    with tab3:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fig, corr = plots.plot_correlation_sleep_sedentary_minutes(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+
+        with col2:
+            fig, corr = plots.plot_correlation_sleep_active_minutes(None, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+        
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fig, corr = plots.plot_correlation_sleep_steps(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+
+        with col2:
+            fig, corr = plots.plot_correlation_sleep_calories(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
     
-    fig.update_traces(
-        textinfo='percent',
-        hovertemplate="<b>%{label}</b><br>Minutes: %{value:.0f}<extra></extra>"  
-    )
-    
-    return fig
+    # Weather insights
+    with tab4:
+        col1, col2 = st.columns(2)
+        hour_selection = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"]
+        days_selection = ["Weekdays", "Weekend"]
 
-def hist_daily_average_steps(dates):
-    hourly_data = part5.average_steps_per_hour(dates)
+        with col1:
+            st.markdown("</br>", unsafe_allow_html=True)
+            hours = st.segmented_control("Hours", hour_selection, key="Hours", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
+            days = st.pills("Time of the week", days_selection, key="Days", default=["Weekend"], selection_mode="multi")
 
-    # Identify top 3 most intensive hours
-    top_hours = hourly_data.nlargest(3, "StepTotal")["Hour"].tolist()
+            fig, corr = plots.plot_correlation_weather_steps(hours, days, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
 
-    hourly_data["Color"] = hourly_data["Hour"].apply(lambda x: "#00B3BD" if x in top_hours else "#CFEBEC")
-    hourly_data["HourFormatted"] = hourly_data["Hour"].astype(str) + ":00"
+        with col2:
+            st.markdown("</br>", unsafe_allow_html=True)
+            hours2 = st.segmented_control("Hours", hour_selection, key="Hours2", default=["4-8", "8-12", "12-16", "16-20"], selection_mode="multi")
+            days2 = st.pills("Time of the week", days_selection, key="Days2", default=["Weekend"], selection_mode="multi")
 
-    # Plot histogram using Plotly
-    fig = px.bar(
-        hourly_data, 
-        x="HourFormatted",
-        y="StepTotal",
-        title="Average Steps Per Hour",
-        color="Color",
-        color_discrete_map="identity",
-        category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
-    )
+            fig, corr = plots.plot_correlation_weather_intensity(hours2, days2, dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
 
-    # Customize layout
-    fig.update_layout(
-        xaxis=dict(
-            tickmode="array",
-            tickvals=[0, 6, 12, 18, 23],
-            title = None
-        ),
-        yaxis=dict(
-            title=None
-        ),
-        showlegend=False,  
-        bargap=0.2
-    )
+    # Other insights
+    with tab5:
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.plotly_chart(gf.plot_activity_pie_chart(dates), use_container_width=True)
 
-    fig.update_traces(
-        hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Steps:</b> %{y:.0f}<extra></extra>"
-    )
+        with col2:
+            st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
-    return fig
+        col1, col2, = st.columns(2)
 
-def plot_heart_rate(dates):
+        with col1:
+            st.plotly_chart(plots.plot_user_pie_chart(), use_container_width=True)
 
-    heart_rate_data = part5.average_heart_rate_per_hour(dates)
-    heart_rate_data['Hour'] = heart_rate_data['Hour'].astype(str) + ":00"
+        with col2: 
+            st.plotly_chart(gf.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
 
-    fig = px.line(
-        heart_rate_data, 
-        x="Hour", 
-        y="Value",
-        title="Heart Rate Per Hour",
-        labels={"Hour": "Hour of Day", "Value": "Avg Heart Rate (bpm)"},
-        line_shape="spline",  # Smooth curve
-        markers=True
-    )
+        col1, col2 = st.columns(2)
 
-    # Format x-axis for better readability
-    fig.update_layout(
-        xaxis=dict(
-            tickmode="array",
-            tickvals=[0, 6, 12, 18, 23],
-            title = None
-        ),
-        yaxis=dict(
-            title=None
-        ),
-        showlegend=False
-    )
+        with col1:
+            fig, corr = gf.scatterplot_heart_rate_intensityvity(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+        
+        with col2:
+            fig, corr = gf.scatterplot_calories_and_active_minutes(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            create_correlation_block(col2, "Correlation coefficient:", corr, "")
 
-    fig.update_traces(line=dict(color="#00B3BD"))
-    fig.update_traces(
-        hovertemplate="<b>Hour:</b> %{x}<br><b>Avg Heart Rate:</b> %{y:.0f} bmp<extra></extra>"
-    )
-
-    return fig
-
-col1, col2, col3 = st.columns([1, 1.5, 1.5])  
-
-with col1:
-    st.plotly_chart(plot_activity_pie_chart(dates), use_container_width=True)
-
-with col2:
-    st.plotly_chart(hist_daily_average_steps(dates), use_container_width=True)
-
-with col3:
-    st.plotly_chart(plot_heart_rate(dates), use_container_width=True)
+        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
