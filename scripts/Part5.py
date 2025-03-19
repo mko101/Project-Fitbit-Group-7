@@ -276,7 +276,7 @@ def average_active_minutes_per_week(dates):
     conn.close()
     return filtered_data_avr
 
-print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
+# print(average_steps_per_hour(["4/4/2016", "4/5/2016", "4/6/2016"]))
 
 # weather data
 def hourly_weather_data():
@@ -498,3 +498,23 @@ def create_dataframe_scatterplot_sleep(variable, dates):
     filtered_data = df_merged.loc[df_merged["date"].isin(dates)]
 
     return filtered_data
+
+def average_workout_frequency_per_week(dates):
+    conn = sqlite3.connect(connect)
+    cur = conn.cursor()
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+    query = "SELECT ActivityDate, VeryActiveMinutes, FairlyActiveMinutes FROM daily_activity"
+    cur.execute(query) 
+    data = cur.fetchall()
+    data = pd.DataFrame(data, columns=[desc[0] for desc in cur.description]) 
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"]).dt.normalize()
+    filtered_data = data.loc[data["ActivityDate"].isin(dates)]
+    filtered_data["DayOfWeek"] = filtered_data["ActivityDate"].dt.weekday
+    workout_data = filtered_data[(filtered_data["VeryActiveMinutes"] > 0) | (filtered_data["FairlyActiveMinutes"] > 0)]
+    workout_counts = workout_data["DayOfWeek"].value_counts().sort_index()
+    filtered_data_avr = pd.DataFrame({"DayOfWeek": workout_counts.index, "WorkoutFrequency": workout_counts.values})
+    conn.close()
+    return filtered_data_avr
+
+print(average_workout_frequency_per_week(["4/4/2016", "4/5/2016", "4/6/2016"]))
+

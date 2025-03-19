@@ -404,4 +404,34 @@ def plot_active_minutes_bar_chart_per_day(dates):
     )
 
     return fig
+
+def bar_chart_workout_frequency_for_week(dates):
+    data_avr = part5.average_workout_frequency_per_week(dates)
+    max_distance = data_avr["WorkoutFrequency"].max()
+    data_avr["Color"] = data_avr["WorkoutFrequency"].apply(
+        lambda x: "#0095B2" if x == max_distance else "#8bc5d5"
+    )
+    fig = px.bar(
+        data_avr, 
+        x="DayOfWeek", 
+        y="WorkoutFrequency",
+        title="Workout Frequency per Week",
+        color="Color",
+        color_discrete_map="identity"
+    )
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[0, 1, 2, 3, 4, 5, 6],
+            ticktext=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            title = None
+        ),
+        xaxis_title="", 
+        yaxis_title="", 
+    )
+    fig.update_traces(
+        hovertemplate="<b>Day of week:</b> %{x}<br><b> Workout Frequency:</b> %{y:.2f} % <extra></extra>",
+    )
+    return fig
+    
     
