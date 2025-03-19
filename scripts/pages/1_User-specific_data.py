@@ -160,7 +160,7 @@ with st.sidebar:
 
     start_date = st.date_input(
         "Select a start date:", 
-        value=datetime.date(2016, 3, 12),
+        # value=datetime.date(2016, 3, 12),
         min_value=datetime.date(2016, 3, 12), 
         max_value=datetime.date(2016, 4, 12),
         key = "start_date"
@@ -168,7 +168,7 @@ with st.sidebar:
     
     end_date = st.date_input(
         "Select an end date:", 
-        value=datetime.date(2016, 4, 12),
+        # value=datetime.date(2016, 4, 12),
         min_value=datetime.date(2016, 3, 12), 
         max_value=datetime.date(2016, 4, 12),
         key = "end_date"
@@ -235,30 +235,6 @@ if st.session_state.user and start_date < end_date:
             gf.create_metric_block(columns[5], "Avr. Sleep Duration", avg_sleep_duration, "h")
         
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        st.markdown(
-            """
-            <style>
-            /* Change the default red line to turquoise */
-            .stTabs [data-baseweb="tab-list"] [data-baseweb="tab-highlight"] {
-                background-color: #00B3BD !important;
-            }
-            
-            /* Style for the active tab button - just the text color */
-            .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
-                color: #00B3BD;
-                font-weight: bold;
-            }
-            
-            /* Style for the inactive tab buttons */
-            .stTabs [data-baseweb="tab-list"] button[aria-selected="false"] {
-                color: #333;
-                font-weight: normal;
-            }
-            </style>
-            """, 
-            unsafe_allow_html=True
-        )
 
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Overviews", "Heart Rate", "Sleep Duration", "Calories", "Steps", "Intensity"])
 
@@ -274,12 +250,6 @@ if st.session_state.user and start_date < end_date:
                     st.warning("No data available for the selected date range.")
 
             with col2:
-                # # Display daily calories chart
-                # fig_calories = ugf.plot_daily_calories(user, start_date, end_date)
-                # if fig_calories:
-                #     st.plotly_chart(fig_calories, use_container_width=True)
-                # else:
-                #     st.warning("No calorie data available for the selected date range.")
                 fig_activity = ugf.plot_activity_breakdown(user, start_date, end_date)
                 if fig_activity:
                     st.plotly_chart(fig_activity, use_container_width=True)
@@ -798,3 +768,19 @@ if st.session_state.user and start_date < end_date:
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
+            else:
+                # Single styled warning message
+                st.markdown(
+                    """
+                    <div style="background-color: #CFEBEC; 
+                    padding: 20px; 
+                    border-radius: 5px; 
+                    text-align: center;
+                    margin: 50px 0;">
+                        <span style="color: #333; font-size: 16pt; font-weight: bold;">
+                            No Intensity data available for the selected date range.
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
