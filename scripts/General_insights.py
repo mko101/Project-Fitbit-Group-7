@@ -227,6 +227,9 @@ if start_date <= end_date:
         with col1:
             st.plotly_chart(plots.plot_user_pie_chart(), use_container_width=True)
 
+        with col2: 
+            st.plotly_chart(gf.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
+
         col1, col2 = st.columns(2)
 
         with col1:
@@ -240,5 +243,3 @@ if start_date <= end_date:
             create_correlation_block(col2, "Correlation coefficient:", corr, "")
 
         st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
-
-        st.plotly_chart(gf.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
