@@ -545,3 +545,33 @@ def plot_correlation_sleep_calories(dates):
     )
 
     return fig, corr
+
+def plot_user_pie_chart(): 
+    custom_colors = {
+        "LightUser": "#CFEBEC",  
+        "ModerateUser": "#00B3BD", 
+        "HeavyUser": "#006166"
+    }
+    
+    data = part3.create_new_dataframe()
+
+    fig = px.pie(
+        data, values="Count", names="Class", 
+        title="User Breakdown over All Participants",
+        hole=0.5, color="Class", 
+        color_discrete_map=custom_colors  
+    )
+
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout
+        ),   
+    )
+    
+    fig.update_traces(
+        textinfo='percent',
+        hovertemplate="<b>%{label}</b><br>Participants: %{value:.0f}<extra></extra>"  
+    )
+    
+    return fig

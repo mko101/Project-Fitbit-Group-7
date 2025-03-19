@@ -222,6 +222,11 @@ if start_date <= end_date:
         with col2:
             st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
 
+        col1, col2, = st.columns(2)
+
+        with col1:
+            st.plotly_chart(plots.plot_user_pie_chart(), use_container_width=True)
+
         col1, col2 = st.columns(2)
 
         with col1:
