@@ -121,7 +121,7 @@ if start_date <= end_date:
     gf.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
     gf.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
-    st.markdown("</br></br>", unsafe_allow_html=True)
+    st.markdown("</br>", unsafe_allow_html=True)
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
 
     # Daily graphs
