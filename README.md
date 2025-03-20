@@ -95,6 +95,9 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `average_steps_per_week(dates)` - This function retrieves daily total steps data from the database, filters it based on the given dates, and calculates the average total steps walked for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
 * `average_calories_per_week(dates)` - This function retrieves daily total calories data from the database, filters it based on the given dates, and calculates the average calories burned for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
 * `average_active_minutes_per_week(dates)` - This function retrieves daily very, fairly and lightly active minutes data from the database, filters it based on the given dates, and calculates the average very, fairly and lightly active minutes for each day of the week. The days are then ordered from Monday to Sunday before returning the final DataFrame.
+* `average_steps_calories_per_period(dates)` - This function retrieves daily total steps and calories data from the database, filters it based on the given dates, and calculates the average total steps walked for period returning the final DataFrame.
+* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
+
 
 ## Graphing functions for dashboard: Functions to create graphs in dashboard
 * `create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):` - This function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
