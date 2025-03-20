@@ -8,7 +8,6 @@ import seaborn as sns
 import plotly.express as px
 import streamlit as st
 
-
 connect = "../data/cleaned_fitbit.db"
 
 def retrieve_average(category, dates):
@@ -290,7 +289,7 @@ def hourly_weather_data():
 
 # hourly steps
 def compute_steps_hourly():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM hourly_steps")
@@ -309,7 +308,7 @@ def compute_steps_hourly():
 
 # hourly intensity
 def compute_intensity_hourly():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM hourly_intensity")
@@ -373,7 +372,7 @@ hourly_intensity = compute_intensity_hourly()
 def daily_activity(dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM daily_activity")
@@ -405,7 +404,7 @@ def categorize_weight(weight):
         return "50 - 70kg"
     
 def categorized_weight_data():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     cur.execute("SELECT Id, Date, WeightKg FROM weight_log") 
@@ -429,7 +428,7 @@ def categorized_weight_data():
     return df
 
 def sleep_data(dates):
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     cur.execute("SELECT * FROM minute_sleep")
@@ -459,7 +458,7 @@ def sleep_data(dates):
 def create_dataframe_scatterplot_sleep(variable, dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     sleep_duration = cur.execute(f"SELECT * FROM minute_sleep")
