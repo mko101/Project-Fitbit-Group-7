@@ -477,7 +477,7 @@ def create_dataframe_scatterplot_sleep(variable, dates):
 
         other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
         other_df = other_df.groupby(["Id", "date"], as_index=False)["StepTotal"].sum()
-    else: 
+    elif variable == "Calories": 
         calories = cur.execute(f"SELECT * FROM hourly_calories")
         rows = calories.fetchall()
         other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
@@ -513,4 +513,3 @@ def average_workout_frequency_per_week(dates):
     return filtered_data_avr
 
 print(average_workout_frequency_per_week(["4/4/2016", "4/5/2016", "4/6/2016"]))
-

@@ -74,9 +74,9 @@ if start_date <= end_date:
             st.plotly_chart(plots.bar_chart_hourly_average_calories(dates), use_container_width=True)
 
         with col2:
-            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_daily_intensity(dates), use_container_width=True)
 
-        st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
+        st.plotly_chart(plots.bar_chart_daily_sleep(dates), use_container_width=True)
     
     # Weekly graphs
     with tab2:
@@ -93,7 +93,7 @@ if start_date <= end_date:
             st.plotly_chart(plots.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
         
         with col2:
-            st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_weekly_sleep(dates), use_container_width=True)
             
         st.plotly_chart(plots.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
 
@@ -110,7 +110,7 @@ if start_date <= end_date:
             plots.create_correlation_block("Correlation coefficient:", corr, "")
 
         with col2:
-            fig, corr = plots.plot_correlation_sleep_active_minutes(None, dates)
+            fig, corr = plots.plot_correlation_sleep_active_minutes(dates)
             st.plotly_chart(fig, use_container_width=True)
             plots.create_correlation_block("Correlation coefficient:", corr, "")
         
@@ -161,7 +161,7 @@ if start_date <= end_date:
             st.plotly_chart(plots.plot_activity_pie_chart(dates), use_container_width=True)
 
         with col2:
-            st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
+            st.plotly_chart(plots.plot_weight_pie_chart(), use_container_width=True)
             plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
 
         col1, col2, = st.columns(2)

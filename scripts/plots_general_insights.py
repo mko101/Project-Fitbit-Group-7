@@ -303,6 +303,7 @@ def plot_correlation_sleep_sedentary_minutes(dates):
         yaxis=dict(
             title="Total Minutes Asleep"
         ),
+        yaxis_range=[0, 515],
         showlegend=False
     )
 
@@ -317,8 +318,8 @@ def plot_correlation_sleep_sedentary_minutes(dates):
 
     return fig, corr
 
-def plot_correlation_sleep_active_minutes(user_id, dates):
-    data = part3.compare_activity_and_sleep(user_id, dates)
+def plot_correlation_sleep_active_minutes(dates):
+    data = part3.compare_activity_and_sleep(None, dates)
 
     is_empty_dataframe(data)
 
@@ -341,6 +342,7 @@ def plot_correlation_sleep_active_minutes(user_id, dates):
         yaxis=dict(
             title=None
         ),
+        yaxis_range=[0, 515],
         showlegend=False
     )
 
@@ -431,7 +433,7 @@ def plot_correlation_weather_intensity(hours, days, dates):
 
     return fig, corr
 
-def hist_daily_intensity(dates):
+def bar_chart_daily_intensity(dates):
     hourly_data = part5.create_scatterplot_weather(part5.hourly_weather, part5.hourly_intensity, ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"], ["Weekdays", "Weekend"], dates)
     hourly_data = hourly_data.groupby(["Hour"], as_index=False)["TotalIntensity"].mean() 
 
@@ -536,7 +538,7 @@ def plot_active_minutes_active_distance(dates):
 
     return fig
 
-def plot_weight_pie_chart(dates): 
+def plot_weight_pie_chart(): 
     custom_colors = {
         "50 - 70kg": "#CFEBEC",  
         "70 - 90kg": "#00B3BD", 
@@ -570,7 +572,7 @@ def plot_weight_pie_chart(dates):
     
     return fig
 
-def hist_daily_sleep(dates):
+def bar_chart_daily_sleep(dates):
     hourly_data = part5.sleep_data(dates)
 
     is_empty_dataframe(hourly_data)
@@ -612,7 +614,7 @@ def hist_daily_sleep(dates):
 
     return fig
 
-def hist_weekly_sleep(dates):
+def bar_chart_weekly_sleep(dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
     weekly_data = part3.compute_sleep_on_day(None)
     weekly_data["date"] = pd.to_datetime(weekly_data["date"]).dt.normalize()
