@@ -217,7 +217,7 @@ Provides at-a-glance performance metrics for the selected time period:
 - Activity breakdown by type (Very Active, Fairly Active, Lightly Active, Sedentary)
 - Active hours heatmap showing patterns across days of the week
 
-* Heart Rate
+##### Heart Rate
 - Hourly heart rate trend analysis
 - Heart rate zone distribution (Rest, Active, Intense)
 - Detailed daily heart rate analysis with:
@@ -225,12 +225,12 @@ Provides at-a-glance performance metrics for the selected time period:
   - Average, maximum, and resting heart rate metrics
   - Timeline visualization with highlighted active periods
 
-* Sleep Duration
+##### Sleep Duration
 - Sleep duration trend over the selected period
 - Sleep stage distribution (Asleep, Restless, Awake)
 - Daily sleep details with timeline visualization
 
-* Calories
+##### Calories
 - Hourly calorie burn patterns throughout the day
 - Time-of-day calorie distribution (Morning, Afternoon, Evening, Night)
 - Detailed daily calorie analysis with:
@@ -238,7 +238,7 @@ Provides at-a-glance performance metrics for the selected time period:
   - Maximum hourly calorie burn
   - Peak calorie-burning hour
 
-* Steps
+##### Steps
 - Hourly step patterns throughout the day
 - Time-of-day step distribution
 - Detailed daily step analysis with:
@@ -246,7 +246,7 @@ Provides at-a-glance performance metrics for the selected time period:
   - Maximum hourly steps
   - Most active hour
 
-* Intensity
+##### Intensity
 - Hourly intensity patterns
 - Intensity level distribution (Low, Medium, High)
 - Detailed daily intensity analysis with average and peak metrics
