@@ -161,7 +161,7 @@ with st.sidebar:
 
     start_date = st.date_input(
         "Select a start date:", 
-        value=datetime.date(2016, 3, 12),
+        # value=datetime.date(2016, 3, 12),
         min_value=datetime.date(2016, 3, 12), 
         max_value=datetime.date(2016, 4, 12),
         key = "start_date"
@@ -169,7 +169,7 @@ with st.sidebar:
     
     end_date = st.date_input(
         "Select an end date:", 
-        value=datetime.date(2016, 4, 12),
+        # value=datetime.date(2016, 4, 12),
         min_value=datetime.date(2016, 3, 12), 
         max_value=datetime.date(2016, 4, 12),
         key = "end_date"
@@ -236,30 +236,6 @@ if st.session_state.user and start_date < end_date:
             plots.create_metric_block(columns[5], "Avr. Sleep Duration", avg_sleep_duration, "h")
         
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        st.markdown(
-            """
-            <style>
-            /* Change the default red line to turquoise */
-            .stTabs [data-baseweb="tab-list"] [data-baseweb="tab-highlight"] {
-                background-color: #00B3BD !important;
-            }
-            
-            /* Style for the active tab button - just the text color */
-            .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
-                color: #00B3BD;
-                font-weight: bold;
-            }
-            
-            /* Style for the inactive tab buttons */
-            .stTabs [data-baseweb="tab-list"] button[aria-selected="false"] {
-                color: #333;
-                font-weight: normal;
-            }
-            </style>
-            """, 
-            unsafe_allow_html=True
-        )
 
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Overviews", "Heart Rate", "Sleep Duration", "Calories", "Steps", "Intensity"])
 
@@ -275,12 +251,6 @@ if st.session_state.user and start_date < end_date:
                     st.warning("No data available for the selected date range.")
 
             with col2:
-                # # Display daily calories chart
-                # fig_calories = ugf.plot_daily_calories(user, start_date, end_date)
-                # if fig_calories:
-                #     st.plotly_chart(fig_calories, use_container_width=True)
-                # else:
-                #     st.warning("No calorie data available for the selected date range.")
                 fig_activity = ugf.plot_activity_breakdown(user, start_date, end_date)
                 if fig_activity:
                     st.plotly_chart(fig_activity, use_container_width=True)
@@ -380,185 +350,74 @@ if st.session_state.user and start_date < end_date:
         
         # Tab 3: Sleep Analysis
         with tab3:
-            st.subheader("Sleep Analysis")
-    
-            # Initialize variables
-            avg_sleep = None
-            sleep_efficiency = None
-            bedtimes = None
+            # Get data using ugf functions
+            sleep_stage_data = ugf.get_sleep_stage_data(user, start_date, end_date)
+            sleep_data_available = "TotalSleepHours" in filtered_data.columns and not filtered_data["TotalSleepHours"].isna().all()
 
-            # 1. Total Sleep Duration
-            if "TotalSleepHours" in filtered_data.columns and not filtered_data["TotalSleepHours"].isna().all():
-                avg_sleep = filtered_data["TotalSleepHours"].mean()
-
-                # Sleep Quality Metrics
-                col1, col2, col3 = st.columns(3)
+            if sleep_data_available:
+                col1, col2 = st.columns(2)
+                
                 with col1:
-                    st.metric("Average Sleep Hours", f"{avg_sleep:.1f} hrs")
+                    # Sleep Duration Trend
+                    avg_sleep = filtered_data["TotalSleepHours"].mean(skipna=True)
+                    fig_duration = ugf.plot_sleep_duration_trend(filtered_data, avg_sleep)
+                    st.plotly_chart(fig_duration, use_container_width=True)
 
                 with col2:
-                    if "TotalTimeInBed" in sleep_data.columns:
-                        sleep_efficiency = (filtered_data["TotalSleepMinutes"] / 
-                                          filtered_data["TotalTimeInBed"]).mean() * 100
-                        st.metric("Sleep Efficiency", f"{sleep_efficiency:.1f}%")
-
-                with col3:
-                    try:
-                        if 'intervals' in locals():
-                            bedtimes = intervals.groupby('Night')['Start'].min().dt.time
-                            avg_bedtime = bedtimes.mean().strftime("%H:%M")
-                            st.metric("Average Bedtime", avg_bedtime)
-                    except Exception as e:
-                        pass
-
-                # Sleep Duration Chart
-                fig_sleep = px.bar(
-                    filtered_data, 
-                    x="ActivityDate", 
-                    y="TotalSleepHours", 
-                    title="Total Sleep Duration Over Time",
-                    labels={"TotalSleepHours": "Hours Slept"}
-                )
-                st.plotly_chart(fig_sleep, use_container_width=True)
-
-                # 2. Detailed Sleep Analysis
-                conn = sqlite3.connect("../data/fitbit_database.db")
-                query = f"SELECT date, value FROM minute_sleep WHERE Id = {user} ORDER BY date;"
-                sleep_stage_data = pd.read_sql(query, conn)
-                conn.close()
-
-                if not sleep_stage_data.empty:
-                    # Data processing
-                    sleep_stage_data["date"] = pd.to_datetime(sleep_stage_data["date"]).dt.floor("min")
-                    sleep_stage_data = sleep_stage_data[
-                        (sleep_stage_data["date"] >= pd.Timestamp(start_date)) &
-                        (sleep_stage_data["date"] < pd.Timestamp(end_date) + pd.Timedelta(days=1))
-                    ]
-
-                    stage_map = {1: "Asleep", 2: "Restless", 3: "Awake"}
-                    sleep_stage_data["Stage"] = sleep_stage_data["value"].map(stage_map)
-
-                # 3. Daily Sleep Breakdown
-                st.subheader("Daily Sleep Stages")
-                daily_agg = sleep_stage_data.groupby(
-                    [pd.Grouper(key='date', freq='D'), 'Stage']
-                ).size().reset_index(name='Minutes')
-                daily_agg['Hours'] = daily_agg['Minutes'] / 60
-
-                fig_stacked = px.bar(
-                    daily_agg,
-                    x="date",
-                    y="Hours",
-                    color="Stage",
-                    title="Daily Sleep Stage Distribution",
-                    labels={"date": "Date", "Hours": "Hours"},
-                    color_discrete_map={
-                        "Asleep": "#CFEBEC",
-                        "Restless": "#0083BD", 
-                        "Awake": "#006166"
-                    },
-                    barmode="stack"
-                )
-                st.plotly_chart(fig_stacked, use_container_width=True)
-
-                # 4. Nightly Analysis
-                st.subheader("Nightly Details")
-
-                # Process intervals
-                sleep_stage_data["time_diff"] = sleep_stage_data["date"].diff().dt.total_seconds() != 60
-                sleep_stage_data["interval_group"] = sleep_stage_data.groupby("Stage")["time_diff"].cumsum()
-
-                intervals = sleep_stage_data.groupby(["interval_group", "Stage"]).agg(
-                    Start=("date", "min"),
-                    End=("date", "max")
-                ).reset_index()
-
-                intervals["Duration"] = (intervals["End"] - intervals["Start"]).dt.total_seconds() / 60
-                intervals["Night"] = intervals.apply(
-                    lambda x: x["Start"].date() if x["Start"].hour >= 18 
-                    else x["Start"].date() - pd.Timedelta(days=1), 
-                    axis=1
-                )
-
-                 # Night selection - Center the Dropdown
-                col1, col2, col3 = st.columns([1, 2, 1])
-                with col2:  
-                    night_options = intervals["Night"].unique()
-                    selected_night = st.selectbox(
-                        "Select Night",
-                        sorted(night_options, reverse=True),
-                        format_func=lambda x: x.strftime("%Y-%m-%d")
-                    )
-
-                night_data = intervals[intervals["Night"] == selected_night]
-
-                if not night_data.empty:
-                    # Center the Pie Chart
-                    col_center = st.columns([1, 2, 1])[1]
-                    with col_center:
-                        stage_dist = night_data.groupby("Stage")["Duration"].sum().reset_index()
-                        fig_pie = px.pie(
-                            stage_dist,
-                            values="Duration",
-                            names="Stage",
-                            title="Sleep Stage Distribution",
-                            color="Stage",
-                            color_discrete_map={
-                                "Asleep": "#CFEBEC",
-                                "Restless": "#0083BD",
-                                "Awake": "#006166"
-                            }
-                        )
+                    # Sleep Stage Distribution
+                    if not sleep_stage_data.empty:
+                        fig_pie = ugf.plot_sleep_stage_distribution(sleep_stage_data)
                         st.plotly_chart(fig_pie, use_container_width=True)
+                    else:
+                        st.warning("No sleep stage data available")
 
-                    # Insights
-                    st.subheader("Sleep Insights")
-                    restless_time = stage_dist[stage_dist["Stage"] == "Restless"]["Duration"].sum()
+                st.markdown("<hr>", unsafe_allow_html=True)
+                
+                # Daily Sleep Details
+                st.markdown("""<h4 style="color: #333; margin-bottom: 10px;">Daily Sleep Details</h4>""", 
+                        unsafe_allow_html=True)
 
-                    if restless_time > 60:
-                        st.warning(f"🌙 Try reducing screen time before bed - {restless_time:.0f} mins restless")
+                sleep_dates = filtered_data[~filtered_data["TotalSleepHours"].isna()]["ActivityDate"].dt.date.unique()
+                
+                if len(sleep_dates) > 0:
+                    col1, col2 = st.columns([2, 1])
+                    with col1:
+                        selected_date = st.selectbox(
+                            "Select Date",
+                            options=sorted(sleep_dates, reverse=True),
+                            format_func=lambda x: x.strftime("%Y-%m-%d"),
+                            key="sleep_date"
+                        )
+                    
+                    daily_data = filtered_data[filtered_data["ActivityDate"].dt.date == selected_date]
+                    with col2:
+                        st.metric("Total Sleep", 
+                                f"{daily_data['TotalSleepHours'].values[0]:.1f} hrs",
+                                help="Total sleep duration for selected day")
 
-                    if avg_sleep and avg_sleep < 7:
-                        st.info(f"💤 Aim for 7-9 hours - current average: {avg_sleep:.1f} hrs")
-
-                    try:
-                        if sleep_efficiency:
-                            sleep_score = min(100, int((avg_sleep/8)*40 + (sleep_efficiency/100)*60))
-                            st.success(f"🏆 Sleep Score: {sleep_score}/100")
-                    except:
-                        pass
-
-                    # Advanced Metrics
-                    with st.expander("📈 Advanced Sleep Metrics"):
-                        col1, col2, col3 = st.columns(3)
-
-                        with col1:
-                            st.write("**Sleep Patterns**")
-                            try:
-                                if not sleep_stage_data.empty:
-                                    restless_episodes = sleep_stage_data[sleep_stage_data['Stage'] == 'Restless'].shape[0]
-                                    st.metric("Daily Restless Episodes", f"{restless_episodes} times")
-                            except:
-                                pass
-
-                        with col2:
-                            st.write("**Consistency**")
-                            try:
-                                if avg_sleep is not None:
-                                    sleep_std = filtered_data["TotalSleepHours"].std()
-                                    st.metric("Sleep Variability", f"{sleep_std:.1f} hrs")
-                            except:
-                                pass
-
-                        with col3:
-                            st.write("**Activity Correlation**")
-                            try:
-                                if not filtered_data.empty:
-                                    sleep_activity_corr = filtered_data[["TotalSleepHours", "TotalSteps"]].corr().iloc[0,1]
-                                    st.metric("Sleep-Steps Correlation", f"{sleep_activity_corr:.2f}")
-                            except:
-                                pass
-        
+                    if not sleep_stage_data.empty:
+                        daily_stages = sleep_stage_data[sleep_stage_data["date"].dt.date == selected_date]
+                        
+                        if not daily_stages.empty:
+                            fig_timeline = ugf.plot_sleep_timeline(daily_stages, selected_date)
+                            st.plotly_chart(fig_timeline, use_container_width=True)
+                        else:
+                            st.warning(f"No stage data available for {selected_date}")
+                    else:
+                        st.warning("No sleep stage data available")
+            else:
+                st.markdown("""
+                    <div style="background-color: #CFEBEC; 
+                    padding: 20px; 
+                    border-radius: 5px; 
+                    text-align: center;
+                    margin: 50px 0;">
+                        <span style="color: #333; font-size: 16pt; font-weight: bold;">
+                            No sleep data available for the selected date range.
+                        </span>
+                    </div>
+                """, unsafe_allow_html=True)
+                
         # Tab 4: Calories
         with tab4:
             calories_data = ugf.get_hourly_calories_data(user, start_date, end_date)
@@ -799,3 +658,20 @@ if st.session_state.user and start_date < end_date:
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
+            else:
+                # Single styled warning message
+                st.markdown(
+                    """
+                    <div style="background-color: #CFEBEC; 
+                    padding: 20px; 
+                    border-radius: 5px; 
+                    text-align: center;
+                    margin: 50px 0;">
+                        <span style="color: #333; font-size: 16pt; font-weight: bold;">
+                            No Intensity data available for the selected date range.
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                

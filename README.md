@@ -105,6 +105,8 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `sleep_data(dates)` - returns a dataframe containing hourly sleep information for users, where the minutes asleep in each hour are calculated based on the count of minutes recorded as asleep. If no sleep is recorded for a particular hour but the user has other data for the same date, the minutes asleep for that hour will be assumed to be zero.
 * `create_dataframe_scatterplot_sleep(variable, dates)` - returns a dataframe containing the total minutes a user slept on a specified date, calculated by counting all minutes recorded as asleep. It also includes either the total number of steps the user took that day or the total number of calories burned, depending on whether `Steps` or `Calories` is passed as the variable. This information is provided for the dates specified in the list passed to the dates variable.
 * `average_workout_frequency_per_week(data)` - 
+* `average_steps_calories_per_period(dates)` - this function retrieves daily total steps and calories data from the database, filters it based on the given dates, and calculates the average total steps walked for period returning the final DataFrame.
+* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
 
 ## Graphing functions for dashboard: Functions to create graphs in dashboard
 * `create_metric_block(col, title, value, unit="", bg_color="#CFEBEC")` - this function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
@@ -135,9 +137,5 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `bar_chart_workout_frequency_for_week(dates)` - 
 * `scatterplot_heart_rate_sleep_value(dates)` - this function generates the scatterplot between heart rate and sleep value for the given dates. NOT USED FOR NOW
 * `lineplot_heart_rate_over_night(dates)` - this function generates a line plot displaying the average heart rate per hour over night for the given dates. NOT USED FOR NOW
-
- 
-
-
 
 ## General insights: Creating dashboard by calling functions from plots_general_insights.py

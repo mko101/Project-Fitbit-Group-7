@@ -407,7 +407,7 @@ def plot_correlation_weather_intensity(hours, days, dates):
         data, 
         x="TotalIntensity", 
         y="temp",
-        title="Correlation between Temperature and Hourly Total Intensity",
+        title="Correlation between Temperature and <br> Hourly Total Intensity",
         labels={"TotalIntensity": "Hourly Total Intensity", "temp": "Temperature (in F)"},
         trendline="ols"
     )
@@ -756,7 +756,7 @@ def plot_user_pie_chart():
 
     if data["Count"].sum() == 0:
         create_correlation_block("", "Sorry, no data is available for the selected date range in this graph.", "")
-
+      
     fig = px.pie(
         data, values="Count", names="Class", 
         title="User Breakdown over All Participants",

@@ -55,8 +55,14 @@ if start_date <= end_date:
     plots.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
     plots.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
-    st.markdown("</br></br>", unsafe_allow_html=True)
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
+    st.markdown("</br>", unsafe_allow_html=True)
+    tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
+
+    # Period graphs
+    with tab0:
+        # col1 = st.columns(1)
+        # with col1:
+        st.plotly_chart(part5.plot_steps_calories_combined_general(dates), use_container_width=True)
 
     # Daily graphs
     with tab1:
