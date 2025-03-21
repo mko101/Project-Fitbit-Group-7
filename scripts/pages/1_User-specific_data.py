@@ -237,29 +237,6 @@ if st.session_state.user and start_date < end_date:
         st.markdown("<br>", unsafe_allow_html=True)
 
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Overviews", "Heart Rate", "Sleep Duration", "Calories", "Steps", "Intensity"])
-
-        # # Tab 1: Overview
-        # with tab1:
-        #     # First row: Steps & Calories combined chart (full width)
-        #     fig_combined = ugf.plot_steps_calories_combined(user, start_date, end_date)
-        #     if fig_combined:
-        #         st.plotly_chart(fig_combined, use_container_width=True)
-        #     else:
-        #         st.warning("No data available for the selected date range.")
-            
-        #     # Second row: Activity breakdown (centered)
-        #     st.markdown("<hr>", unsafe_allow_html=True)
-            
-        #     # Create a container with columns to center the pie chart
-        #     col1, col2, col3 = st.columns([1, 2, 1])
-            
-        #     with col2:
-        #         fig_activity = ugf.plot_activity_breakdown(user, start_date, end_date)
-        #         if fig_activity:
-        #             st.plotly_chart(fig_activity, use_container_width=True)
-        #         else:
-        #             st.warning("No activity data available for the selected date range.")
-        
         
         
         # Tab 1: Overview
@@ -351,7 +328,7 @@ if st.session_state.user and start_date < end_date:
                             
                             fig_daily_hr = ugf.plot_daily_heart_rate(user, selected_date)
                             st.plotly_chart(fig_daily_hr, use_container_width=True)
-                            with st.expander("Notes"):
+                            with st.expander("How to read it"):
                                 st.markdown("""
                                     <p style="margin: 0; color: #333;">
                                         The line shows your heart rate throughout the day. 
@@ -500,13 +477,13 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Total Calories", f"{int(total_calories)}")
                             
                             with metrics_col2:
-                                st.metric("Max Calories (Hour)", f"{int(max_calories)}")
+                                st.metric("Max Calories (ph)", f"{int(max_calories)}")
                             
                             with metrics_col3:
                                 st.metric("Peak Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_calories, use_container_width=True)
-                            with st.expander("Notes"):
+                            with st.expander("How to read it"):
                                 st.markdown("""
                                     <p style="margin: 0; color: #333;">
                                         The line shows your heart rate throughout the day. 
@@ -585,13 +562,13 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Total Steps", f"{int(total_steps):,}")
                             
                             with metrics_col2:
-                                st.metric("Max Steps (Hour)", f"{int(max_steps):,}")
+                                st.metric("Max Steps (ph)", f"{int(max_steps):,}")
                             
                             with metrics_col3:
                                 st.metric("Most Active Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_steps, use_container_width=True)
-                            with st.expander("Notes"):
+                            with st.expander("How to read it"):
                                 st.markdown("""
                                     <p style="margin: 0; color: #333;">
                                         The line shows your heart rate throughout the day. 
@@ -676,7 +653,7 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Peak Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_intensity, use_container_width=True)
-                            with st.expander("Notes"):
+                            with st.expander("How to read it"):
                                 st.markdown("""
                                     <p style="margin: 0; color: #333;">
                                         The line shows your heart rate throughout the day. 

@@ -25,7 +25,7 @@ This project studies a dataset obtained from fitbits of 35 different respondence
 ## Dependencies
 
 ### Core Requirements
-- **Python 3.8+**
+- **Python 3.12+**
 - **SQLite 3** 
 
 ### Python Libraries
@@ -35,7 +35,7 @@ This project studies a dataset obtained from fitbits of 35 different respondence
 - **numpy** 
 
 #### Visualization
-- **plotly** 
+- **plotly 6.0.1** 
   - plotly.express
   - plotly.graph_objects
   - plotly.subplots
@@ -43,7 +43,7 @@ This project studies a dataset obtained from fitbits of 35 different respondence
 - **seaborn** 
 
 #### Dashboard
-- **streamlit**
+- **streamlit 1.43.2**
 
 #### Analysis
 - **scipy** 
