@@ -1,12 +1,10 @@
 # IMPORTS 
 import streamlit as st
-import pandas as pd
-import datetime
-import part1
 import plotly.express as px
 import Part5 as part5
 import numpy as np
 
+# FUNCTIONS THAT ARE STILL ON THE MAIN BRANCH
 # Define a function for styled containers
 def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
     with col:
@@ -276,9 +274,9 @@ def lineplot_heart_rate_over_night(dates):
         ticktext=[f"{i}:00" for i in range(20, 9, -1)]  # Corresponding labels from 20:00 to 10:00
     )
 
-
     return fig
 
+# FUNCTIONS THAT ARE STILL ON THE MAIN BRANCH
 def bar_chart_average_distance_per_week(dates):
     total_distance_avr = part5.average_distance_per_week(dates)
     max_distance = total_distance_avr["TotalDistance"].max()
@@ -441,5 +439,3 @@ def bar_chart_workout_frequency_for_week(dates):
         hovertemplate="<b>Day of week:</b> %{x}<br><b> Total number of workouts  </b> %{y:.0f} <extra></extra>",
     )
     return fig
-    
-    

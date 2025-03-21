@@ -137,7 +137,6 @@ def calories_totalsteps_scatter():
     
 #calories_totalsteps_scatter()
 
-
 def calories_totalhours_scatter():
     data['TotalMinutes']=data.VeryActiveMinutes + data.FairlyActiveMinutes + data.LightlyActiveMinutes + data.SedentaryMinutes
     data['TotalHours']=round(data.TotalMinutes / 60)

@@ -6,7 +6,6 @@ import part1
 import Part5 as part5
 import numpy as np
 import plots_general_insights as plots
-import Graphing_functions_for_dashboard as gf
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
@@ -48,78 +47,13 @@ if start_date <= end_date:
     active_minutes = part5.retrieve_average("ActiveMinutes", dates) 
     sedentary_minutes = part5.retrieve_average("SedentaryMinutes", dates) 
 
-    # Define a function for styled containers
-    def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
-        with col:
-            container = st.container()
-            container.markdown(
-                f"""
-                <style>
-                .metric-box {{
-                    background-color: {bg_color};
-                    padding: 15px;
-                    border-radius: 10px;
-                    text-align: center;
-                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-                }}
-                .metric-title {{
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 5px;
-                }}
-                .metric-value {{
-                    font-size: 22px;
-                    font-weight: bold;
-                    color: #333;
-                }}
-                </style>
-                <div class="metric-box">
-                    <div class="metric-title">{title}</div>
-                    <div class="metric-value">{value} {unit}</div>
-                </div>
-                """,
-                unsafe_allow_html=True  # This is needed for styling
-            )
-
-    def create_correlation_block(col, title, value, unit="", bg_color="#CFEBEC"):
-        with col:
-            container = st.container()
-            container.markdown(
-                f"""
-                <style>
-                .correlation-box {{
-                    background-color: {bg_color};
-                    padding: 10px;
-                    border-radius: 10px;
-                    text-align: center;
-                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-                }}
-                .correlation-title {{
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 2px;
-                }}
-                .correlation-value {{
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #333;
-                }}
-                </style>
-                <div class="correlation-box">
-                    <div class="correlation-title">{title}</div>
-                    <div class="correlation-value">{value} {unit}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
     # Display each metric
-    gf.create_metric_block(col1, "Total Users", users, "")
-    gf.create_metric_block(col2, "Average Steps", steps, "")
-    gf.create_metric_block(col3, "Average Distance", distance, "km")
-    gf.create_metric_block(col4, "Average Calories", calories, "kcal")
-    gf.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
-    gf.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
+    plots.create_metric_block(col1, "Total Users", users, "")
+    plots.create_metric_block(col2, "Average Steps", steps, "")
+    plots.create_metric_block(col3, "Average Distance", distance, "km")
+    plots.create_metric_block(col4, "Average Calories", calories, "kcal")
+    plots.create_metric_block(col5, "Avr. Active Min", active_minutes, "")
+    plots.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
     st.markdown("</br>", unsafe_allow_html=True)
     tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
@@ -135,67 +69,74 @@ if start_date <= end_date:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.plotly_chart(gf.bar_chart_hourly_average_steps(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_hourly_average_steps(dates), use_container_width=True)
         
         with col2:
-            st.plotly_chart(gf.plot_heart_rate(dates), use_container_width=True)
+            st.plotly_chart(plots.plot_heart_rate(dates), use_container_width=True)
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.plotly_chart(gf.bar_chart_hourly_average_calories(dates), use_container_width=True)
-        with col2:
-            st.plotly_chart(plots.hist_daily_intensity(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_hourly_average_calories(dates), use_container_width=True)
 
-        st.plotly_chart(plots.hist_daily_sleep(dates), use_container_width=True)
+        with col2:
+            st.plotly_chart(plots.bar_chart_daily_intensity(dates), use_container_width=True)
+
+        st.plotly_chart(plots.bar_chart_daily_sleep(dates), use_container_width=True)
     
     # Weekly graphs
     with tab2:
         col1, col2 = st.columns(2) 
 
         with col1:
-            st.plotly_chart(gf.bar_chart_average_distance_per_week(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_average_distance_per_week(dates), use_container_width=True)
         with col2:
-            st.plotly_chart(gf.bar_chart_average_steps_per_week(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_average_steps_per_week(dates), use_container_width=True)
 
         col1, col2 = st.columns(2)  
 
         with col1:
-            st.plotly_chart(gf.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_average_calories_per_day_for_week(dates), use_container_width=True)
         
         with col2:
-            st.plotly_chart(plots.hist_weekly_sleep(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_weekly_sleep(dates), use_container_width=True)
             
-        st.plotly_chart(gf.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
+        st.plotly_chart(plots.plot_active_minutes_bar_chart_per_day(dates), use_container_width=True)
 
     # Sleep insights
     with tab3:
+        with st.popover("Correlation explained"):
+                st.write("Correlation is a measure of how two variables are related to each other, with values ranging from -1 to 1. If the correlation is 1, it means the two variables move together perfectly in the same direction. If the correlation is -1, the variables move in exactly opposite directions. A correlation of 0 means there's no clear connection between them.")
+
         col1, col2 = st.columns(2)
 
         with col1:
             fig, corr = plots.plot_correlation_sleep_sedentary_minutes(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
 
         with col2:
-            fig, corr = plots.plot_correlation_sleep_active_minutes(None, dates)
+            fig, corr = plots.plot_correlation_sleep_active_minutes(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
         
         col1, col2 = st.columns(2)
 
         with col1:
             fig, corr = plots.plot_correlation_sleep_steps(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
 
         with col2:
             fig, corr = plots.plot_correlation_sleep_calories(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
     
     # Weather insights
     with tab4:
+        with st.popover("Correlation explained"):
+            st.write("Correlation is a measure of how two variables are related to each other, with values ranging from -1 to 1. If the correlation is 1, it means the two variables move together perfectly in the same direction. If the correlation is -1, the variables move in exactly opposite directions. A correlation of 0 means there's no clear connection between them.")
+          
         col1, col2 = st.columns(2)
         hour_selection = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"]
         days_selection = ["Weekdays", "Weekend"]
@@ -207,7 +148,7 @@ if start_date <= end_date:
 
             fig, corr = plots.plot_correlation_weather_steps(hours, days, dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
 
         with col2:
             st.markdown("</br>", unsafe_allow_html=True)
@@ -216,36 +157,38 @@ if start_date <= end_date:
 
             fig, corr = plots.plot_correlation_weather_intensity(hours2, days2, dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
 
     # Other insights
     with tab5:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.plotly_chart(gf.plot_activity_pie_chart(dates), use_container_width=True)
+            st.plotly_chart(plots.plot_activity_pie_chart(dates), use_container_width=True)
 
         with col2:
-            st.plotly_chart(plots.plot_weight_pie_chart(dates), use_container_width=True)
+            st.plotly_chart(plots.plot_weight_pie_chart(), use_container_width=True)
+            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
 
         col1, col2, = st.columns(2)
 
         with col1:
             st.plotly_chart(plots.plot_user_pie_chart(), use_container_width=True)
+            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
 
         with col2: 
-            st.plotly_chart(gf.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
 
         col1, col2 = st.columns(2)
 
         with col1:
-            fig, corr = gf.scatterplot_heart_rate_intensityvity(dates)
+            fig, corr = plots.scatterplot_heart_rate_intensityvity(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col1, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
         
         with col2:
-            fig, corr = gf.scatterplot_calories_and_active_minutes(dates)
+            fig, corr = plots.scatterplot_calories_and_active_minutes(dates)
             st.plotly_chart(fig, use_container_width=True)
-            create_correlation_block(col2, "Correlation coefficient:", corr, "")
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
 
         st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)

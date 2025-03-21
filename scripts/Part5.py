@@ -10,7 +10,6 @@ import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
 connect = "../data/cleaned_fitbit.db"
 
 def retrieve_average(category, dates):
@@ -292,7 +291,7 @@ def hourly_weather_data():
 
 # hourly steps
 def compute_steps_hourly():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM hourly_steps")
@@ -311,7 +310,7 @@ def compute_steps_hourly():
 
 # hourly intensity
 def compute_intensity_hourly():
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM hourly_intensity")
@@ -375,7 +374,7 @@ hourly_intensity = compute_intensity_hourly()
 def daily_activity(dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     steps = cur.execute(f"SELECT * FROM daily_activity")
@@ -406,10 +405,8 @@ def categorize_weight(weight):
     else:
         return "50 - 70kg"
     
-def categorized_weight_data(dates):
-    dates = pd.to_datetime(dates, format='%m/%d/%Y')
-    
-    con = sqlite3.connect("../data/fitbit_database.db")
+def categorized_weight_data():
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     cur.execute("SELECT Id, Date, WeightKg FROM weight_log") 
@@ -417,16 +414,15 @@ def categorized_weight_data(dates):
     data = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
 
     data["Date"] = pd.to_datetime(data["Date"]).dt.normalize()
-    filtered_data = data.loc[data["Date"].isin(dates)]
 
-    filtered_data = filtered_data.groupby(["Id"], as_index=False)["WeightKg"].mean()
-    filtered_data["CategoryWeight"] = filtered_data["WeightKg"].apply(categorize_weight)
+    data = data.groupby(["Id"], as_index=False)["WeightKg"].mean()
+    data["CategoryWeight"] = data["WeightKg"].apply(categorize_weight)
     
     weights = {
-        "50 - 70kg": filtered_data[filtered_data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
-        "70 - 90kg": filtered_data[filtered_data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
-        "90 - 110kg": filtered_data[filtered_data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
-        "110 - 130kg": filtered_data[filtered_data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
+        "50 - 70kg": data[data["CategoryWeight"] == "50 - 70kg"].count()["CategoryWeight"],
+        "70 - 90kg": data[data["CategoryWeight"] == "70 - 90kg"].count()["CategoryWeight"],
+        "90 - 110kg": data[data["CategoryWeight"] == "90 - 110kg"].count()["CategoryWeight"],
+        "110 - 130kg": data[data["CategoryWeight"] == "110 - 130kg"].count()["CategoryWeight"]
     }
 
     df = pd.DataFrame(list(weights.items()), columns=["CategoryWeight", "Count"])
@@ -434,7 +430,7 @@ def categorized_weight_data(dates):
     return df
 
 def sleep_data(dates):
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     cur.execute("SELECT * FROM minute_sleep")
@@ -464,7 +460,7 @@ def sleep_data(dates):
 def create_dataframe_scatterplot_sleep(variable, dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
-    con = sqlite3.connect("../data/fitbit_database.db")
+    con = sqlite3.connect("../data/cleaned_fitbit.db")
     cur = con.cursor()
 
     sleep_duration = cur.execute(f"SELECT * FROM minute_sleep")
@@ -483,7 +479,7 @@ def create_dataframe_scatterplot_sleep(variable, dates):
 
         other_df["date"] = pd.to_datetime(other_df["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p").dt.normalize()
         other_df = other_df.groupby(["Id", "date"], as_index=False)["StepTotal"].sum()
-    else: 
+    elif variable == "Calories": 
         calories = cur.execute(f"SELECT * FROM hourly_calories")
         rows = calories.fetchall()
         other_df = pd.DataFrame(rows, columns = [x[0] for x in cur.description])
@@ -519,7 +515,6 @@ def workout_frequency_per_period(dates):
     return filtered_data_avr
 
 print(workout_frequency_per_period(["4/4/2016", "4/5/2016", "4/6/2016"]))
-
 
 def average_steps_calories_per_period(dates):
     conn = sqlite3.connect(connect)

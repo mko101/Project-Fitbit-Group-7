@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # connect to database
-con = sqlite3.connect("../data/fitbit_database.db")
+con = sqlite3.connect("../data/cleaned_fitbit.db")
 cur = con.cursor()
 
 # Step 1: look for missing values in the weight_log and resolve them
