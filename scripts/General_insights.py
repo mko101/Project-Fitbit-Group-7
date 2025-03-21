@@ -62,7 +62,7 @@ if start_date <= end_date:
     with tab0:
         # col1 = st.columns(1)
         # with col1:
-        st.plotly_chart(part5.plot_steps_calories_combined_general(dates), use_container_width=True)
+        st.plotly_chart(plots.plot_steps_calories_combined_general(dates), use_container_width=True)
 
     # Daily graphs
     with tab1:
@@ -177,7 +177,7 @@ if start_date <= end_date:
             plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
 
         with col2: 
-            st.plotly_chart(plots.bar_chart_workout_frequency_for_week(dates), use_container_width=True)
+            st.plotly_chart(plots.bar_chart_total_workout_frequency_for_period(dates), use_container_width=True)
 
         col1, col2 = st.columns(2)
 

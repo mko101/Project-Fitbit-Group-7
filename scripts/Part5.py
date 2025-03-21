@@ -1,14 +1,9 @@
 # IMPORTS
 import sqlite3
 import pandas as pd
-import random
 from scipy.stats import bernoulli
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
-import streamlit as st
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 connect = "../data/cleaned_fitbit.db"
 
@@ -530,113 +525,3 @@ def average_steps_calories_per_period(dates):
     conn.close()
     return filtered_data_avr
 
-def plot_steps_calories_combined_general(dates):
-    # Get user data
-    filtered_data = average_steps_calories_per_period(dates)
-    
-    if filtered_data.empty:
-        return None
-    
-    max_steps_day = filtered_data.loc[filtered_data["TotalSteps"].idxmax(), "ActivityDate"]
-    max_calories_day = filtered_data.loc[filtered_data["Calories"].idxmax(), "ActivityDate"]
-    
-    step_colors = ['#00B3BD' if date == max_steps_day else '#CFEBEC' for date in filtered_data["ActivityDate"]]
-    calorie_colors = ['#005B8D' if date == max_calories_day else '#006166' for date in filtered_data["ActivityDate"]]
-    
-    # Create subplot with secondary y-axis
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    
-    # Add steps as bars on primary y-axis
-    fig.add_trace(
-        go.Bar(
-            x=filtered_data["ActivityDate"],
-            y=filtered_data["TotalSteps"],
-            name="Steps",
-            marker_color=step_colors,
-            hovertemplate="<b>Steps:</b> %{y:,.0f}<extra></extra>"
-        ),
-        secondary_y=False
-    )
-    
-
-        # Calculate overall average steps across all users and all dates
-    overall_avg_steps = retrieve_average("TotalSteps", dates)
-        
-        # Create a horizontal line at the overall average steps
-    fig.add_trace(
-        go.Scatter(
-            x=[filtered_data["ActivityDate"].min(), filtered_data["ActivityDate"].max()],
-            y=[overall_avg_steps, overall_avg_steps],
-            name="Avg Steps (All Users)",
-            mode="lines",
-            line=dict(
-                color="#005B8D", 
-                width=2,
-                dash="dash"
-                ),
-            hovertemplate="<b>Avg Steps (All Users):</b> %{y:,.0f}<extra></extra>"
-        ),
-        secondary_y=False
-    )
-    
-    # Add calories as line on secondary y-axis
-    fig.add_trace(
-        go.Scatter(
-            x=filtered_data["ActivityDate"],
-            y=filtered_data["Calories"],
-            name="Calories",
-            mode="lines+markers",
-            line=dict(color="#006166", width=3),
-            marker=dict(
-                size=8,
-                color=calorie_colors,
-                line=dict(width=2, color="#006166")
-            ),
-            hovertemplate="<b>Calories:</b> %{y:,.0f} kcal<extra></extra>"
-        ),
-        secondary_y=True
-    )
-    
-    # Set chart title and axis labels
-    fig.update_layout(
-        title="Average Daily Steps and Calories per Period",
-        hovermode="x unified",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-        ),
-        xaxis=dict(
-            tickangle=-45,
-            title=None,
-            gridcolor="#f0f0f0"
-        ),
-        bargap=0.3,
-        plot_bgcolor="white"
-    )
-    
-    # Set y-axes titles and ranges
-    fig.update_yaxes(
-        title_text="Steps",
-        secondary_y=False,
-        gridcolor="#f0f0f0",
-        title=None
-    )
-    
-    fig.update_yaxes(
-        title_text="Calories (kcal)",
-        secondary_y=True,
-        gridcolor="#f0f0f0",
-        title=None
-    )
-    
-    # Automatically set ranges to start from 0
-    max_steps = filtered_data["TotalSteps"].max() * 1.1  # Add 10% padding
-    max_calories = filtered_data["Calories"].max() * 1.1  # Add 10% padding
-    
-    fig.update_yaxes(range=[0, max_steps], secondary_y=False)
-    fig.update_yaxes(range=[0, max_calories], secondary_y=True)
-    
-    return fig
