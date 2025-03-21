@@ -18,17 +18,25 @@ def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
             .metric-box {{
                 background-color: {bg_color};
                 padding: 15px;
-                border-radius: 10px;
+                border-radius: 13px;
                 text-align: center;
                 box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                height: 130px;
+                display: inline-block; 
+                justify-content: center;  
+                align-items: center; 
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
             }}
             .metric-title {{
-                font-size: 16px;
+                font-size: 17px;
                 font-weight: bold;
                 margin-bottom: 5px;
             }}
             .metric-value {{
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: bold;
                 color: #333;
             }}
@@ -747,9 +755,9 @@ def plot_user_pie_chart():
     data = part3.create_new_dataframe()
 
     users = {
-        "Light User (≤ 10 daily records)": data[data["Class"] == "LightUser"].count()["Class"],
-        "Moderate User (11 - 15 daily records)": data[data["Class"] == "ModerateUser"].count()["Class"],
-        "Heavy User (≥ 16 daily records)": data[data["Class"] == "HeavyUser"].count()["Class"],
+        "Light User (≤ 10 daily records)": data[data["Class"] == "Light User"].count()["Class"],
+        "Moderate User (11 - 15 daily records)": data[data["Class"] == "Moderate User"].count()["Class"],
+        "Heavy User (≥ 16 daily records)": data[data["Class"] == "Heavy User"].count()["Class"],
     }
 
     data = pd.DataFrame(list(users.items()), columns=["Class", "Count"])
@@ -929,7 +937,7 @@ def plot_active_minutes_bar_chart_per_day(dates):
     return fig
 
 def bar_chart_workout_frequency_for_week(dates):
-    data_avr = part5.average_workout_frequency_per_week(dates)
+    data_avr = part5.workout_frequency_per_period(dates)
     max_distance = data_avr["WorkoutFrequency"].max()
     data_avr["Color"] = data_avr["WorkoutFrequency"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
 
