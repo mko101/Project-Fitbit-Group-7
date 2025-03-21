@@ -220,9 +220,9 @@ This module contains specialized visualization functions for analyzing individua
 * `plot_daily_heart_rate(user, selected_date)` - Detailed heart rate chart for a specific day
 
 #### Sleep Analysis
-
-...
-
+* `plot_sleep_duration_trend(filtered_data, avg_sleep_duration)` - Generates interactive line chart showing daily sleep duration trends.
+* `plot_sleep_stage_distribution(sleep_stage_data)` - Creates pie chart visualizing proportion of sleep stages.
+* `plot_sleep_timeline(daily_stages, selected_date)` - Displays hourly sleep stages as Gantt-style timeline.
 
 ### User-specific Data Dashboard
 
