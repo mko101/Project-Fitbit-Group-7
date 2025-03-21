@@ -1281,6 +1281,7 @@ def plot_sleep_stage_distribution(sleep_stage_data):
         values="count",
         names="Stage",
         title="Sleep Stage Distribution",
+        hole=0.5,
         color="Stage",
         color_discrete_map={
             "Asleep": "#CFEBEC",
@@ -1333,6 +1334,10 @@ def plot_sleep_timeline(daily_stages, selected_date):
     fig.update_layout(
         xaxis_title="Time",
         yaxis_title="",
+        yaxis=dict(
+            categoryorder="array",
+            categoryarray=["Awake", "Restless", "Asleep"]
+        ),
         height=300,
         margin=dict(t=40),
         legend=dict(orientation="h", y=1.1)
