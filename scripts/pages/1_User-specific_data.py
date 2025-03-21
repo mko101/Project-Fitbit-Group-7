@@ -17,6 +17,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.sidebar.image("../images/logo.png")
+
+st.sidebar.page_link("General_insights.py", label="General Analysis", icon="📊")
+st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon="👤")
+st.sidebar.markdown("---")
+
 def get_latest_weight_data(user):
     conn = sqlite3.connect('../data/fitbit_database.db')
     
@@ -156,7 +162,6 @@ with st.sidebar:
                 unsafe_allow_html=True
             )
     
-    st.markdown("<br>", unsafe_allow_html=True)
 
     start_date = st.date_input(
         "Select a start date:", 
