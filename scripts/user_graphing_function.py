@@ -46,7 +46,6 @@ def plot_steps_calories_combined(user, start_date, end_date):
     step_colors = ['#00B3BD' if date == max_steps_day else '#CFEBEC' for date in filtered_data["ActivityDate"]]
     calorie_colors = ['#005B8D' if date == max_calories_day else '#006166' for date in filtered_data["ActivityDate"]]
     
-    # Create subplot with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     
     # Add steps as bars on primary y-axis
@@ -56,7 +55,7 @@ def plot_steps_calories_combined(user, start_date, end_date):
             y=filtered_data["TotalSteps"],
             name="Steps",
             marker_color=step_colors,
-            hovertemplate="<b>Date:</b> %{x}<br><b>Steps:</b> %{y:,.0f}<extra></extra>"
+            hovertemplate="<b>Steps:</b> %{y:,.0f}<extra></extra>"
         ),
         secondary_y=False
     )
@@ -97,7 +96,7 @@ def plot_steps_calories_combined(user, start_date, end_date):
                 color=calorie_colors,
                 line=dict(width=2, color="#006166")
             ),
-            hovertemplate="<b>Date:</b> %{x}<br><b>Calories:</b> %{y:,.0f} kcal<extra></extra>"
+            hovertemplate="<b>Calories:</b> %{y:,.0f} kcal<extra></extra>"
         ),
         secondary_y=True
     )
@@ -1463,7 +1462,7 @@ def plot_active_hours_heatmap(user, start_date, end_date):
         coloraxis=dict(
             colorbar=dict(
                 title="Activity<br>Level",
-                titleside="right",
+                xanchor="right",
                 ticks="outside",
                 thickness=15,
             )
