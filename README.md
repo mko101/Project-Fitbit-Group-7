@@ -176,7 +176,7 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
 
 ### General insights: Creating dashboard by calling functions from plots_general_insights.py
-
+This module provides a general analysis of all users' fitness data, offering insights into overall activity patterns. It includes interactive scatterplots to visualize correlations between different variables and barcharts to helps identify monthly, weekly, and daily trends over a chosen period. The module features intuitive and interactive graphs, making it easy to explore Fitbit tracking data and understand users' activity behaviors.
 
 ### User Graphing Functions
 This module contains specialized visualization functions for analyzing individual user fitness data. It's designed to create detailed, interactive charts and dashboards to help understand personal activity patterns from Fitbit tracking data.
