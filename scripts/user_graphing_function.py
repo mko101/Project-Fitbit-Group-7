@@ -1242,7 +1242,7 @@ def plot_sleep_duration_trend(filtered_data, avg_sleep_duration):
         fig.add_hline(
             y=avg_sleep_duration,
             line_dash="dot",
-            line_color="#FF6B6B",
+            line_color="#005B8D",
             annotation_text=f"Average: {avg_sleep_duration:.1f}h",
             annotation_font_size=12,
             annotation_bgcolor="rgba(255,255,255,0.7)"
@@ -1260,16 +1260,17 @@ def plot_sleep_duration_trend(filtered_data, avg_sleep_duration):
         hovertemplate="<b>%{x|%b %d}</b><br>%{y:.1f} hours<extra></extra>"
     )
     
-    if filtered_data["TotalSleepHours"].isna().any():
-        fig.add_annotation(
-            xref="paper",
-            yref="paper",
-            x=0.5,
-            y=0.85,
-            text="Missing data points indicate days with no sleep records",
-            showarrow=False,
-            font=dict(color="#666666", size=10)
-        )
+    fig.add_annotation(
+    xref="paper",
+    yref="paper",
+    x=0.5,
+    y=-0.2,  # Moves text below the graph
+    text="Notes ： Missing data points indicate days with no sleep records",
+    showarrow=False,
+    font=dict(color="#666666", size=10),
+    align="center"
+)
+
     
     return fig
 
@@ -1324,12 +1325,20 @@ def plot_sleep_timeline(daily_stages, selected_date):
         color="Stage",
         color_discrete_map={
             "Asleep": "#CFEBEC",
-            "Restless": "#0083BD",
-            "Awake": "#006166"
+            "Restless": "#00B3BD",
+            "Awake": "#0095B2"
         },
-        title=f"Sleep Stages Timeline - {selected_date}"
+        title=f"Sleep Stages Timeline - {selected_date}",
+        hover_data={"start": True, "end": True}  # Ensure times are in hover data
     )
-    
+
+    fig.update_traces(
+        customdata=daily_stages[["start", "end"]].values,
+        hovertemplate="<b>Stage:</b> %{y}<br>"
+                      "<b>Start:</b> %{customdata[0]|%H:%M:%S}<br>"
+                      "<b>End:</b> %{customdata[1]|%H:%M:%S}"
+    )
+
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
         xaxis_title="Time",
@@ -1340,9 +1349,10 @@ def plot_sleep_timeline(daily_stages, selected_date):
         ),
         height=300,
         margin=dict(t=40),
-        legend=dict(orientation="h", y=1.1)
+        legend=dict(orientation="h", y=1.1),
+        hovermode="x unified"  # Ensure smooth hover tooltips
     )
-    
+
     return fig
 
 
