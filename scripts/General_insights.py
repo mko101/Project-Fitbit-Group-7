@@ -14,6 +14,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.sidebar.image("../images/logo.png")
+
+st.sidebar.page_link("General_insights.py", label="General Analysis", icon="📊")
+st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon="👤")
+st.sidebar.markdown("---")
+
+
 with st.sidebar:
     user = st.selectbox(
         "Select a user",
