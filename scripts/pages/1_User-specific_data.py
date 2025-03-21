@@ -19,8 +19,8 @@ st.set_page_config(
 
 st.sidebar.image("../images/logo.png")
 
-st.sidebar.page_link("General_insights.py", label="General Analysis", icon="📊")
-st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon="👤")
+st.sidebar.page_link("General_insights.py", label="General Analysis", icon=":material/analytics:")
+st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon=":material/person:")
 st.sidebar.markdown("---")
 
 def get_latest_weight_data(user):
