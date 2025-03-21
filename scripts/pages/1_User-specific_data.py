@@ -8,7 +8,6 @@ import datetime
 import part1
 import part3
 import user_graphing_function as ugf
-import Graphing_functions_for_dashboard as gf
 import plots_general_insights as plots
 
 st.set_page_config(
@@ -219,7 +218,7 @@ if st.session_state.user and start_date < end_date:
     if not filtered_data.empty:
         # Summary metrics
         avg_steps = int(filtered_data["TotalSteps"].mean()) 
-        avg_distance = round(filtered_data["TotalDistance"].mean(), 3)
+        avg_distance = round(filtered_data["TotalDistance"].mean(), 2)
         avg_calories = int(filtered_data["Calories"].mean())
         avg_active_min = int((filtered_data["VeryActiveMinutes"] + filtered_data["FairlyActiveMinutes"] + filtered_data["LightlyActiveMinutes"]).mean())
         avg_sedentary_min = int(filtered_data["SedentaryMinutes"].mean())
@@ -239,24 +238,59 @@ if st.session_state.user and start_date < end_date:
 
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Overviews", "Heart Rate", "Sleep Duration", "Calories", "Steps", "Intensity"])
 
+        # # Tab 1: Overview
+        # with tab1:
+        #     # First row: Steps & Calories combined chart (full width)
+        #     fig_combined = ugf.plot_steps_calories_combined(user, start_date, end_date)
+        #     if fig_combined:
+        #         st.plotly_chart(fig_combined, use_container_width=True)
+        #     else:
+        #         st.warning("No data available for the selected date range.")
+            
+        #     # Second row: Activity breakdown (centered)
+        #     st.markdown("<hr>", unsafe_allow_html=True)
+            
+        #     # Create a container with columns to center the pie chart
+        #     col1, col2, col3 = st.columns([1, 2, 1])
+            
+        #     with col2:
+        #         fig_activity = ugf.plot_activity_breakdown(user, start_date, end_date)
+        #         if fig_activity:
+        #             st.plotly_chart(fig_activity, use_container_width=True)
+        #         else:
+        #             st.warning("No activity data available for the selected date range.")
         
+        
+        
+        # Tab 1: Overview
         with tab1:
+            fig_combined = ugf.plot_steps_calories_combined(user, start_date, end_date)
+            if fig_combined:
+                st.plotly_chart(fig_combined, use_container_width=True)
+            else:
+                st.warning("No data available for the selected date range.")
+            
+            st.markdown("<hr>", unsafe_allow_html=True)
             col1, col2 = st.columns(2)
             
             with col1:
-                fig_combined = ugf.plot_steps_calories_combined(user, start_date, end_date)
-                if fig_combined:
-                    st.plotly_chart(fig_combined, use_container_width=True)
+                # Add the new Active Hours Heatmap
+                fig_active_hours = ugf.plot_active_hours_heatmap(user, start_date, end_date)
+                if fig_active_hours:
+                    st.plotly_chart(fig_active_hours, use_container_width=True)
                 else:
-                    st.warning("No data available for the selected date range.")
-
+                    st.warning("No hourly activity data available for the selected date range.")
+            
             with col2:
+                # Activity Breakdown pie chart
                 fig_activity = ugf.plot_activity_breakdown(user, start_date, end_date)
                 if fig_activity:
                     st.plotly_chart(fig_activity, use_container_width=True)
                 else:
                     st.warning("No activity data available for the selected date range.")
-            
+                    
+        
+
         # Tab 2: Heart Rate
         with tab2:
             hr_data = ugf.get_heart_rate_data(user, start_date, end_date)
@@ -317,16 +351,14 @@ if st.session_state.user and start_date < end_date:
                             
                             fig_daily_hr = ugf.plot_daily_heart_rate(user, selected_date)
                             st.plotly_chart(fig_daily_hr, use_container_width=True)
-                            
-                            st.markdown("""
-                            <div style="background-color: #CFEBEC; padding: 10px; border-radius: 5px;">
-                                <p style="margin: 0; color: #333;">
-                                    <b>Notes:</b> The line shows your heart rate throughout the day. 
-                                    Blue shaded areas indicate periods of elevated heart rate.
-                                    Dashed lines show your resting, average, and peak heart rates for the day.
-                                </p>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            with st.expander("Notes"):
+                                st.markdown("""
+                                    <p style="margin: 0; color: #333;">
+                                        The line shows your heart rate throughout the day. 
+                                        Blue shaded areas indicate periods of elevated heart rate.
+                                        Dashed lines show your resting, average, and peak heart rates for the day.
+                                    </p>
+                                    """, unsafe_allow_html=True)
                         else:
                             st.warning(f"No heart rate data available for {selected_date}.")
                     else:
@@ -474,16 +506,14 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Peak Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_calories, use_container_width=True)
-                            
-                            st.markdown("""
-                            <div style="background-color: #CFEBEC; padding: 10px; border-radius: 5px;">
-                                <p style="margin: 0; color: #333;">
-                                    <b>Notes:</b> The line shows your calorie burn throughout the day. 
-                                    Blue shaded areas indicate periods of elevated calorie burn.
-                                    Dashed lines show your average and peak calorie burn for the day.
-                                </p>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            with st.expander("Notes"):
+                                st.markdown("""
+                                    <p style="margin: 0; color: #333;">
+                                        The line shows your heart rate throughout the day. 
+                                        Blue shaded areas indicate periods of elevated heart rate.
+                                        Dashed lines show your resting, average, and peak heart rates for the day.
+                                    </p>
+                                    """, unsafe_allow_html=True)
                         else:
                             st.warning(f"No calories data available for {selected_date}.")
                     else:
@@ -561,16 +591,14 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Most Active Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_steps, use_container_width=True)
-                            
-                            st.markdown("""
-                            <div style="background-color: #CFEBEC; padding: 10px; border-radius: 5px;">
-                                <p style="margin: 0; color: #333;">
-                                    <b>Notes:</b> The line shows your steps throughout the day. 
-                                    Blue shaded areas indicate periods of higher activity.
-                                    Dashed lines show your average and peak step counts for the day.
-                                </p>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            with st.expander("Notes"):
+                                st.markdown("""
+                                    <p style="margin: 0; color: #333;">
+                                        The line shows your heart rate throughout the day. 
+                                        Blue shaded areas indicate periods of elevated heart rate.
+                                        Dashed lines show your resting, average, and peak heart rates for the day.
+                                    </p>
+                                    """, unsafe_allow_html=True)
                         else:
                             st.warning(f"No steps data available for {selected_date}.")
                     else:
@@ -648,16 +676,18 @@ if st.session_state.user and start_date < end_date:
                                 st.metric("Peak Hour", f"{max_hour}")
                             
                             st.plotly_chart(fig_daily_intensity, use_container_width=True)
-                    
-                    st.markdown("""
-                    <div style="background-color: #CFEBEC; padding: 10px; border-radius: 5px;">
-                        <p style="margin: 0; color: #333;">
-                            <b>Notes:</b> The line shows your activity intensity throughout the day. 
-                            Blue shaded areas indicate periods of higher intensity activity.
-                            Dashed lines show your average and peak intensity levels for the day.
-                        </p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                            with st.expander("Notes"):
+                                st.markdown("""
+                                    <p style="margin: 0; color: #333;">
+                                        The line shows your heart rate throughout the day. 
+                                        Blue shaded areas indicate periods of elevated heart rate.
+                                        Dashed lines show your resting, average, and peak heart rates for the day.
+                                    </p>
+                                    """, unsafe_allow_html=True)
+                        else:
+                            st.warning(f"No activity intensity data available for {selected_date}.")
+                    else:
+                        st.warning("No activity intensity data available for any specific day in the selected date range.")
             else:
                 # Single styled warning message
                 st.markdown(
@@ -668,7 +698,7 @@ if st.session_state.user and start_date < end_date:
                     text-align: center;
                     margin: 50px 0;">
                         <span style="color: #333; font-size: 16pt; font-weight: bold;">
-                            No Intensity data available for the selected date range.
+                            No activity intensity data available for the selected date range.
                         </span>
                     </div>
                     """,

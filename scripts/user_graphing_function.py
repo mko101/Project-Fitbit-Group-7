@@ -284,6 +284,7 @@ def plot_activity_breakdown(user, start_date, end_date):
     
     # Update layout
     fig.update_layout(
+        height=400,
         showlegend=True,
         legend=dict(
             orientation="h", 
@@ -1341,6 +1342,132 @@ def plot_sleep_timeline(daily_stages, selected_date):
         height=300,
         margin=dict(t=40),
         legend=dict(orientation="h", y=1.1)
+    )
+    
+    return fig
+
+
+def plot_active_hours_heatmap(user, start_date, end_date):
+    conn = sqlite3.connect('../data/fitbit_database.db')
+    
+    # Get hourly steps data
+    query = f"""
+    SELECT Id, ActivityHour, StepTotal
+    FROM hourly_steps
+    WHERE Id = '{user}'
+    """
+    
+    steps_data = pd.read_sql_query(query, conn)
+    
+    # Get hourly intensity data
+    query = f"""
+    SELECT Id, ActivityHour, TotalIntensity
+    FROM hourly_intensity
+    WHERE Id = '{user}'
+    """
+    
+    intensity_data = pd.read_sql_query(query, conn)
+    
+    conn.close()
+    
+    if steps_data.empty and intensity_data.empty:
+        return None
+    
+    # Process steps data
+    if not steps_data.empty:
+        steps_data["ActivityHour"] = pd.to_datetime(steps_data["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p", errors='coerce')
+        steps_data = steps_data[
+            (steps_data["ActivityHour"] >= pd.Timestamp(start_date)) & 
+            (steps_data["ActivityHour"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1))
+        ]
+        steps_data["Hour"] = steps_data["ActivityHour"].dt.hour
+        steps_data["DayOfWeek"] = steps_data["ActivityHour"].dt.dayofweek
+        
+        # Group by day of week and hour
+        steps_pivot = steps_data.groupby(["DayOfWeek", "Hour"])["StepTotal"].mean().reset_index()
+        steps_matrix = steps_pivot.pivot(index="DayOfWeek", columns="Hour", values="StepTotal").fillna(0)
+    else:
+        steps_matrix = pd.DataFrame()
+    
+    # Process intensity data
+    if not intensity_data.empty:
+        intensity_data["ActivityHour"] = pd.to_datetime(intensity_data["ActivityHour"], format="%m/%d/%Y %I:%M:%S %p", errors='coerce')
+        intensity_data = intensity_data[
+            (intensity_data["ActivityHour"] >= pd.Timestamp(start_date)) & 
+            (intensity_data["ActivityHour"] <= pd.Timestamp(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1))
+        ]
+        intensity_data["Hour"] = intensity_data["ActivityHour"].dt.hour
+        intensity_data["DayOfWeek"] = intensity_data["ActivityHour"].dt.dayofweek
+        
+        # Group by day of week and hour
+        intensity_pivot = intensity_data.groupby(["DayOfWeek", "Hour"])["TotalIntensity"].mean().reset_index()
+        intensity_matrix = intensity_pivot.pivot(index="DayOfWeek", columns="Hour", values="TotalIntensity").fillna(0)
+    else:
+        intensity_matrix = pd.DataFrame()
+    
+    # Combine data sources
+    if not steps_matrix.empty and not intensity_matrix.empty:
+        # Normalize
+        steps_norm = steps_matrix / steps_matrix.max().max() if steps_matrix.max().max() > 0 else steps_matrix
+        intensity_norm = intensity_matrix / intensity_matrix.max().max() if intensity_matrix.max().max() > 0 else intensity_matrix
+        
+        # Combine with equal weights
+        combined_matrix = (steps_norm + intensity_norm) / 2
+        data_matrix = combined_matrix
+        title = "Active Heatmap"
+    elif not steps_matrix.empty:
+        data_matrix = steps_matrix
+        title = "Active Heatmap"
+    elif not intensity_matrix.empty:
+        data_matrix = intensity_matrix
+        title = "Active Heatmap"
+    else:
+        return None
+    
+    for hour in range(24):
+        if hour not in data_matrix.columns:
+            data_matrix[hour] = 0
+    data_matrix = data_matrix.reindex(columns=sorted(data_matrix.columns))
+    
+    day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    data_matrix.index = [day_names[i] for i in sorted(data_matrix.index)]
+    
+    # Create heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=data_matrix.values,
+        x=[f'{hour:02d}:00' for hour in range(24)],
+        y=data_matrix.index,
+        colorscale=[
+            [0, '#CFEBEC'],      # Very light teal for low activity
+            [0.3, '#00B3BD'],    # Light teal for medium activity
+            [0.6, '#006166'],    # Dark teal for high activity
+            [1, '#005B8D']       # Blue for very high activity
+        ],
+        hovertemplate='<b>Day:</b> %{y}<br><b>Hour:</b> %{x}<br><b>Activity Level:</b> %{z:.1f}<extra></extra>'
+    ))
+    
+    fig.update_layout(
+        title=title,
+        height=400,
+        xaxis=dict(
+            title=None,
+            tickmode='array',
+            tickvals=[f'{hour:02d}:00' for hour in [0, 6, 12, 18, 23]],
+            ticktext=['12 AM', '6 AM', '12 PM', '6 PM', '11 PM']
+        ),
+        yaxis=dict(
+            title=None,
+            autorange='reversed'  # To have Monday at the top
+        ),
+        coloraxis_showscale=True,
+        coloraxis=dict(
+            colorbar=dict(
+                title="Activity<br>Level",
+                titleside="right",
+                ticks="outside",
+                thickness=15,
+            )
+        )
     )
     
     return fig
