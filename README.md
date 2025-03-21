@@ -2,21 +2,56 @@
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Data](#data)
+2. [Dependencies](#dependencies)
+3. [Data](#data)
     1. [daily_activity](#daily_activitycsv)
     2. [fitbit_database](#fitbit_databasedb)
     3. [weather_Chicago](#weather_chicagocsv)
-3. [Scripts](#scripts)
+4. [Scripts](#scripts)
     1. [main](#main)
     2. [part1](#part1)
     3. [part3](#part3)
     4. [part4](#part4)
+    5. [part5](#part-5-functions-to-retrieve-data-for-dashboard)
+    6. [Graphing functions for dashboard](#graphing-functions-for-dashboard-functions-to-create-graphs-in-dashboard)
+    7. [General insights dashboard](#general-insights-creating-dashboard-by-calling-functions-from-plots_general_insightspy)
+    8. [User Graphing functions for dashboard](#user-graphing-functions)
+    9. [User-specific data dashboard](#user-specific-data-dashboard)
 
 
 ## Introduction
 This project studies a dataset obtained from fitbits of 35 different respondence from amazon survey in 2016 that submited censored usage data. This library will provide tools to study various statistical analysis of the users.
 
-## File Structure
+## Dependencies
+
+### Core Requirements
+- **Python 3.8+**
+- **SQLite 3** 
+
+### Python Libraries
+
+#### Data Processing
+- **pandas** 
+- **numpy** 
+
+#### Visualization
+- **plotly** 
+  - plotly.express
+  - plotly.graph_objects
+  - plotly.subplots
+- **matplotlib**
+- **seaborn** 
+
+#### Dashboard
+- **streamlit**
+
+#### Analysis
+- **scipy** 
+- **statsmodels**
+
+#### Database
+- **sqlite3** - SQLite database interface
+
 
 
 ## Data
