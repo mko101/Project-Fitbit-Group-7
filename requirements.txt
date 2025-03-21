@@ -2,7 +2,6 @@ pandas
 matplotlib
 statsmodels
 seaborn
-sqlite3
 numpy
 scipy
 plotly
