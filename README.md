@@ -16,6 +16,9 @@
 ## Introduction
 This project studies a dataset obtained from fitbits of 35 different respondence from amazon survey in 2016 that submited censored usage data. This library will provide tools to study various statistical analysis of the users.
 
+## File Structure
+
+
 ## Data
 
 ### daily_activity.csv
@@ -78,10 +81,10 @@ Script `part3.py` contains functions that help explore the `fitbit_database.db` 
 * `resolve_missing_values_weight_log()` - fills in any missing `WeightKg` values and makes corrections to the database when needed. Additionally, it includes a query to remove the `Fat` column from the table, as only two values were provided in that column, and it's challenging to fill in this data without knowing the gender and age. It's recommended to run this query once, before using data from this table. Alternatively, the code offers a method to fill in the missing `Fat` values, but this approach is not advised.
 * `check_correlation_weight_calories()` - analyzes the correlation between `Calories` and `Weight`. It merges daily calories data from daily_activity with weight from weight_logs, forward-fills missing weights, and visualizes the relationship using a scatter plot (in `plot_scatterplot_calculate_correlation(merged_df)`). It also calculates and prints the overall correlation.
 
-## Cleaning Fitbit database: MAYBE ADD SOME MORE IF WE ARE GONNA USE CLEANED DATABASE
+### Cleaning Fitbit database: MAYBE ADD SOME MORE IF WE ARE GONNA USE CLEANED DATABASE
 * `data_cleaning()` - This function cleans and processes Fitbit activity data. It removes duplicate entries, filters out invalid records (such as days with no activity or incomplete data), and ensures meaningful activity tracking. After cleaning, it transfers the refined data, along with other unmodified tables, to a new database (cleaned_fitbit.db). 
 
-## Part 5: Functions to retrieve data for dashboard
+### Part 5: Functions to retrieve data for dashboard
 * `retrieve_average(category, dates)` - returns average for one of given categories with given date list: `total_user` , `TotalSteps`, `Calories`, `TotalDistance`, `ActiveMinutes`, `SedentaryMinutes`. 
 * `activity_sum_data(dates)` - returns a dataframe with two columns one with the type of activity (Very, Fairly, Lightly Active or Sedentary) and average minutes per day for given period passed as list.
 * `average_steps_per_hour(dates)` - returns a dataframe with columns Hour and mean of TotalSteps per hour for given period passed as list.
@@ -108,7 +111,7 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `average_steps_calories_per_period(dates)` - this function retrieves daily total steps and calories data from the database, filters it based on the given dates, and calculates the average total steps walked for period returning the final DataFrame.
 * `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
 
-## Graphing functions for dashboard: Functions to create graphs in dashboard
+### Graphing functions for dashboard: Functions to create graphs in dashboard
 * `create_metric_block(col, title, value, unit="", bg_color="#CFEBEC")` - this function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
 * `create_correlation_block(title, value, unit="", bg_color="#CFEBEC")` - similar to `create_metric_block()`, this function creates a block with a specified color, title, value, and optionally a unit, but with slightly smaller text size.
 * `is_empty_dataframe(df)` - checks if the given dataframe is empty, and if so, displays a colored text block saying, "Sorry, no data is available for the selected date range in this graph."
@@ -138,4 +141,114 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `scatterplot_heart_rate_sleep_value(dates)` - this function generates the scatterplot between heart rate and sleep value for the given dates. NOT USED FOR NOW
 * `lineplot_heart_rate_over_night(dates)` - this function generates a line plot displaying the average heart rate per hour over night for the given dates. NOT USED FOR NOW
 
-## General insights: Creating dashboard by calling functions from plots_general_insights.py
+### General insights: Creating dashboard by calling functions from plots_general_insights.py
+
+
+### User Graphing Functions
+This module contains specialized visualization functions for analyzing individual user fitness data. It's designed to create detailed, interactive charts and dashboards to help understand personal activity patterns from Fitbit tracking data.
+
+#### Data Retrieval
+* `get_user_data(user, start_date, end_date)` - Retrieves filtered data for a specific user within a date range
+* `get_all_users_data(start_date, end_date)` - Retrieves filtered data for all users within a date range
+* `get_user_data_with_sleep(user, start_date, end_date)` - Retrieves user data with sleep metrics incorporated
+* `get_heart_rate_data(user, start_date, end_date)` - Retrieves heart rate data from the database
+* `get_heart_rate_for_day(user, selected_date)` - Retrieves detailed heart rate data for a specific day
+* `get_hourly_calories_data(user, start_date, end_date)` - Retrieves hourly calorie burn data
+* `get_calories_for_day(user, selected_date)` - Retrieves detailed calorie data for a specific day
+* `get_hourly_steps_data(user, start_date, end_date)` - Retrieves hourly step count data
+* `get_steps_for_day(user, selected_date)` - Retrieves detailed step data for a specific day
+* `get_hourly_intensity_data(user, start_date, end_date)` - Retrieves hourly activity intensity data
+* `get_intensity_for_day(user, selected_date)` - Retrieves detailed intensity data for a specific day
+* `get_sleep_stage_data(user, start_date, end_date)` - Retrieves sleep stage information
+
+#### Step & Calorie Analysis
+* `plot_steps_calories_combined(user, start_date, end_date)` - Creates a dual-axis chart showing steps and calories with user average comparison
+* `plot_daily_steps(user, start_date, end_date)` - Bar chart of daily step counts
+* `plot_daily_calories(user, start_date, end_date)` - Bar chart of daily calorie burn
+* `plot_hourly_steps(user, start_date, end_date)` - Line chart showing step patterns throughout the day
+* `plot_hourly_calories(user, start_date, end_date)` - Line chart showing calorie burn patterns by hour
+* `plot_daily_steps_pie(user, start_date, end_date)` - Pie chart breaking down steps by time of day
+* `plot_daily_calories_pie(user, start_date, end_date)` - Pie chart of calories burned by time of day
+* `plot_daily_steps_chart(user, selected_date)` - Detailed analysis of steps for a specific day
+* `plot_daily_calories_chart(user, selected_date)` - Detailed analysis of calorie burn for a specific day
+
+#### Activity Analysis
+* `plot_activity_breakdown(user, start_date, end_date)` - Donut chart showing proportion of activity levels
+* `plot_hourly_intensity(user, start_date, end_date)` - Line chart of activity intensity by hour
+* `plot_daily_intensity_pie(user, start_date, end_date)` - Pie chart showing distribution of activity intensity
+* `plot_daily_intensity_chart(user, selected_date)` - Detailed view of activity intensity for a specific day
+* `plot_active_hours_heatmap(user, start_date, end_date)` - Heatmap visualization of active hours by day of week
+
+#### Heart Rate Analysis
+* `plot_heart_rate_trends(user, start_date, end_date)` - Line chart of heart rate patterns by hour
+* `plot_heart_rate_zones(user, start_date, end_date)` - Pie chart showing time spent in different heart rate zones
+* `plot_daily_heart_rate(user, selected_date)` - Detailed heart rate chart for a specific day
+
+#### Sleep Analysis
+
+...
+
+
+### User-specific Data Dashboard
+
+This Streamlit dashboard provides personalized fitness insights for individual Fitbit users. It allows for detailed exploration of activity patterns, heart rate, sleep, calories, steps, and exercise intensity through interactive visualizations and metrics.
+
+#### User Selection and Data Filtering
+- User ID selection from dropdown menu
+- Date range selection with appropriate validation
+- Automatic filtering of data based on user selection and date range
+
+#### User Profile Information
+- Displays user category (Heavy, Moderate, or Light user)
+- Shows latest weight and BMI measurements when available
+
+#### Summary Metrics
+Provides at-a-glance performance metrics for the selected time period:
+- Average daily steps
+- Average daily distance (km)
+- Average daily calories burned
+- Average daily active minutes
+- Average daily sedentary minutes
+- Average sleep duration (when available)
+
+#### Interactive Dashboard Tabs
+
+- Combined steps and calories visualization with comparison to overall average
+- Activity breakdown by type (Very Active, Fairly Active, Lightly Active, Sedentary)
+- Active hours heatmap showing patterns across days of the week
+
+* Heart Rate
+- Hourly heart rate trend analysis
+- Heart rate zone distribution (Rest, Active, Intense)
+- Detailed daily heart rate analysis with:
+  - Interactive date selection
+  - Average, maximum, and resting heart rate metrics
+  - Timeline visualization with highlighted active periods
+
+* Sleep Duration
+- Sleep duration trend over the selected period
+- Sleep stage distribution (Asleep, Restless, Awake)
+- Daily sleep details with timeline visualization
+
+* Calories
+- Hourly calorie burn patterns throughout the day
+- Time-of-day calorie distribution (Morning, Afternoon, Evening, Night)
+- Detailed daily calorie analysis with:
+  - Total calories burned
+  - Maximum hourly calorie burn
+  - Peak calorie-burning hour
+
+* Steps
+- Hourly step patterns throughout the day
+- Time-of-day step distribution
+- Detailed daily step analysis with:
+  - Total steps
+  - Maximum hourly steps
+  - Most active hour
+
+* Intensity
+- Hourly intensity patterns
+- Intensity level distribution (Low, Medium, High)
+- Detailed daily intensity analysis with average and peak metrics
+
+
