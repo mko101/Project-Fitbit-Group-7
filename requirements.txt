@@ -4,9 +4,6 @@ statsmodels
 seaborn
 sqlite3
 numpy
-requests
-json
-random
 scipy
 plotly
 streamlit
