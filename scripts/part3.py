@@ -8,11 +8,11 @@ import statsmodels.api as sm
 from scipy import stats
 
 # connect to database
-con = sqlite3.connect("../data/cleaned_fitbit.db")
+con = sqlite3.connect("data/cleaned_fitbit.db")
 cur = con.cursor()
 
 # read the CSV file
-data = pd.read_csv("../data/daily_activity.csv", header=0)
+data = pd.read_csv("data/daily_activity.csv", header=0)
 
 # converting the data to the type datetime
 data["ActivityDate"] = pd.to_datetime(data["ActivityDate"], format='%m/%d/%Y')
@@ -170,7 +170,7 @@ def run_analysis(data_type):
 # Step 3: compute the sleep duration for each moment of sleep of an individual
 def compute_sleep_duration(user_id):
     # Open a new database connection for each call
-    conn = sqlite3.connect("../data/cleaned_fitbit.db")  
+    conn = sqlite3.connect("data/cleaned_fitbit.db")  
     cur = conn.cursor()
 
     # Fetch sleep data
@@ -198,7 +198,7 @@ def compute_sleep_duration(user_id):
 # print(compute_sleep_duration(1503960366))
 
 def compute_sleep_on_day(user_id):
-    con = sqlite3.connect("../data/cleaned_fitbit.db")
+    con = sqlite3.connect("data/cleaned_fitbit.db")
     cur = con.cursor()
 
     if user_id: 
@@ -224,7 +224,7 @@ def compute_sleep_on_day(user_id):
 def compare_activity_and_sleep(user_id, dates):
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
 
-    con = sqlite3.connect("../data/cleaned_fitbit.db")
+    con = sqlite3.connect("data/cleaned_fitbit.db")
     cur = con.cursor()
 
     # gets data from the database and adds it to a dataframe
@@ -287,7 +287,7 @@ def compare_sedentary_activity_and_sleep(dates):
 
     df_sleep = compute_sleep_on_day(None)
 
-    con = sqlite3.connect("../data/cleaned_fitbit.db")
+    con = sqlite3.connect("data/cleaned_fitbit.db")
     cur = con.cursor()
 
     cur.execute("SELECT Id, ActivityDate, SedentaryMinutes FROM daily_activity")
@@ -492,7 +492,7 @@ def visualize_weather_activity():
     # df_weather["datetime"] = pd.to_datetime(df_weather["datetime"])
     # df_filtered_weather = df_weather[df_weather["datetime"].isin(unique_dates)]
     
-    weather_file = "../data/weather_Chicago.csv"
+    weather_file = "data/weather_Chicago.csv"
     df_weather = pd.read_csv(weather_file)
     df_weather["datetime"] = pd.to_datetime(df_weather["datetime"])
     df_filtered_weather = df_weather[df_weather["datetime"].isin(unique_dates)]

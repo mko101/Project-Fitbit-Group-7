@@ -12,19 +12,19 @@ import plots_general_insights as plots
 
 st.set_page_config(
     page_title="Fitbit Dashboard",
-    page_icon="../images/logo.png",
+    page_icon="images/logo.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.sidebar.image("../images/logo.png")
+st.sidebar.image("images/logo.png")
 
 st.sidebar.page_link("General_insights.py", label="General Analysis", icon=":material/analytics:")
 st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon=":material/person:")
 st.sidebar.markdown("---")
 
 def get_latest_weight_data(user):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT WeightKg, BMI, Date

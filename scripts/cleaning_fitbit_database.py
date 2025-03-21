@@ -9,8 +9,8 @@ import statsmodels.api as sm
 
 def data_cleaning():
     # Paths to the databases
-    original_db_path = "../data/fitbit_database.db"
-    cleaned_db_path = "../data/cleaned_fitbit.db"
+    original_db_path = "data/fitbit_database.db"
+    cleaned_db_path = "data/cleaned_fitbit.db"
 
     # Connect to the original database
     con = sqlite3.connect(original_db_path)

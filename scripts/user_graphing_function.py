@@ -339,7 +339,7 @@ def plot_sleep_duration(user, start_date, end_date):
     return fig_sleep
 
 def get_heart_rate_data(user, start_date, end_date):
-    conn = sqlite3.connect('../data/fitbit_database.db') 
+    conn = sqlite3.connect('data/fitbit_database.db') 
     cur = conn.cursor()
     
     start_date = pd.Timestamp(start_date)
@@ -483,7 +483,7 @@ def plot_heart_rate_zones(user, start_date, end_date):
     return fig
 
 def get_heart_rate_for_day(user, selected_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     selected_date = pd.Timestamp(selected_date)
     
     # Query all heart rate data for this user without date filtering or ordering
@@ -582,7 +582,7 @@ def plot_daily_heart_rate(user, selected_date):
 
 
 def get_hourly_calories_data(user, start_date, end_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, Calories
@@ -605,7 +605,7 @@ def get_hourly_calories_data(user, start_date, end_date):
     return filtered_data
 
 def get_calories_for_day(user, selected_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, Calories
@@ -785,7 +785,7 @@ def plot_daily_calories_chart(user, selected_date):
 
 
 def get_hourly_steps_data(user, start_date, end_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, StepTotal
@@ -808,7 +808,7 @@ def get_hourly_steps_data(user, start_date, end_date):
     return filtered_data
 
 def get_steps_for_day(user, selected_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, StepTotal
@@ -988,7 +988,7 @@ def plot_daily_steps_chart(user, selected_date):
     return fig, total_steps, max_steps, max_hour_formatted
 
 def get_hourly_intensity_data(user, start_date, end_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, TotalIntensity, AverageIntensity
@@ -1010,7 +1010,7 @@ def get_hourly_intensity_data(user, start_date, end_date):
     return filtered_data
 
 def get_intensity_for_day(user, selected_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     query = f"""
     SELECT Id, ActivityHour, TotalIntensity, AverageIntensity
@@ -1195,7 +1195,7 @@ def plot_daily_intensity_chart(user, selected_date):
     return fig, avg_intensity, max_intensity, max_hour_formatted
 
 def get_sleep_stage_data(user, start_date, end_date):
-    conn = sqlite3.connect("../data/fitbit_database.db")
+    conn = sqlite3.connect("data/fitbit_database.db")
     try:
         query = f"SELECT date, value FROM minute_sleep WHERE Id = {user} ORDER BY date;"
         sleep_stage_data = pd.read_sql(query, conn)
@@ -1357,7 +1357,7 @@ def plot_sleep_timeline(daily_stages, selected_date):
 
 
 def plot_active_hours_heatmap(user, start_date, end_date):
-    conn = sqlite3.connect('../data/fitbit_database.db')
+    conn = sqlite3.connect('data/fitbit_database.db')
     
     # Get hourly steps data
     query = f"""
