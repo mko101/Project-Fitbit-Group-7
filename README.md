@@ -50,7 +50,7 @@ This project studies a dataset obtained from fitbits of 35 different respondence
 - **statsmodels**
 
 #### Database
-- **sqlite3** - SQLite database interface
+- **sqlite3**
 
 
 
