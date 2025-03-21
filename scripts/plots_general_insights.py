@@ -936,7 +936,7 @@ def plot_active_minutes_bar_chart_per_day(dates):
 
     return fig
 
-def bar_chart_workout_frequency_for_week(dates):
+def bar_chart_total_workout_frequency_for_period(dates):
     data_avr = part5.workout_frequency_per_period(dates)
     max_distance = data_avr["WorkoutFrequency"].max()
     data_avr["Color"] = data_avr["WorkoutFrequency"].apply(lambda x: "#0095B2" if x == max_distance else "#8bc5d5")
@@ -967,4 +967,115 @@ def bar_chart_workout_frequency_for_week(dates):
         hovertemplate="<b>Day of week:</b> %{x}<br><b> Workout Frequency:</b> %{y:.2f} % <extra></extra>",
     )
 
+    return fig
+
+def plot_steps_calories_combined_general(dates):
+    # Get user data
+    filtered_data = part5.average_steps_calories_per_period(dates)
+    
+    if filtered_data.empty:
+        return None
+    
+    max_steps_day = filtered_data.loc[filtered_data["TotalSteps"].idxmax(), "ActivityDate"]
+    max_calories_day = filtered_data.loc[filtered_data["Calories"].idxmax(), "ActivityDate"]
+    
+    step_colors = ['#00B3BD' if date == max_steps_day else '#CFEBEC' for date in filtered_data["ActivityDate"]]
+    calorie_colors = ['#005B8D' if date == max_calories_day else '#006166' for date in filtered_data["ActivityDate"]]
+    
+    # Create subplot with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    # Add steps as bars on primary y-axis
+    fig.add_trace(
+        go.Bar(
+            x=filtered_data["ActivityDate"],
+            y=filtered_data["TotalSteps"],
+            name="Steps",
+            marker_color=step_colors,
+            hovertemplate="<b>Steps:</b> %{y:,.0f}<extra></extra>"
+        ),
+        secondary_y=False
+    )
+    
+
+        # Calculate overall average steps across all users and all dates
+    overall_avg_steps = part5.retrieve_average("TotalSteps", dates)
+        
+        # Create a horizontal line at the overall average steps
+    fig.add_trace(
+        go.Scatter(
+            x=[filtered_data["ActivityDate"].min(), filtered_data["ActivityDate"].max()],
+            y=[overall_avg_steps, overall_avg_steps],
+            name="Avg Steps (All Users)",
+            mode="lines",
+            line=dict(
+                color="#005B8D", 
+                width=2,
+                dash="dash"
+                ),
+            hovertemplate="<b>Avg Steps (All Users):</b> %{y:,.0f}<extra></extra>"
+        ),
+        secondary_y=False
+    )
+    
+    # Add calories as line on secondary y-axis
+    fig.add_trace(
+        go.Scatter(
+            x=filtered_data["ActivityDate"],
+            y=filtered_data["Calories"],
+            name="Calories",
+            mode="lines+markers",
+            line=dict(color="#006166", width=3),
+            marker=dict(
+                size=8,
+                color=calorie_colors,
+                line=dict(width=2, color="#006166")
+            ),
+            hovertemplate="<b>Calories:</b> %{y:,.0f} kcal<extra></extra>"
+        ),
+        secondary_y=True
+    )
+    
+    # Set chart title and axis labels
+    fig.update_layout(
+        title="Average Daily Steps and Calories per Period",
+        hovermode="x unified",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        xaxis=dict(
+            tickangle=-45,
+            title=None,
+            gridcolor="#f0f0f0"
+        ),
+        bargap=0.3,
+        plot_bgcolor="white"
+    )
+    
+    # Set y-axes titles and ranges
+    fig.update_yaxes(
+        title_text="Steps",
+        secondary_y=False,
+        gridcolor="#f0f0f0",
+        title=None
+    )
+    
+    fig.update_yaxes(
+        title_text="Calories (kcal)",
+        secondary_y=True,
+        gridcolor="#f0f0f0",
+        title=None
+    )
+    
+    # Automatically set ranges to start from 0
+    max_steps = filtered_data["TotalSteps"].max() * 1.1  # Add 10% padding
+    max_calories = filtered_data["Calories"].max() * 1.1  # Add 10% padding
+    
+    fig.update_yaxes(range=[0, max_steps], secondary_y=False)
+    fig.update_yaxes(range=[0, max_calories], secondary_y=True)
+    
     return fig

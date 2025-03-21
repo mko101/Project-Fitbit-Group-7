@@ -76,7 +76,7 @@ It is given that all participants in the sample live in Chicago. Fitbit data col
 This file contains hourly weather data for Chicago, covering the period from 2016-03-12 to 2016-04-12. It includes detailed information on various weather factors such as temperature, feels-like temperature, humidity, precipitation, snow, snow depth, and conditions, among others. The data was sourced from [visualcrossing](https://www.visualcrossing.com/weather-query-builder/).
 
 ### cleaned_fitbit.db
-
+The cleaned Fitbit database is created from the original dataset by removing duplicates, filtering out invalid records, and ensuring meaningful activity tracking. Entries with no recorded activity, incomplete data (possibly due to device battery depletion), or inconsistencies are excluded. This process enhances the accuracy of average values and correlations, making the data more reliable for analysis. The cleaning process is implemented in cleaning_fitbit_database.py. For the General Analysis the cleaned database_fitbit.db is used.
 
 ## Scripts
 
@@ -96,8 +96,6 @@ Script `part1.py` contains functions that help explore the `daily_activity.csv` 
 * `plot_activity_pie_chart()` - visualizes the proportion of time spent in different activity levels (Very Active, Fairly Active, Lightly Active, and Sedentary) using a pie chart. It calculates the total minutes for each activity category and displays their relative distribution as percentages.
 * `plot_activity_pie_chart_only_active_minutes()` - visualizes the proportion of time spent in different active levels (Very Active, Fairly Active, Lightly Active) using a pie chart.
 
-REMEMBER TO MENTION OUTLIERS of the data o steps 2000 calories
-
 ### Part 3: Interacting with the database
 Script `part3.py` contains functions that help explore the `fitbit_database.db` database with computations and visualizations.
 * `create_new_dataframe()` - creates, displays, and returns a new DataFrame with two columns: "Id" (unique user IDs) and "Class" (user category: Heavy, Moderate, or Light). The classification is based on how frequently each user appears in the original CSV file "daily_activity.csv". The resulting DataFrame is sorted in descending order, from Heavy to Light users.
@@ -116,7 +114,7 @@ Script `part3.py` contains functions that help explore the `fitbit_database.db` 
 * `resolve_missing_values_weight_log()` - fills in any missing `WeightKg` values and makes corrections to the database when needed. Additionally, it includes a query to remove the `Fat` column from the table, as only two values were provided in that column, and it's challenging to fill in this data without knowing the gender and age. It's recommended to run this query once, before using data from this table. Alternatively, the code offers a method to fill in the missing `Fat` values, but this approach is not advised.
 * `check_correlation_weight_calories()` - analyzes the correlation between `Calories` and `Weight`. It merges daily calories data from daily_activity with weight from weight_logs, forward-fills missing weights, and visualizes the relationship using a scatter plot (in `plot_scatterplot_calculate_correlation(merged_df)`). It also calculates and prints the overall correlation.
 
-### Cleaning Fitbit database: MAYBE ADD SOME MORE IF WE ARE GONNA USE CLEANED DATABASE
+### Cleaning Fitbit database:
 * `data_cleaning()` - This function cleans and processes Fitbit activity data. It removes duplicate entries, filters out invalid records (such as days with no activity or incomplete data), and ensures meaningful activity tracking. After cleaning, it transfers the refined data, along with other unmodified tables, to a new database (cleaned_fitbit.db). 
 
 ### Part 5: Functions to retrieve data for dashboard
@@ -142,9 +140,9 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `categorized_weight_data()` - returns a dataframe containing users' weight data, along with an additional column, `CategoryWeight`, in which each user's weight is categorized into one of the following ranges: 50-70kg, 70-90kg, 90-110kg, or 110-130kg.
 * `sleep_data(dates)` - returns a dataframe containing hourly sleep information for users, where the minutes asleep in each hour are calculated based on the count of minutes recorded as asleep. If no sleep is recorded for a particular hour but the user has other data for the same date, the minutes asleep for that hour will be assumed to be zero.
 * `create_dataframe_scatterplot_sleep(variable, dates)` - returns a dataframe containing the total minutes a user slept on a specified date, calculated by counting all minutes recorded as asleep. It also includes either the total number of steps the user took that day or the total number of calories burned, depending on whether `Steps` or `Calories` is passed as the variable. This information is provided for the dates specified in the list passed to the dates variable.
-* `average_workout_frequency_per_week(data)` - 
+* `workout_frequency_per_period(data)` - this function retrieves the daily activity, total active and fairly active minutes from the database. It is assumed that workout is made by user if he has either very active minutes or fairly active minutes value more than zero.  Function returns dataframe the total number of workouts per given period for all users.
 * `average_steps_calories_per_period(dates)` - this function retrieves daily total steps and calories data from the database, filters it based on the given dates, and calculates the average total steps walked for period returning the final DataFrame.
-* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
+
 
 ### Graphing functions for dashboard: Functions to create graphs in dashboard
 * `create_metric_block(col, title, value, unit="", bg_color="#CFEBEC")` - this function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
@@ -172,9 +170,10 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `bar_chart_average_steps_per_week(dates)` - this function generates a bar chart displaying the average steps taken per day per week for the given dates. It highlights the most active day with a distinct color.
 * `bar_chart_average_calories_per_day_for_week(dates)` - this function generates a bar chart displaying the average calories burned per day per week for the given dates. It highlights the most active day with a distinct color. 
 * `plot_active_minutes_bar_chart_per_day(dates)` - this function generates a bar chart displaying the average different type of active minutes per day per week for the given dates. It highlights the most active day with a distinct color. 
-* `bar_chart_workout_frequency_for_week(dates)` - 
+* `bar_chart_total_workout_frequency_for_period(dates)` - this function plots the barchart about the total workout frequency during the given period. 
 * `scatterplot_heart_rate_sleep_value(dates)` - this function generates the scatterplot between heart rate and sleep value for the given dates. NOT USED FOR NOW
 * `lineplot_heart_rate_over_night(dates)` - this function generates a line plot displaying the average heart rate per hour over night for the given dates. NOT USED FOR NOW
+* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
 
 ### General insights: Creating dashboard by calling functions from plots_general_insights.py
 
