@@ -43,6 +43,7 @@ with st.sidebar:
             dates = pd.date_range(start_date, end_date, freq='d').strftime("%m/%d/%Y")
             
 if start_date <= end_date:
+    st.markdown("<h3 style='text-align: left; margin-top: -40px;'>Fitbit Data Analysis</h3>", unsafe_allow_html=True)
     # Row of average metrics
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
@@ -63,7 +64,7 @@ if start_date <= end_date:
     plots.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
     st.markdown("</br>", unsafe_allow_html=True)
-    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Statistics", "Other"])
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Statistics", "Correlations", "Other"])
 
     # Period graphs
     with tab0:
@@ -207,9 +208,27 @@ if start_date <= end_date:
         fig, data = plots.plot_boxplot("SedentaryMinutes", "Sedentary Minutes", dates)
         st.plotly_chart(fig, use_container_width=True)
         plots.get_stats(data, "SedentaryMinutes", 0, "min")
+    
+    # Correlations
+    with tab6:
+        with st.popover("Correlation explained"):
+            st.write("Correlation is a measure of how two variables are related to each other, with values ranging from -1 to 1. If the correlation is 1, it means the two variables move together perfectly in the same direction. If the correlation is -1, the variables move in exactly opposite directions. A correlation of 0 means there's no clear connection between them.")
+          
+        col1, col2 = st.columns(2)
+        with col1:
+            fig, corr = plots.scatterplot_heart_rate_intensityvity(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
+        
+        with col2:
+            fig, corr = plots.scatterplot_calories_and_active_minutes(dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.create_correlation_block("Correlation coefficient:", corr, "")
+
+        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)
 
     # Other insights
-    with tab6:
+    with tab7:
         col1, col2 = st.columns(2)
         
         with col1:
@@ -227,17 +246,6 @@ if start_date <= end_date:
 
         with col2: 
             st.plotly_chart(plots.bar_chart_total_workout_frequency_for_period(dates), use_container_width=True)
+            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
 
-        col1, col2 = st.columns(2)
 
-        with col1:
-            fig, corr = plots.scatterplot_heart_rate_intensityvity(dates)
-            st.plotly_chart(fig, use_container_width=True)
-            plots.create_correlation_block("Correlation coefficient:", corr, "")
-        
-        with col2:
-            fig, corr = plots.scatterplot_calories_and_active_minutes(dates)
-            st.plotly_chart(fig, use_container_width=True)
-            plots.create_correlation_block("Correlation coefficient:", corr, "")
-
-        st.plotly_chart(plots.plot_active_minutes_active_distance(dates), use_container_width=True)

@@ -459,7 +459,7 @@ def bar_chart_daily_intensity(dates):
         hourly_data, 
         x="HourFormatted",
         y="TotalIntensity",
-        title="Average Total Intensity Per Hour",
+        title="Average Intensity Per Hour",
         color="Color",
         color_discrete_map="identity",
         category_orders={"HourFormatted": [f"{h}:00" for h in sorted(hourly_data['Hour'].unique())]}  # Ensure correct order
@@ -643,7 +643,7 @@ def bar_chart_weekly_sleep(dates):
         weekly_data, 
         x="DayFormatted",
         y="TotalMinutesAsleep",
-        title="Average Total Minutes Asleep Per Day of the Week",
+        title="Average Minutes Asleep Per Day of the Week",
         color="Color",
         color_discrete_map="identity",
         category_orders={"DayFormatted": [f"{h}:00" for h in sorted(weekly_data["Day"].unique())]}  # Ensure correct order
@@ -798,7 +798,7 @@ def bar_chart_average_distance_per_week(dates):
         total_distance_avr, 
         x="DayOfWeek", 
         y="TotalDistance",
-        title="Average Total Distance Per Day of the Week",
+        title="Average Distance Per Day of the Week",
         color="Color",
         color_discrete_map="identity"
     )
@@ -831,7 +831,7 @@ def bar_chart_average_steps_per_week(dates):
         data_avr, 
         x="DayOfWeek", 
         y="TotalSteps",
-        title="Average Total Steps Per Day of the Week",
+        title="Average Steps Per Day of the Week",
         color="Color",
         color_discrete_map="identity"
     )
@@ -864,7 +864,7 @@ def bar_chart_average_calories_per_day_for_week(dates):
         data_avr, 
         x="DayOfWeek", 
         y="Calories",
-        title="Average Total Calories Per Day of the Week",
+        title="Average Burned Calories Per Day of the Week",
         color="Color",
         color_discrete_map="identity"
     )
@@ -909,7 +909,7 @@ def plot_active_minutes_bar_chart_per_day(dates):
         x="DayOfWeek", 
         y="Minutes", 
         color="ActivityLevel",
-        title="Average Total Active Minutes Per Day of the Week",
+        title="Average Active Minutes Per Day of the Week",
         barmode="stack", 
         color_discrete_map=color_map
     )
@@ -948,7 +948,7 @@ def bar_chart_total_workout_frequency_for_period(dates):
         data_avr, 
         x="DayOfWeek", 
         y="WorkoutFrequency",
-        title="Workout Frequency per Day of the Week",
+        title="Total Workout Frequency per Day of the Week",
         color="Color",
         color_discrete_map="identity"
     )
@@ -965,7 +965,7 @@ def bar_chart_total_workout_frequency_for_period(dates):
     )
 
     fig.update_traces(
-        hovertemplate="<b>Day of week:</b> %{x}<br><b> Workout Frequency:</b> %{y:.2f} % <extra></extra>",
+        hovertemplate="<b>Day of week:</b> %{x}<br><b> Total Workouts:</b> %{y:.0f} <extra></extra>",
     )
 
     return fig
