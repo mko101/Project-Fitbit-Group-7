@@ -1422,13 +1422,13 @@ def plot_active_hours_heatmap(user, start_date, end_date):
         # Combine with equal weights
         combined_matrix = (steps_norm + intensity_norm) / 2
         data_matrix = combined_matrix
-        title = "Active Heatmap"
+        title = "Activity Heatmap"
     elif not steps_matrix.empty:
         data_matrix = steps_matrix
-        title = "Active Heatmap"
+        title = "Activity Heatmap"
     elif not intensity_matrix.empty:
         data_matrix = intensity_matrix
-        title = "Active Heatmap"
+        title = "Activity Heatmap"
     else:
         return None
     

@@ -395,11 +395,15 @@ if st.session_state.user and start_date < end_date:
                 if len(sleep_dates) > 0:
                     col1, col2 = st.columns([2, 1])
                     with col1:
-                        selected_date = st.selectbox(
-                            "Select Date",
-                            options=sorted(sleep_dates, reverse=True),
-                            format_func=lambda x: x.strftime("%Y-%m-%d"),
-                            key="sleep_date"
+                        available_sleep_dates = sorted(sleep_dates)
+                        default_date = max(available_sleep_dates)
+                        
+                        selected_date = st.date_input(
+                            "Select a date with sleep data:",
+                            value=default_date,
+                            min_value=min(available_sleep_dates),
+                            max_value=max(available_sleep_dates),
+                            key="sleep_date_calendar"
                         )
                     
                     daily_data = filtered_data[filtered_data["ActivityDate"].dt.date == selected_date]
@@ -415,7 +419,20 @@ if st.session_state.user and start_date < end_date:
                             fig_timeline = ugf.plot_sleep_timeline(daily_stages, selected_date)
                             st.plotly_chart(fig_timeline, use_container_width=True)
                         else:
-                            st.warning(f"No stage data available for {selected_date}")
+                            st.markdown(
+                                f"""
+                                <div style="background-color: #CFEBEC; 
+                                padding: 10px; 
+                                border-radius: 5px; 
+                                text-align: center;
+                                margin: 10px 0;">
+                                    <span style="color: #006166; font-weight: 500;">
+                                        No stage data available for {selected_date}
+                                    </span>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
                     else:
                         st.warning("No sleep stage data available")
             else:
