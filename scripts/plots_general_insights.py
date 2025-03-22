@@ -1097,12 +1097,22 @@ def plot_boxplot(column, label, dates):
     if column == "TotalActiveMinutes":
         filtered_data["TotalActiveMinutes"] = (filtered_data["VeryActiveMinutes"] + filtered_data["FairlyActiveMinutes"] + filtered_data["LightlyActiveMinutes"])
 
+    median = filtered_data.loc[:, column].median()
+    lower_quartile = filtered_data.loc[:, column].quantile(0.25)
+    upper_quartile = filtered_data.loc[:, column].quantile(0.75)
+
     fig = px.box(filtered_data, x=filtered_data[column])
 
     fig.update_traces(
         marker_color="#00B3BD",
         hoveron="points",
-        showlegend=False
+        showlegend=False,
+        hovertemplate=(
+            f"Median: {median:.2f}<br>"
+            f"Lower Quartile: {lower_quartile:.2f}<br>"
+            f"Upper Quartile: {upper_quartile:.2f}<br>"
+            "Value: %{x:,.0f}<br><extra></extra>"
+        ),
     )
     
     fig.update_xaxes(
