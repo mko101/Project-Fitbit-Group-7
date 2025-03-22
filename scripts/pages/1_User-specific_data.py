@@ -185,6 +185,7 @@ with st.sidebar:
         dates = pd.date_range(start_date, end_date, freq='d').strftime("%m/%d/%Y")
 
 if not st.session_state.user:
+    st.markdown("<h3 style='text-align: left; margin-top: -40px;'>Fitbit Data Analysis</h3>", unsafe_allow_html=True)
     st.markdown(
         """
         <div style="background-color: #CFEBEC; 
@@ -201,6 +202,7 @@ if not st.session_state.user:
     st.stop()
 
 if st.session_state.user and start_date < end_date:
+    st.markdown("<h3 style='text-align: left; margin-top: -40px;'>Fitbit Data Analysis</h3>", unsafe_allow_html=True)
     user = st.session_state.user
     
     user_data = part1.data[part1.data["Id"] == user].copy()

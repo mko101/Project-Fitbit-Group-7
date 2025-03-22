@@ -1,22 +1,60 @@
 # Data Engineering Project: Analysing Fitbit Data
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Dependencies](#dependencies)
-3. [Data](#data)
-    1. [daily_activity](#daily_activitycsv)
-    2. [fitbit_database](#fitbit_databasedb)
-    3. [weather_Chicago](#weather_chicagocsv)
-4. [Scripts](#scripts)
-    1. [main](#main)
-    2. [part1](#part1)
-    3. [part3](#part3)
-    4. [part4](#part4)
-    5. [part5](#part-5-functions-to-retrieve-data-for-dashboard)
-    6. [Graphing functions for dashboard](#graphing-functions-for-dashboard-functions-to-create-graphs-in-dashboard)
-    7. [General insights dashboard](#general-insights-creating-dashboard-by-calling-functions-from-plots_general_insightspy)
-    8. [User Graphing functions for dashboard](#user-graphing-functions)
-    9. [User-specific data dashboard](#user-specific-data-dashboard)
+
+  - [Introduction](#introduction)
+  - [Dependencies](#dependencies)
+    - [Core Requirements](#core-requirements)
+    - [Python Libraries](#python-libraries)
+      - [Data Processing](#data-processing)
+      - [Visualization](#visualization)
+      - [Dashboard](#dashboard)
+      - [Analysis](#analysis)
+      - [Database](#database)
+  - [Data](#data)
+    - [daily_activity.csv](#daily_activity.csv)
+    - [fitbit_database.db](#fitbit_database.db)
+    - [weather_Chicago.csv](#weather_chicago.csv)
+    - [weather_Chicago_hourly.csv](#weather_chicago_hourly.csv)
+    - [cleaned_fitbit.db](#cleaned_fitbit.db)
+  - [Scripts](#scripts)
+    - [Scripts include:](#scripts-include:)
+    - [Part 1: Getting acquainted with the data](#part-1:-getting-acquainted-with-the-data)
+    - [Part 3: Interacting with the database](#part-3:-interacting-with-the-database)
+    - [Part 4: Interacting with the database continued](#part-4:-interacting-with-the-database-continued)
+    - [Cleaning Fitbit database:](#cleaning-fitbit-database:)
+    - [Part 5: Functions to retrieve data for dashboard General Analysis page (General_insights.py)](#part-5:-functions-to-retrieve-data-for-dashboard-general-analysis-page-(general_insights.py))
+    - [Plot general insights (plot_general_insights.py):](#plot-general-insights-(plot_general_insights.py):)
+    - [Dashboard: General Analysis page (General_insights.py)](#dashboard:-general-analysis-page-(general_insights.py))
+      - [Data Filtering by Chosen Date Period](#data-filtering-by-chosen-date-period)
+      - [Summary Metrics](#summary-metrics)
+      - [Interactive Dashboard Tabs for General Analysis Page:](#interactive-dashboard-tabs-for-general-analysis-page:)
+        - [Period](#period)
+        - [Daily](#daily)
+        - [Weekly](#weekly)
+        - [Sleep insights](#sleep-insights)
+        - [Weather insights](#weather-insights)
+        - [Statistics](#statistics)
+        - [Correlations](#correlations)
+        - [Others](#others)
+    - [User Graphing Functions (user_graphing_functions.py)](#user-graphing-functions-(user_graphing_functions.py))
+      - [Data Retrieval](#data-retrieval)
+      - [Step & Calorie Analysis](#step-&-calorie-analysis)
+      - [Activity Analysis](#activity-analysis)
+      - [Heart Rate Analysis](#heart-rate-analysis)
+      - [Sleep Analysis](#sleep-analysis)
+    - [Dashboard: User-specific Data page (user-specific_data.py)](#dashboard:-user-specific-data-page-(user-specific_data.py))
+      - [User Selection and Data Filtering](#user-selection-and-data-filtering)
+      - [User Profile Information](#user-profile-information)
+      - [Summary Metrics](#summary-metrics)
+      - [Interactive Dashboard Tabs for User-Specific Analysis Page:](#interactive-dashboard-tabs-for-user-specific-analysis-page:)
+        - [Heart Rate](#heart-rate)
+        - [Sleep Duration](#sleep-duration)
+        - [Calories](#calories)
+        - [Steps](#steps)
+        - [Intensity](#intensity)
+
+
 
 
 ## Introduction
@@ -80,8 +118,18 @@ The cleaned Fitbit database is created from the original dataset by removing dup
 
 ## Scripts
 
-### main
-Data file "daily_activity.csv" is csv and it contains information about ID of the user and Activity date, Total steps, Total distance, Step size, Tracker distance, Logged activities distance, Very active distance, Fairly active, Moderate active distance, Light active distance, Sedentary active distance, Very active minutes, Fairly active minutes, Lightly active minutes, Sedentary Minutes, Calories. 
+### Scripts include:
+- part1.py
+- part3.py
+- part4.py
+- cleaning_fitbit_database.py
+- part5.py
+- plot_general_insights.py
+- General_insights.py
+- user_graphing_functions.py
+- pages
+  - user-specific data.py
+
 
 ### Part 1: Getting acquainted with the data
 Script `part1.py` contains functions that help explore the `daily_activity.csv` dataset with computations and visualizations.
@@ -117,7 +165,7 @@ Script `part3.py` contains functions that help explore the `fitbit_database.db` 
 ### Cleaning Fitbit database:
 * `data_cleaning()` - This function cleans and processes Fitbit activity data. It removes duplicate entries, filters out invalid records (such as days with no activity or incomplete data), and ensures meaningful activity tracking. After cleaning, it transfers the refined data, along with other unmodified tables, to a new database (cleaned_fitbit.db). 
 
-### Part 5: Functions to retrieve data for dashboard
+### Part 5: Functions to retrieve data for dashboard General Analysis page (General_insights.py)
 * `retrieve_average(category, dates)` - returns average for one of given categories with given date list: `total_user` , `TotalSteps`, `Calories`, `TotalDistance`, `ActiveMinutes`, `SedentaryMinutes`. 
 * `activity_sum_data(dates)` - returns a dataframe with two columns one with the type of activity (Very, Fairly, Lightly Active or Sedentary) and average minutes per day for given period passed as list.
 * `average_steps_per_hour(dates)` - returns a dataframe with columns Hour and mean of TotalSteps per hour for given period passed as list.
@@ -144,7 +192,7 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `average_steps_calories_per_period(dates)` - this function retrieves daily total steps and calories data from the database, filters it based on the given dates, and calculates the average total steps walked for period returning the final DataFrame.
 
 
-### Graphing functions for dashboard: Functions to create graphs in dashboard
+### Plot general insights (plot_general_insights.py):
 * `create_metric_block(col, title, value, unit="", bg_color="#CFEBEC")` - this function creates a block with specific color, given title and value which later can be used to present data in it for the dashboard
 * `create_correlation_block(title, value, unit="", bg_color="#CFEBEC")` - similar to `create_metric_block()`, this function creates a block with a specified color, title, value, and optionally a unit, but with slightly smaller text size.
 * `is_empty_dataframe(df)` - checks if the given dataframe is empty, and if so, displays a colored text block saying, "Sorry, no data is available for the selected date range in this graph."
@@ -177,10 +225,77 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `plot_boxplot(column, label, dates)` - generates a boxplot for the specified column in the `daily_activity` table from the `cleaned_fitbit.db`, using the provided label for the x-axis and the given date range for the data. It returns both the figure and the corresponding filtered dataframe, which can then be used with the `get_stats(filtered_data, column, decimals, unit)` function.
 * `get_stats(filtered_data, column, decimals, unit)` - returns the mean, median, high, upper quartile, low, and lower quartile for the specified column in the given dataframe, rounding the statistics to the desired number of decimal places and appending the specified unit. If no unit is required, an empty string ("") can be passed.
 
-### General insights: Creating dashboard by calling functions from plots_general_insights.py
-This module provides a general analysis of all users' fitness data, offering insights into overall activity patterns. It includes interactive scatterplots to visualize correlations between different variables and barcharts to helps identify monthly, weekly, and daily trends over a chosen period. The module features intuitive and interactive graphs, making it easy to explore Fitbit tracking data and understand users' activity behaviors.
+### Dashboard: General Analysis page (General_insights.py)
+This module provides a general analysis of all users' fitness data, offering insights into overall activity patterns. It includes interactive scatterplots to visualize correlations between different variables and barcharts to helps identify monthly, weekly, and daily trends over a chosen period. The module features intuitive and interactive graphs, making it easy to explore Fitbit tracking data and understand users' activity behaviors. It allows for detailed exploration of activity patterns, heart rate, sleep, calories, steps, and exercise intensity.
 
-### User Graphing Functions
+#### Data Filtering by Chosen Date Period
+- Date range selection with appropriate validation
+- Automatic filtering of data based on user selection and date range
+- Automatic graph update after new data range selection for most of the graphs
+
+#### Summary Metrics
+Provides average performance metrics of all users for the selected time period:
+- Average daily steps
+- Average daily distance (km)
+- Average daily calories burned
+- Average daily active minutes
+- Average daily sedentary minutes
+
+#### Interactive Dashboard Tabs for General Analysis Page:
+
+##### Period
+- Combined steps and calories visualization with comparison to overall average for chosen period
+
+##### Daily
+Gives insights in hourly trends for all users
+- Average steps per hour bar chart
+- Heart rate per hour bar chart
+- Average burned calories per hour bar chart
+- Average intensity per hour bar chart
+- Average minutes asleep per hour bar chart
+
+##### Weekly
+Gives insights in weekly trends for all users
+- Average distance per day of the week bar chart
+- Average steps per day of the week bar chart
+- Average burned calories per hour bar chart
+- Average minutes asleep per day of the week bar chart
+- Average active minutes oer day of the week
+
+##### Sleep insights
+Visualization of sleep correlation with other variables
+- Correlation between sedentary minutes and minutes asleep
+- Correlation between active minutes and minutes asleep
+- Correlation between total steps and minutes asleep
+- Correlation between calories and minutes asleep
+
+##### Weather insights
+Interactive visualization on correlation between temperature and hourly steps or intensity for different hour periods and time of week. Also calculated correlation values are shown and the tab which explains correlation definition
+- Correlation between temperature and hourly steps
+- Correlatio between temperature and hourly total intensity
+
+##### Statistics
+Boxplots for different variables with other statistics (mean, highest and lowest values, median, upper and lower quantiles)
+- Total steps box plot
+- Calories burned box plot
+- Total distance box plot
+- Total active minutes box plot
+- Sedentary minutes box plot
+
+##### Correlations
+Vizualization of important correlations with correlation values and the tab which explains correlation definition
+- Correlation between heart rate and exercise intensity
+- Correlation between calories and active minutes
+- Average very active distance against average very active minutes
+
+##### Others
+- Average activity breakdown per day pie chart
+Graphs not affected by specified data range
+- Weight breakdown over all participants pie chart
+- User Breakdown over all participants
+- Total workout frequency per day of the week
+
+### User Graphing Functions (user_graphing_functions.py)
 This module contains specialized visualization functions for analyzing individual user fitness data. It's designed to create detailed, interactive charts and dashboards to help understand personal activity patterns from Fitbit tracking data.
 
 #### Data Retrieval
@@ -225,7 +340,7 @@ This module contains specialized visualization functions for analyzing individua
 * `plot_sleep_stage_distribution(sleep_stage_data)` - Creates pie chart visualizing proportion of sleep stages.
 * `plot_sleep_timeline(daily_stages, selected_date)` - Displays hourly sleep stages as Gantt-style timeline.
 
-### User-specific Data Dashboard
+### Dashboard: User-specific Data page (user-specific_data.py)
 
 This Streamlit dashboard provides personalized fitness insights for individual Fitbit users. It allows for detailed exploration of activity patterns, heart rate, sleep, calories, steps, and exercise intensity through interactive visualizations and metrics.
 
@@ -247,7 +362,7 @@ Provides at-a-glance performance metrics for the selected time period:
 - Average daily sedentary minutes
 - Average sleep duration (when available)
 
-#### Interactive Dashboard Tabs
+#### Interactive Dashboard Tabs for User-Specific Analysis Page:
 
 - Combined steps and calories visualization with comparison to overall average
 - Activity breakdown by type (Very Active, Fairly Active, Lightly Active, Sedentary)
