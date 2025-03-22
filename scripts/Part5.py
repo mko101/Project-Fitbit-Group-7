@@ -1,7 +1,6 @@
 # IMPORTS
 import sqlite3
 import pandas as pd
-from scipy.stats import bernoulli
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -29,23 +28,23 @@ def retrieve_average(category, dates):
     if category == "total_users":
         return daily_activity["Id"].nunique()
     elif category == "TotalSteps":
-        return int(daily_activity["TotalSteps"].mean())
+        return f"{daily_activity.loc[:, "TotalSteps"].mean():.0f}"
     elif category == "Calories":
-        return int(daily_activity["Calories"].mean())
+        return f"{daily_activity.loc[:, "Calories"].mean():.0f}"
     elif category == "TotalDistance":
-        return round(daily_activity["TotalDistance"].mean(), 2)
+        return f"{daily_activity.loc[:, "TotalDistance"].mean():.2f}"
     elif category == "ActiveMinutes":
         daily_activity["TotalActiveMinutes"] = (daily_activity["VeryActiveMinutes"] + 
                                                 daily_activity["FairlyActiveMinutes"] + 
                                                 daily_activity["LightlyActiveMinutes"])
-        return  int(daily_activity["TotalActiveMinutes"].mean())
+        return f"{daily_activity.loc[:, "TotalActiveMinutes"].mean():.0f}"
     elif category == "SedentaryMinutes":
-        return int(daily_activity["SedentaryMinutes"].mean())
+        return f"{daily_activity.loc[:, "SedentaryMinutes"].mean():.0f}"
     
 
 def activity_sum_data(dates):
-
     dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
     con = sqlite3.connect(connect)
     cur = con.cursor()
     query = "SELECT ActivityDate, VeryActiveMinutes, FairlyActiveMinutes, LightlyActiveMinutes, SedentaryMinutes FROM daily_activity"
