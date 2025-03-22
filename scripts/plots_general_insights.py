@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import part3
-import Part5 as part5
+import part5
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import streamlit as st
+import sqlite3
 
 # Define a function for styled containers
 def create_metric_block(col, title, value, unit="", bg_color="#CFEBEC"):
@@ -1079,3 +1080,48 @@ def plot_steps_calories_combined_general(dates):
     fig.update_yaxes(range=[0, max_calories], secondary_y=True)
     
     return fig
+
+def plot_boxplot(column, label, dates):
+    dates = pd.to_datetime(dates, format='%m/%d/%Y')
+
+    con = sqlite3.connect("data/cleaned_fitbit.db")
+    cur = con.cursor()
+
+    daily_activity = cur.execute("SELECT * FROM daily_activity") 
+    rows = daily_activity.fetchall()
+    data = pd.DataFrame(rows, columns=[desc[0] for desc in cur.description])
+
+    data["ActivityDate"] = pd.to_datetime(data["ActivityDate"])
+    filtered_data = data.loc[data["ActivityDate"].isin(dates)]
+
+    if column == "TotalActiveMinutes":
+        filtered_data["TotalActiveMinutes"] = (filtered_data["VeryActiveMinutes"] + filtered_data["FairlyActiveMinutes"] + filtered_data["LightlyActiveMinutes"])
+
+    fig = px.box(filtered_data, x=filtered_data[column])
+
+    fig.update_traces(
+        marker_color="#00B3BD",
+        hoveron="points",
+        showlegend=False
+    )
+    
+    fig.update_xaxes(
+        title=f"{label}"
+    )
+
+    return fig, filtered_data
+
+def get_stats(filtered_data, column, decimals, unit):
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown(f"**Mean:**<br>{filtered_data.loc[:, column].mean():.{decimals}f} {unit}", unsafe_allow_html=True)
+        st.markdown(f"**Median:**<br>{filtered_data.loc[:, column].median():.{decimals}f} {unit}", unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"**High:**<br>{filtered_data.loc[:, column].max():.{decimals}f} {unit}", unsafe_allow_html=True)
+        st.markdown(f"**Upper quartile:**<br>{filtered_data.loc[:, column].quantile(0.75):.{decimals}f} {unit}", unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"**Low:**<br>{filtered_data.loc[:, column].min():.{decimals}f} {unit}", unsafe_allow_html=True)
+        st.markdown(f"**Lower quartile:**<br>{filtered_data.loc[:, column].quantile(0.25):.{decimals}f} {unit}", unsafe_allow_html=True)

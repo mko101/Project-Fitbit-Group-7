@@ -3,8 +3,7 @@ import streamlit as st
 import pandas as pd
 import datetime
 import part1
-import Part5 as part5
-import numpy as np
+import part5
 import plots_general_insights as plots
 
 st.set_page_config(
@@ -63,7 +62,7 @@ if start_date <= end_date:
     plots.create_metric_block(col6, "Avr. Sedentary Min", sedentary_minutes, "")
 
     st.markdown("</br>", unsafe_allow_html=True)
-    tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Other"])
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Period", "Daily", "Weekly", "Sleep insights", "Weather insights", "Statistics", "Other"])
 
     # Period graphs
     with tab0:
@@ -166,8 +165,50 @@ if start_date <= end_date:
             st.plotly_chart(fig, use_container_width=True)
             plots.create_correlation_block("Correlation coefficient:", corr, "")
 
-    # Other insights
+    # Statistics
     with tab5:
+        col1, col2, col3 = st.columns([4, 5, 12])
+        with col1:
+            with st.popover("Median explained"):
+                st.write("The median is the middle value of a dataset when it is ordered from smallest to largest.")
+        with col2: 
+            with st.popover("Upper quartile explained"):
+                st.write("The upper quartile represents the value below which 75% of the data points fall. It is also known as the third quartile or 75th percentile.")
+        
+        with col3:
+            with st.popover("Lower quartile explained"):
+                st.write("The lower quartile represents the value below which 25% of the data points fall, and it is also called the first quartile or 25th percentile.")
+        
+        col1, col2, col3 = st.columns([2, 0.25, 2])
+
+        with col1:
+            fig, data = plots.plot_boxplot("TotalSteps", "Total Steps", dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.get_stats(data, "TotalSteps", 0, "steps")
+
+        with col3:
+            fig, data = plots.plot_boxplot("Calories", "Calories", dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.get_stats(data, "Calories", 0, "kcal")
+
+        col1, col2, col3 = st.columns([2, 0.25, 2])
+
+        with col1:
+            fig, data = plots.plot_boxplot("TotalDistance", "Total Distance", dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.get_stats(data, "TotalDistance", 2, "km")
+
+        with col3:
+            fig, data = plots.plot_boxplot("TotalActiveMinutes", "Total Active Minutes", dates)
+            st.plotly_chart(fig, use_container_width=True)
+            plots.get_stats(data, "TotalActiveMinutes", 0, "min")
+
+        fig, data = plots.plot_boxplot("SedentaryMinutes", "Sedentary Minutes", dates)
+        st.plotly_chart(fig, use_container_width=True)
+        plots.get_stats(data, "SedentaryMinutes", 0, "min")
+
+    # Other insights
+    with tab6:
         col1, col2 = st.columns(2)
         
         with col1:

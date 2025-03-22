@@ -1,11 +1,6 @@
 # IMPORTS
 import sqlite3
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import statsmodels.api as sm
-
 
 def data_cleaning():
     # Paths to the databases

@@ -173,7 +173,9 @@ This function extracts heart rate and sleep value data, filters it by date, calc
 * `bar_chart_total_workout_frequency_for_period(dates)` - this function plots the barchart about the total workout frequency during the given period. 
 * `scatterplot_heart_rate_sleep_value(dates)` - this function generates the scatterplot between heart rate and sleep value for the given dates. NOT USED FOR NOW
 * `lineplot_heart_rate_over_night(dates)` - this function generates a line plot displaying the average heart rate per hour over night for the given dates. NOT USED FOR NOW
-* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users
+* `plot_steps_calories_combined_general(dates)` - plots the average calories burned and average steps taken per given period for all users.
+* `plot_boxplot(column, label, dates)` - generates a boxplot for the specified column in the `daily_activity` table from the `cleaned_fitbit.db`, using the provided label for the x-axis and the given date range for the data. It returns both the figure and the corresponding filtered dataframe, which can then be used with the `get_stats(filtered_data, column, decimals, unit)` function.
+* `get_stats(filtered_data, column, decimals, unit)` - returns the mean, median, high, upper quartile, low, and lower quartile for the specified column in the given dataframe, rounding the statistics to the desired number of decimal places and appending the specified unit. If no unit is required, an empty string ("") can be passed.
 
 ### General insights: Creating dashboard by calling functions from plots_general_insights.py
 This module provides a general analysis of all users' fitness data, offering insights into overall activity patterns. It includes interactive scatterplots to visualize correlations between different variables and barcharts to helps identify monthly, weekly, and daily trends over a chosen period. The module features intuitive and interactive graphs, making it easy to explore Fitbit tracking data and understand users' activity behaviors.
