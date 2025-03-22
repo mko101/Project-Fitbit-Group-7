@@ -13,7 +13,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.sidebar.image("images/logo.png")
+st.sidebar.image("images/logo_title.png")
+st.sidebar.markdown("<div style='margin: 25px 0px;'></div>", unsafe_allow_html=True)
 
 st.sidebar.page_link("General_insights.py", label="General Analysis", icon=":material/analytics:")
 st.sidebar.page_link("pages/1_User-specific_data.py", label="User-specific Analysis", icon=":material/person:")
