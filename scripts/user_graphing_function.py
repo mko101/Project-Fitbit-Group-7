@@ -1348,7 +1348,7 @@ def plot_sleep_timeline(daily_stages, selected_date):
         ),
         height=300,
         margin=dict(t=40),
-        legend=dict(orientation="h", y=1.1),
+        legend=dict(orientation="h", yanchor="bottom", y = -0.6),
         hovermode="x unified"  # Ensure smooth hover tooltips
     )
 
