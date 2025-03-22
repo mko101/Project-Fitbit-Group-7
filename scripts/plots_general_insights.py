@@ -1114,6 +1114,10 @@ def plot_boxplot(column, label, dates):
             "Value: %{x:,.0f}<br><extra></extra>"
         ),
     )
+
+    fig.update_layout(
+        title=f"Boxplot {label}"
+    )
     
     fig.update_xaxes(
         title=f"{label}"
