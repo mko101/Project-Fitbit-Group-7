@@ -182,7 +182,7 @@ def plot_heart_rate(dates):
             title = None
         ),
         yaxis=dict(
-            title="Average Heart Rate"
+            title="Average Heart Rate (bpm)"
         ),
         showlegend=False
     )
@@ -225,7 +225,7 @@ def bar_chart_hourly_average_calories(dates):
             title = None
         ),
         yaxis=dict(
-            title="Average Calories (in kcal)"
+            title="Average Calories (kcal)"
         ),
         showlegend=False,  
         bargap=0.2
@@ -388,7 +388,7 @@ def plot_correlation_weather_steps(hours, days, dates):
             title="Hourly Steps"
         ),
         yaxis=dict(
-            title="Temperature (in F)"
+            title="Temperature (Fahrenheit)"
         ),
         showlegend=False
     )
@@ -495,7 +495,7 @@ def plot_active_minutes_active_distance(dates):
         go.Scatter(
             x=df["ActivityDate"], 
             y=df["VeryActiveDistance"],
-            name="Very Active Distance",
+            name="Very Active Distance (km)",
             line_shape="spline",  # Smooth curve
             marker=dict(color="#00B3BD"),
         )
@@ -520,7 +520,7 @@ def plot_active_minutes_active_distance(dates):
             title="Month"
         ),
         yaxis=dict(
-            title="Very Active Distance"
+            title="Very Active Distance (km)"
         ),
         yaxis2=dict(
             title="Very Active Minutes"
@@ -811,7 +811,7 @@ def bar_chart_average_distance_per_week(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="Average Distance (in km)", 
+        yaxis_title="Average Distance (km)", 
     )
 
     fig.update_traces(
@@ -877,7 +877,7 @@ def bar_chart_average_calories_per_day_for_week(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="Average Calories (in kcal)", 
+        yaxis_title="Average Calories (kcal)", 
     )
 
     fig.update_traces(
