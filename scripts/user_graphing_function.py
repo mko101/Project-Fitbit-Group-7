@@ -402,7 +402,7 @@ def plot_heart_rate_trends(user, start_date, end_date):
             title=None
         ),
         yaxis=dict(
-            title=None
+            title="Heart Rate (bpm)"
         ),
         showlegend=False
     )
@@ -567,7 +567,7 @@ def plot_daily_heart_rate(user, selected_date):
             tickformat='%H:%M'
         ),
         yaxis=dict(
-            title=None
+            title="Heart Rate (bpm)"
         ),
         showlegend=False
     )
@@ -656,7 +656,7 @@ def plot_hourly_calories(user, start_date, end_date):
             title=None
         ),
         yaxis=dict(
-            title=None
+            title="Calories (kcal)"
         ),
         showlegend=False
     )
@@ -770,7 +770,7 @@ def plot_daily_calories_chart(user, selected_date):
             tickvals=[0, 6, 12, 18, 23],
             ticktext=["12 AM", "6 AM", "12 PM", "6 PM", "11 PM"]
         ),
-        yaxis=dict(title=None),
+        yaxis=dict(title="Calories (kcal)"),
         showlegend=False
     )
     
@@ -859,7 +859,7 @@ def plot_hourly_steps(user, start_date, end_date):
             title=None
         ),
         yaxis=dict(
-            title=None
+            title="Steps"
         ),
         showlegend=False
     )
@@ -974,7 +974,7 @@ def plot_daily_steps_chart(user, selected_date):
             tickvals=[0, 6, 12, 18, 23],
             ticktext=["12 AM", "6 AM", "12 PM", "6 PM", "11 PM"]
         ),
-        yaxis=dict(title=None),
+        yaxis=dict(title="Steps"),
         showlegend=False
     )
     
@@ -1062,7 +1062,7 @@ def plot_hourly_intensity(user, start_date, end_date):
             title=None
         ),
         yaxis=dict(
-            title=None
+            title="Average Intensity"
         ),
         showlegend=False
     )
@@ -1181,7 +1181,7 @@ def plot_daily_intensity_chart(user, selected_date):
             tickvals=[0, 6, 12, 18, 23],
             ticktext=["12 AM", "6 AM", "12 PM", "6 PM", "11 PM"]
         ),
-        yaxis=dict(title=None),
+        yaxis=dict(title="Average Intensity"),
         showlegend=False
     )
     
