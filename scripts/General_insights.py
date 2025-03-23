@@ -236,16 +236,16 @@ if start_date <= end_date:
 
         with col2:
             st.plotly_chart(plots.plot_weight_pie_chart(), use_container_width=True)
-            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
+            plots.create_correlation_block("Note:<br>This graph is not affected by the specified date range.", "", "")
 
         col1, col2, = st.columns(2)
 
         with col1:
             st.plotly_chart(plots.plot_user_pie_chart(), use_container_width=True)
-            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
+            plots.create_correlation_block("Note:<br>This graph is not affected by the specified date range.", "", "")
 
         with col2: 
             st.plotly_chart(plots.bar_chart_total_workout_frequency_for_period(dates), use_container_width=True)
-            plots.create_correlation_block("Note:", "This graph is not affected by the specified date range.", "")
+            plots.create_correlation_block("Note:<br>This graph is not affected by the specified date range.", "", "")
 
 
