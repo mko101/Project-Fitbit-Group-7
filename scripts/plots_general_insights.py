@@ -147,7 +147,7 @@ def bar_chart_hourly_average_steps(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Steps"
         ),
         showlegend=False,  
         bargap=0.2
@@ -182,7 +182,7 @@ def plot_heart_rate(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Heart Rate"
         ),
         showlegend=False
     )
@@ -225,7 +225,7 @@ def bar_chart_hourly_average_calories(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Calories (in kcal)"
         ),
         showlegend=False,  
         bargap=0.2
@@ -473,7 +473,7 @@ def bar_chart_daily_intensity(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Total Intensity"
         ),
         showlegend=False,  
         bargap=0.2
@@ -611,7 +611,7 @@ def bar_chart_daily_sleep(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Minutes Asleep"
         ),
         showlegend=False,  
         bargap=0.2
@@ -658,7 +658,7 @@ def bar_chart_weekly_sleep(dates):
             title = None
         ),
         yaxis=dict(
-            title=None
+            title="Average Minutes Asleep"
         ),
         showlegend=False,  
         bargap=0.2
@@ -811,7 +811,7 @@ def bar_chart_average_distance_per_week(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="Kilometers", 
+        yaxis_title="Average Distance (in km)", 
     )
 
     fig.update_traces(
@@ -844,7 +844,7 @@ def bar_chart_average_steps_per_week(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="", 
+        yaxis_title="Average Steps", 
     )
 
     fig.update_traces(
@@ -877,7 +877,7 @@ def bar_chart_average_calories_per_day_for_week(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="", 
+        yaxis_title="Average Calories (in kcal)", 
     )
 
     fig.update_traces(
@@ -927,7 +927,7 @@ def plot_active_minutes_bar_chart_per_day(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="", 
+        yaxis_title="Average Active Minutes", 
     )
 
     fig.update_traces(
@@ -961,7 +961,7 @@ def bar_chart_total_workout_frequency_for_period(dates):
             title = None
         ),
         xaxis_title="", 
-        yaxis_title="", 
+        yaxis_title="Total Recorded Workouts", 
     )
 
     fig.update_traces(

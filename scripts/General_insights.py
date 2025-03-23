@@ -68,8 +68,6 @@ if start_date <= end_date:
 
     # Period graphs
     with tab0:
-        # col1 = st.columns(1)
-        # with col1:
         st.plotly_chart(plots.plot_steps_calories_combined_general(dates), use_container_width=True)
 
     # Daily graphs
